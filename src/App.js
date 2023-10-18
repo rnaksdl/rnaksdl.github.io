@@ -1,44 +1,55 @@
 import React, { useState, useEffect } from 'react';
 import './App.css';
-import image1 from './assets/IMG_9675.jpg';
-import image2 from './assets/IMG_9772.jpg';
 
 function App() {
-  const [fontSize, setFontSize] = useState('5em');
+  const [isLoading, setIsLoading] = useState(true);
+  const [theme, setTheme] = useState('light');
+  const [facts, setFacts] = useState([]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      const yOffset = window.pageYOffset;
-      const newSize = Math.max(2, 5 - yOffset / 100) + 'em';
-      setFontSize(newSize);
-    };
+    setTimeout(() => setIsLoading(false), 2000);
 
-    window.addEventListener('scroll', handleScroll);
-
-    return () => {
-      window.removeEventListener('scroll', handleScroll);
-    };
+    const randomFacts = [
+      "I love programming.",
+      "I'm a coffee enthusiast.",
+      "I enjoy hiking.",
+      // Add more facts here
+    ];
+    setFacts(randomFacts);
   }, []);
 
   return (
-    <div className="App">
-      <header className="sticky-header" style={{ fontSize }}>
-        <h1>Kyumin Lee</h1>
-      </header>
-      <section className="section" id="section1" style={{ backgroundImage: `url(${image1})` }}>
-        <div className="content">
-        </div>
-      </section>
-      <section className="section" id="section2" style={{ backgroundImage: `url(${image2})` }}>
-        <div className="content">
-          <h1>CS Student at OU</h1>
-        </div>
-      </section>
-      <section className="section" id="section3">
-        <div className="content">
-          <a href="https://github.com/rnaksdl" target="_blank" rel="noopener noreferrer">GitHub Profile</a>
-        </div>
-      </section>
+    <div className={`App ${theme}`}>
+      {isLoading ? (
+        <div className="loader"></div>
+      ) : (
+        <>
+          <button className="theme-toggle" onClick={() => setTheme(theme === 'light' ? 'dark' : 'light')}>
+            Toggle Theme
+          </button>
+          <header className="sticky-header">
+            <h1>Kyumin Lee</h1>
+          </header>
+          <main>
+            {facts.map((fact, index) => (
+              <div className={`fact fact-${index % 5}`} key={index}>
+                {fact}
+              </div>
+            ))}
+          </main>
+          <footer>
+            <a href="https://www.instagram.com/rnaks.dl/" target="_blank" rel="noopener noreferrer">
+              Instagram
+            </a>
+            <a href="https://github.com/rnaksdl" target="_blank" rel="noopener noreferrer">
+              GitHub
+            </a>
+            <a href="mailto:scouter_roe.0b@icloud.com">
+              Contact Me
+            </a>
+          </footer>
+        </>
+      )}
     </div>
   );
 }
