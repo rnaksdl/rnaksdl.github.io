@@ -1,23 +1,12 @@
-import React, { useState, useEffect } from 'react';
-import './App.css';
+// ... (Import statements and other code remain the same)
+
+// Add your background image paths
+const backgroundImage1 = 'path/to/your/image1.jpg';
+const backgroundImage2 = 'path/to/your/image2.jpg';
 
 function App() {
-  const [isLoading, setIsLoading] = useState(true);
-  const [theme, setTheme] = useState('light');
-  const [facts, setFacts] = useState([]);
-
-  useEffect(() => {
-    setTimeout(() => setIsLoading(false), 2000);
-
-    const randomFacts = [
-      "I love programming.",
-      "I'm a coffee enthusiast.",
-      "I enjoy hiking.",
-      // Add more facts here
-    ];
-    setFacts(randomFacts);
-  }, []);
-
+  // ... (Existing code remains the same)
+  
   return (
     <div className={`App ${theme}`}>
       {isLoading ? (
@@ -30,13 +19,16 @@ function App() {
           <header className="sticky-header">
             <h1>Kyumin Lee</h1>
           </header>
-          <main>
+          <section id="section1" style={{ backgroundImage: `url(${backgroundImage1})` }}>
+            {/* Main content */}
+          </section>
+          <section id="section2" style={{ backgroundImage: `url(${backgroundImage2})` }}>
             {facts.map((fact, index) => (
               <div className={`fact fact-${index % 5}`} key={index}>
                 {fact}
               </div>
             ))}
-          </main>
+          </section>
           <footer>
             <a href="https://www.instagram.com/rnaks.dl/" target="_blank" rel="noopener noreferrer">
               Instagram
