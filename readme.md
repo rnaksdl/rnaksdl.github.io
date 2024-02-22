@@ -7,6 +7,8 @@ This project is in progress.
 	I've decided to just start from the ground up!
 	Wish me luck!
 	I also wanna utilize git branches more!
+	
+	I successfully deployed a simple HTML to the internet hehehe
 
 10/17/2023
 	I just felt like making my own website.
