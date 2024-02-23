@@ -1,3 +1,17 @@
+header {
+	display: flex;
+	justify-content: center;
+}
+
 body {
 	background-color: #FAF0CA;
+}
+h1 {
+	color: #0D3B66;
+}
+.todo {
+	background-color: #F4845F;
+}
+.done {
+	background-color: #F27059;
 }
