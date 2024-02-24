@@ -5,6 +5,9 @@ This project is in progress.
 ## log
 02/23/2024
 	I've finished HTML course, and I started CSS course!
+	I'm going to plan out my website.
+	The one thing that I'll be contantly scheming will be how I can make a good first impression.
+	I want the core principle of my website to be "Simple". I want it to be well organized.
 
 02/22/2024
 	I've decided to just start from the ground up!
