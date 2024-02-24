@@ -1,6 +1,6 @@
-header {
-	display: flex;
-	justify-content: center;
+.nav_i {
+	display: inline;
+	padding: 8px;
 }
 
 body {
