@@ -3,6 +3,9 @@
 This project is in progress.
 
 ## log
+02/23/2024
+	I've finished HTML course, and I started CSS course!
+
 02/22/2024
 	I've decided to just start from the ground up!
 	Wish me luck!
