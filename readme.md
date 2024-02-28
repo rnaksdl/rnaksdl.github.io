@@ -4,6 +4,12 @@ This project is in progress.
 
 ## log
 02/23/2024
+	I've been adding some more CSS to this!
+	I also added about_me page as a resume page hehe
+	Not finished yettttt
+	The school work has been quite busy, so I've only finished about a quarter of the CSS course.
+
+02/23/2024
 	I've finished HTML course, and I started CSS course!
 	I'm going to plan out my website.
 	The one thing that I'll be contantly scheming will be how I can make a good first impression.
