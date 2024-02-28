@@ -1,3 +1,5 @@
+/* Universal
+--------------------------------------------------*/
 .nav_i {
 	display: inline;
 	padding: 8px;
@@ -6,7 +8,19 @@
 body {
 	background-color: #FAF0CA;
 }
-h1 {
+
+/* Home
+--------------------------------------------------*/
+
+/* to_claire
+--------------------------------------------------*/
+.to_claire {
+	background-color: pink;
+}
+
+/* YOU_CAN_DO_IT
+--------------------------------------------------*/
+.YOU_CAN_DO_IT h1{
 	color: #0D3B66;
 }
 .todo {
@@ -14,4 +28,11 @@ h1 {
 }
 .done {
 	background-color: #F27059;
+}
+
+/* about_me
+--------------------------------------------------*/
+.about_me {
+	background-color: black;
+	color: red;
 }
