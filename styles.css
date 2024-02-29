@@ -33,6 +33,18 @@ body {
 /* about_me
 --------------------------------------------------*/
 .about_me {
+	background-color: rgb(93, 71, 71);
+}
+.about_me a {
+	color: red;
+}
+
+.about_me h1 {
 	background-color: black;
 	color: red;
+}
+
+.about_me h3 {
+	background-color: red;
+	color: black;
 }
