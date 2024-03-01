@@ -9,14 +9,40 @@ body {
 	background-color: #FAF0CA;
 }
 
+
+
+
+
+
+
+
+
+
 /* Home
 --------------------------------------------------*/
+
+
+
+
+
+
+
+
+
 
 /* to_claire
 --------------------------------------------------*/
 .to_claire {
 	background-color: pink;
 }
+
+
+
+
+
+
+
+
 
 /* YOU_CAN_DO_IT
 --------------------------------------------------*/
@@ -30,21 +56,82 @@ body {
 	background-color: #F27059;
 }
 
+
+
+
+
+
+
+
+
 /* about_me
 --------------------------------------------------*/
-.about_me {
-	background-color: rgb(93, 71, 71);
+/*
+COLOR PALETTE
+
+Dark green	#3c8453
+Sandy beige	#bcaa97
+Dark gray	#222222
+Light gray	#d3d4d6 
+off-white	#f6f6f6
+*/
+
+/* GLOBAL STYLES
+--------------------*/
+body {
+	background: #f6f6f6;
 }
+
+/* links
+--------------------*/
 .about_me a {
-	color: red;
+	color: #3c8453;
 }
 
-.about_me h1 {
-	background-color: black;
-	color: red;
+.about_me a:hover {
+	color: #bcaa97;
+	text-decoration: none;
+}
+.about_me footer a {
+	color:#bcaa97;
+}
+.about_me footer a:hover {
+	color: #3c8453;
+}
+.about_me .btn {
+	background: #3c8453;
+	color:#f6f6f6;
+	text-decoration: none;
 }
 
-.about_me h3 {
-	background-color: red;
-	color: black;
+/* HOME
+--------------------*/
+.about_me .home {
+	background: url(../images/bg-home-office-studio.jpg) no-repeat;
+	background-size: cover;
+}
+.about_me .home .content-wrapper {
+	background: rgb(255 255 255 / 0.9);
+}
+
+/* RESUME
+--------------------*/
+
+/* Profile
+--------------------*/
+
+/* Projects
+--------------------*/
+
+/* Work Experience
+--------------------*/
+
+/* Education
+--------------------*/
+
+/* FOOTER
+--------------------*/
+.about_me footer {
+	background: #222;
+	color: #d3d4d6;
 }
