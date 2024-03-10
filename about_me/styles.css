@@ -39,7 +39,7 @@ body {
 }
 
 body {
-	background-color: #FAF0CA;
+	background-color: #ffffff;
 }
 
 /* links
@@ -65,6 +65,12 @@ footer a:hover {
 	background: #3c8453;
 	color: #f6f6f6;
 	text-decoration: none;
+}
+
+.content-wrapper {
+	margin: 0 auto;
+	padding: 30px;
+	max-width: 900px;
 }
 
 /* HOME
