@@ -1,0 +1,86 @@
+/* about_me
+--------------------------------------------------*/
+/*
+COLOR PALETTE
+
+Dark green	#3c8453
+Sandy beige	#bcaa97
+Dark gray	#222222
+Light gray	#d3d4d6 
+off-white	#f6f6f6
+*/
+
+/* GLOBAL STYLES
+--------------------*/
+body {
+	background: #f6f6f6;
+}
+
+/* Header
+--------------------------------------------------*/
+.nav_i {
+	display: inline;
+	padding: 8px;
+}
+
+body {
+	background-color: #FAF0CA;
+}
+
+/* links
+--------------------*/
+a {
+	color: #3c8453;
+}
+
+a:hover {
+	color: #bcaa97;
+	text-decoration: none;
+}
+
+footer a {
+	color:#bcaa97;
+}
+
+footer a:hover {
+	color: #3c8453;
+}
+
+.btn {
+	background: #3c8453;
+	color: #f6f6f6;
+	text-decoration: none;
+}
+
+/* HOME
+--------------------*/
+.home {
+	background: url(../images/bg-home-office-studio.jpg) no-repeat;
+	background-size: cover;
+}
+
+.content-wrapper {
+	background: rgb(255 255 255 / 0.9);
+}
+
+/* RESUME
+--------------------*/
+
+/* Profile
+--------------------*/
+
+/* Projects
+--------------------*/
+
+/* Work Experience
+--------------------*/
+
+/* Education
+--------------------*/
+
+/* FOOTER
+--------------------*/
+footer {
+	background: #222;
+	color: #d3d4d6;
+}

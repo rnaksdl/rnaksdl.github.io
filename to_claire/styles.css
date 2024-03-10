@@ -1,10 +1,12 @@
+/* GLOBAL STYLES
+--------------------*/
+.to_claire {
+	background-color: pink;
+}
+
 /* Header
 --------------------------------------------------*/
 .nav_i {
 	display: inline;
 	padding: 8px;
-}
-
-body {
-	background-color: #FAF0CA;
 }

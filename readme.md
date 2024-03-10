@@ -3,6 +3,10 @@
 This project is in progress.
 
 ## log
+03/09/2024
+	I've been so busy with school work. I'm half way through the CSS course.
+	I realized how messy it can get by having just one css file for multiple pages. So I divided them up again.
+
 02/23/2024
 	I've been adding some more CSS to this!
 	I also added about_me page as a resume page hehe
