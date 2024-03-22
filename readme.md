@@ -3,6 +3,11 @@
 This project is in progress.
 
 ## log
+
+03/21/2024
+	Wish I had more time to work on this :(
+	Slow progress is far better than no progress.
+	And I've been working hard on other stuff :D
 03/09/2024
 	I've been so busy with school work. I'm half way through the CSS course.
 	I realized how messy it can get by having just one css file for multiple pages. So I divided them up again.
