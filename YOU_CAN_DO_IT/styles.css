@@ -21,8 +21,29 @@ h1{
 	color: #0D3B66;
 }
 .todo {
+	width: 500px;
+	padding: 10px;
+	margin: 30px;
 	background-color: #F4845F;
 }
+.todo .grid-container {
+	display: grid;
+}
+.todo .grid-item {
+	margin: 4px;
+	border: 1px dashed wheat;
+}
+
 .done {
+	width: 500px;
+	padding: 10px;
+	margin: 30px;
 	background-color: #F27059;
+}
+.done .grid-container {
+	display: grid;
+}
+.done .grid-item {
+	margin: 4px;
+	border: 1px dashed wheat;
 }
