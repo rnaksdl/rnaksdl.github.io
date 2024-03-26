@@ -21,7 +21,7 @@ h1{
 	color: #0D3B66;
 }
 .todo {
-	width: 500px;
+	max-width: 500px;
 	padding: 10px;
 	margin: 30px;
 	background-color: #F4845F;
@@ -35,7 +35,7 @@ h1{
 }
 
 .done {
-	width: 500px;
+	max-width: 500px;
 	padding: 10px;
 	margin: 30px;
 	background-color: #F27059;
