@@ -36,9 +36,12 @@ body {
 }
 h1, h2, h3 {
 	font-family: "Caveat", cursive;
+	font-weight: 400;
+	margin: 0;
 }
 h1 {
 	font-size: 7rem;
+	line-height: 0.85;
 }
 h2 {
 	font-size: 3.6rem;
