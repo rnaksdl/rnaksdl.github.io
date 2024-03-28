@@ -6,7 +6,30 @@
 
 /* Header
 --------------------------------------------------*/
+header {
+	background: rgba(0, 0, 0, 0.2);
+	padding: 1px 0px;
+	border-radius: 10px;
+	margin: 0;
+}
 .nav_i {
 	display: inline;
-	padding: 8px;
+	padding: 10px 0;
+	border: 2px solid rgba(255, 255, 255, 0.4);
+	border-radius: 10px;
+}
+.nav_i a {
+	color: black;
+	text-decoration: none;
+	margin: 1em;
+}
+.nav_i:hover {
+	border: 2px solid white;
+}
+.current {
+	background: rgba(255, 255, 255, 0.2);
+	color: black;
+	text-decoration: none;
+	border: 2px solid white;
+	border-radius: 10px;
 }
