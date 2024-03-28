@@ -29,6 +29,10 @@ html, body {
 body {
 	background: #f6f6f6;
 	margin: 0;
+	font-family: "Open Sans", sans-serif;
+}
+h1, h2, h3 {
+	font-family: "Caveat", cursive;
 }
 
 /* Header
