@@ -17,6 +17,7 @@ off-white	#f6f6f6
 */
 html {
 	box-sizing: border-box;
+	font-size: 62.5%; /* set defualt to 10px */
 }
 *, *:before, *a:after {
 	box-sizing: inherit;
@@ -30,6 +31,8 @@ body {
 	background: #f6f6f6;
 	margin: 0;
 	font-family: "Open Sans", sans-serif;
+	font-size: 1.5rem;
+	line-height: 1.4;
 }
 h1, h2, h3 {
 	font-family: "Caveat", cursive;
