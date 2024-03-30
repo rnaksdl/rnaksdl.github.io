@@ -11,6 +11,7 @@ header {
 	padding: 10px 0;
 	border: 2px solid rgba(255, 255, 255, 0.4);
 	border-radius: 10px;
+	margin: 0 1em;
 }
 .nav_i a {
 	color: black;
