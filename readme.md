@@ -4,6 +4,9 @@ This project is in progress.
 
 ## log
 
+04/02/2024
+	Finished CSS class yesterday and started JS class today!!!
+
 03/21/2024
 	Wish I had more time to work on this :(
 	Slow progress is far better than no progress.
