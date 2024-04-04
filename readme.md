@@ -4,6 +4,10 @@ This project is in progress.
 
 ## log
 
+04/03/2024
+	I'm not sure how to practice the things that I'm learning in JS class.
+	I might make a JS playground for me to practice.
+
 04/02/2024
 	Finished CSS class yesterday and started JS class today!!!
 
