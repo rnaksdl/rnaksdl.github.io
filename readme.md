@@ -4,6 +4,11 @@ This project is in progress.
 
 ## log
 
+04/08/2024
+	I've decided that I'm not gonna focus on making my website visually appealing.
+ 	It'd be nice to have beautiful UI/UX, but It's very time consuming...
+  	I think it'd be better for me to focus on making my ideas come true.
+
 04/03/2024
 	I'm not sure how to practice the things that I'm learning in JS class.
 	I might make a JS playground for me to practice.
