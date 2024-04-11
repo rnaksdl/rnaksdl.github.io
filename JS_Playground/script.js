@@ -1,23 +1,3 @@
-/*
-transaction
-	source
-		“Dad”
-		“Claire”
-	amount
-		+ for income
-		- for spending
-	Category
-		“Needs”
-		“wants”
-*/
-
-
-
-// JavaScript code​​​​​​‌​‌​‌‌‌‌​‌‌‌​‌‌​​‌‌‌‌​​​‌ below
-// Change these values to control whether you see 
-// the expected answer and/or hints.
-const showExpectedResult = false
-const showHints = false
 
 // Setup data
 const navContent = `
@@ -51,3 +31,30 @@ function createParagraph(content) {
 }
 
 createParagraph("hiiiiiii")
+
+
+
+
+
+
+
+
+/*
+transaction
+	month
+		“March”
+	source
+		“Dad”
+		“Claire”
+	amount
+		+ for income
+		- for spending
+	Category
+		“Income”
+		“Needs”
+		“Wants”
+*/
+
+const transaction = {
+    month
+}
