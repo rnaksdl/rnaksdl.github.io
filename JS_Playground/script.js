@@ -30,7 +30,6 @@ const navContent = `
 
 
 function createNavMenu(document) {
-      // Your code goes here
       const mainNav = document.createElement("nav");
       mainNav.classList.add("main-navigation");
       const navList = document.createElement("ul");
@@ -40,4 +39,15 @@ function createNavMenu(document) {
 }
 
 
+createNavMenu(document)
 
+
+
+
+function createParagraph(content) {
+    const para = document.createElement("p");
+    para.innerHTML = content
+    document.querySelector("main").append(para);
+}
+
+createParagraph("hiiiiiii")
