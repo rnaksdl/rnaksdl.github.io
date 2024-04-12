@@ -41,8 +41,8 @@ createParagraph("hiiiiiii")
 
 /*
 transaction
-	month
-		“March”
+	date
+		04/11/24
 	source
 		“Dad”
 		“Claire”
