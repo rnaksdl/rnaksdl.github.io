@@ -1,2 +1,6 @@
-04/12/2024,Dad,-25,Wants
-04/12/2024,Claire,-22,Wants
+04/12/2024,Dad,Wants,-25
+04/12/2024,Claire,Wants,-22
+04/12/2024,Dad,Income,1000
+04/12/2024,Claire,Needs,-50
+05/01/2024,Dad,Wants,-30
+05/01/2024,Claire,Wants,-40
