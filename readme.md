@@ -4,6 +4,10 @@ This project is in progress.
 
 ## log
 
+04/15/2024
+	VERY busy week this week...
+ 	Gotta focus on school work, but will continue learning JS at least a little bit everyday.
+
 04/08/2024
 	I've decided that I'm not gonna focus on making my website visually appealing.
  	It'd be nice to have beautiful UI/UX, but It's very time consuming...
