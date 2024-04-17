@@ -4,6 +4,10 @@ This project is in progress.
 
 ## log
 
+04/17/2024
+	I'm planning on a big update of visuals.
+	The new design will be influenced by how we use our smart phones.
+
 04/15/2024
 	VERY busy week this week...
  	Gotta focus on school work, but will continue learning JS at least a little bit everyday.
