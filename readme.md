@@ -4,6 +4,9 @@ This project is in progress.
 
 ## log
 
+04/18/2024
+	I scatched up my ideas! Hopefully I can find some time to code it up this weekend..
+
 04/17/2024
 	I'm planning on a big update of visuals.
 	The new design will be influenced by how we use our smart phones.
