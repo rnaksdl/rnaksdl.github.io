@@ -57,8 +57,8 @@ function parseInput() {
 		// parse date (forward slash)
 		const [month, day, year] = date.split('/');
 	
-		// amount string to int
-		const amount = parseInt(amountStr);
+		// amount string to float
+		const amount = parseFloat(amountStr);
 	
 		// create transaction object
 		const transactionObj = {
@@ -90,6 +90,7 @@ function parseInput() {
 
 	return transactionsBySources;
 }
+
 function calculateTransactions(transactionsBySources) {
 	let total_income = 0;
 	let total_expenditure = 0;
@@ -121,13 +122,9 @@ function calculateTransactions(transactionsBySources) {
 	  total_expenditure,
 	  total_balance
 	};
-  }
+}
 
-
-
-
-
-  function display() {
+function display() {
 	const input = document.querySelector(".input").value;
 	const parsedInput = parseInput(input);
 	console.log(parsedInput);
@@ -154,11 +151,11 @@ function calculateTransactions(transactionsBySources) {
 	  output += `
 		<tr>
 		  <td>${name}</td>
-		  <td>${income}</td>
-		  <td>${expenditure_needs}</td>
-		  <td>${expenditure_wants}</td>
-		  <td>${expenditure}</td>
-		  <td>${balance}</td>
+		  <td>${income.toFixed(2)}</td>
+		  <td>${expenditure_needs.toFixed(2)}</td>
+		  <td>${expenditure_wants.toFixed(2)}</td>
+		  <td>${expenditure.toFixed(2)}</td>
+		  <td>${balance.toFixed(2)}</td>
 		</tr>
 	  `;
 	}
@@ -170,22 +167,22 @@ function calculateTransactions(transactionsBySources) {
 	  <table>
 		<tr>
 		  <th>Total Income</th>
-		  <td>${total_income}</td>
+		  <td>${total_income.toFixed(2)}</td>
 		</tr>
 		<tr>
 		  <th>Total Expenditure</th>
-		  <td>${total_expenditure}</td>
+		  <td>${total_expenditure.toFixed(2)}</td>
 		</tr>
 		<tr>
 		  <th>Total Balance</th>
-		  <td>${total_balance}</td>
+		  <td>${total_balance.toFixed(2)}</td>
 		</tr>
 	  </table>
 	`;
 	
 	document.querySelector(".output").innerHTML = output;
 	console.log({ transactionsBySources, total_income, total_expenditure, total_balance });
-  }
+}
 
 
 
