@@ -77,28 +77,52 @@ function parseInput() {
 		} else {
 			// if the source doesn't exist, create a new source object with the transaction
 			transactionsBySources[source] = {
-			name: source,
-			transactions: [transactionObj]
+				name: source,
+				income: 0,
+				expenditure_needs: 0,
+				expenditure_wants: 0,
+				expenditure: 0,
+				balance: 0,
+				transactions: [transactionObj]
 			};
 		}
-
-	
 	}
-  
+
 	return transactionsBySources;
 }
-
-
-
-// function calculateTransactions(transactions) {
-// 	let income_each_source = 0
-// 	let total_income = 0
-// 	let expenditure_
-
-// 	for (const transaction of transactions) {
-
-// 	}
-// }
+function calculateTransactions(transactionsBySources) {
+	let total_income = 0;
+	let total_expenditure = 0;
+	let total_balance = 0;
+  
+	for (const source in transactionsBySources) {
+	  const { transactions } = transactionsBySources[source];
+  
+	  for (const transaction of transactions) {
+		if (transaction.category === "Income") {
+		  transactionsBySources[source].income += transaction.amount;
+		} else if (transaction.category === "Needs") {
+		  transactionsBySources[source].expenditure_needs += transaction.amount;
+		} else if (transaction.category === "Wants") {
+		  transactionsBySources[source].expenditure_wants += transaction.amount;
+		}
+	  }
+  
+	  transactionsBySources[source].expenditure = transactionsBySources[source].expenditure_needs + transactionsBySources[source].expenditure_wants;
+	  transactionsBySources[source].balance = transactionsBySources[source].income - transactionsBySources[source].expenditure;
+  
+	  total_income += transactionsBySources[source].income;
+	  total_expenditure += transactionsBySources[source].expenditure;
+	  total_balance += transactionsBySources[source].balance;
+	}
+  
+	return {
+	  transactionsBySources,
+	  total_income,
+	  total_expenditure,
+	  total_balance
+	};
+  }
 
 
 
@@ -106,7 +130,9 @@ function parseInput() {
 
 function display() {
 	const input = document.querySelector(".input").value;
-	const result = parseInput(input)
+	const parsedInput = parseInput(input)
+	console.log(parsedInput)
+	const result = calculateTransactions(parsedInput)
 	document.querySelector(".output").innerHTML = result;
 	console.log(result)
 }
