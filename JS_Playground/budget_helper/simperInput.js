@@ -77,35 +77,51 @@ function display() {
 	console.log(parsedInput);
 	const { transactionsBySources, total_income, total_expenditure, total_balance } = calculateTransactions(parsedInput);
 	
-	let output = `
-	  <h2>Transactions by Source</h2>
-	  <table>
-		<thead>
-		  <tr>
-			<th>Source</th>
-			<th>Income</th>
-			<th>Expenditure (Needs)</th>
-			<th>Expenditure (Wants)</th>
-			<th>Total Expenditure</th>
-			<th>Balance</th>
-		  </tr>
-		</thead>
-		<tbody>
-	`;
-	
-	for (const source in transactionsBySources) {
-	  const { name, income, expenditure_needs, expenditure_wants, expenditure, balance } = transactionsBySources[source];
-	  output += `
-		<tr>
-		  <td>${name}</td>
-		  <td>${income.toFixed(2)}</td>
-		  <td>${expenditure_needs.toFixed(2)}</td>
-		  <td>${expenditure_wants.toFixed(2)}</td>
-		  <td>${expenditure.toFixed(2)}</td>
-		  <td>${balance.toFixed(2)}</td>
-		</tr>
-	  `;
-	}
+    let output = `
+    <h2>Transactions by Source</h2>
+    <table>
+`;
+
+for (const source in transactionsBySources) {
+    const { name, income, expenditure_needs, expenditure_wants, expenditure, balance } = transactionsBySources[source];
+    
+    output += `
+        <tbody>
+            <tr>
+                <td>Source:</td>
+                <td>${name}</td>
+            </tr>
+            <tr>
+                <td>Income:</td>
+                <td>${income.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td>Expenditure<br>(Needs):</td>
+                <td>${expenditure_needs.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td>Expenditure<br>(Wants):</td>
+                <td>${expenditure_wants.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td>Expenditure<br>(Total):</td>
+                <td>${expenditure.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td>Balance:</td>
+                <td>${balance.toFixed(2)}</td>
+            </tr>
+            <tr>
+                <td id="empty"></td>
+            </tr>
+        </tbody>
+    `;
+}
+
+output += `
+    </table>
+`;
+
 	
 	output += `
 		</tbody>
