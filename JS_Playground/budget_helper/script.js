@@ -78,6 +78,11 @@ function parseInput(input) {
 	return parsedTransactions;
 }
 
+function calculateTransactions(transactions) {
+	for (const transaction of transactions) {
+
+	}
+}
 
 
 
