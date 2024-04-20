@@ -48,59 +48,10 @@ BUT just calculating info on the spot as we are parsing through the data.
 
 
 
-function calculateTransactions(input) {
-	const transactions = input.split('\n');
-  
-	const result = transactions.reduce((acc, transaction) => {
-	  const [date, source, category, amountStr] = transaction.split(',');
-	  const amount = parseInt(amountStr);
-	  const [month, day, year] = date.split('/');
-  
-	  acc[year] = acc[year] || {};
-	  acc[year][month] = acc[year][month] || {};
-	  acc[year][month][source] = acc[year][month][source] || {};
-	  acc[year][month][source][category] = (acc[year][month][source][category] || 0) + amount;
-  
-	  return acc;
-	}, {});
-  
-	const calculatedResult = {};
-  
-	for (const year in result) {
-	  calculatedResult[year] = {};
-	  let yearlySum = 0;
-  
-	  for (const month in result[year]) {
-		calculatedResult[year][month] = {};
-		let monthlySum = 0;
-  
-		for (const source in result[year][month]) {
-		  calculatedResult[year][month][source] = {};
-		  let sourceSum = 0;
-  
-		  for (const category in result[year][month][source]) {
-			const categorySum = result[year][month][source][category];
-			calculatedResult[year][month][source][category] = categorySum;
-			sourceSum += categorySum;
-		  }
-  
-		  calculatedResult[year][month][source].sum = sourceSum;
-		  monthlySum += sourceSum;
-		}
-  
-		calculatedResult[year][month].sum = monthlySum;
-		yearlySum += monthlySum;
-	  }
-  
-	  calculatedResult[year].sum = yearlySum;
-	}
-  
-	return calculatedResult;
-  }
-
 
 function display() {
-	const result = calculateTransactions(document.querySelector(".transactions").value);
+	const result = document.querySelector(".transactions").value;
+
 	document.querySelector(".output").innerHTML = result;
 }
 
