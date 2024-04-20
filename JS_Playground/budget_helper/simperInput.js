@@ -1,3 +1,12 @@
+/*
+Maybe use piechart
+instead?
+*/
+
+
+
+
+
 function parseInput() {
 	const input = document.querySelector(".input").value;
 	// parse each transaction (new line)
