@@ -44,10 +44,11 @@ BUT just calculating info on the spot as we are parsing through the data.
 
 */
 
-function parseInput(input) {
+function parseInput() {
+	const input = document.querySelector(".input").value;
 	// parse each transaction (new line)
 	const transactions = input.split('\n');
-	const parsedTransactions = [];
+	const transactionsBySources = {};
   
 	for (const transaction of transactions) {
 		// parse each property (comma)
@@ -66,30 +67,45 @@ function parseInput(input) {
 			day: parseInt(day),
 			year: parseInt(year)
 			},
-			source,
 			category,
 			amount
 		};
 	
-		// add transaction object to the array
-		parsedTransactions.push(transactionObj);
+		if (source in transactionsBySources) {
+			// if the source exists, add the transaction to the source's transactions array
+			transactionsBySources[source].transactions.push(transactionObj);
+		} else {
+			// if the source doesn't exist, create a new source object with the transaction
+			transactionsBySources[source] = {
+			name: source,
+			transactions: [transactionObj]
+			};
+		}
+
+	
 	}
   
-	return parsedTransactions;
+	return transactionsBySources;
 }
 
-function calculateTransactions(transactions) {
-	for (const transaction of transactions) {
 
-	}
-}
+
+// function calculateTransactions(transactions) {
+// 	let income_each_source = 0
+// 	let total_income = 0
+// 	let expenditure_
+
+// 	for (const transaction of transactions) {
+
+// 	}
+// }
 
 
 
 
 
 function display() {
-	const input = document.querySelector(".transactions").value;
+	const input = document.querySelector(".input").value;
 	const result = parseInput(input)
 	document.querySelector(".output").innerHTML = result;
 	console.log(result)
