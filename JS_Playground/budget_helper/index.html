@@ -3,28 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>Budget Helper</title>
     <link rel="stylesheet" href="styles.css">
-    <script src="script.js" defer></script>
+    <script src="simperInput.js" defer></script>
 </head>
 <body>
-    <h1>This is a budget helper built by me and for me.</h1>
-    <h1>ONLY INPUT TRANSACTIONS FROM THE SAME MONTH!</h1>
-    <h3>I will add the feature to handle more than one month, but for now one month of transactions seems reasonable amount.</h2>
+    <h1>Budget Helper</h1>
     <div id="example">
         <p>
             If you'd like to use it, format the input like this:<br>
             <pre>
-01/01/2000,Me,Income,+5000
-01/01/2000,Wife,Income,+5000
-01/01/2020,Me,Needs,-3000
-01/01/2000,Me,Needs,-500
-01/01/2000,Me,Wants,-30
-01/31/2000,Wife,Wants,-100
+Me,Income,+5000
+Wife,Income,+5000
+Me,Needs,-3000
+Me,Needs,-500
+Me,Wants,-30
+Wife,Wants,-100
             </pre>
         </p>
     </div>
-    <textarea class="input" rows="10" cols="30"></textarea>
+    <textarea class="input" rows="10" cols="35"></textarea>
     <button onclick="display()">some fancy financial footwork</button>
     <p class="output">
 
