@@ -44,15 +44,50 @@ BUT just calculating info on the spot as we are parsing through the data.
 
 */
 
+function parseInput(input) {
+	// parse each transaction (new line)
+	const transactions = input.split('\n');
+	const parsedTransactions = [];
+  
+	for (const transaction of transactions) {
+		// parse each property (comma)
+		const [date, source, category, amountStr] = transaction.split(',');
+	
+		// parse date (forward slash)
+		const [month, day, year] = date.split('/');
+	
+		// amount string to int
+		const amount = parseInt(amountStr);
+	
+		// create transaction object
+		const transactionObj = {
+			date: {
+			month: parseInt(month),
+			day: parseInt(day),
+			year: parseInt(year)
+			},
+			source,
+			category,
+			amount
+		};
+	
+		// add transaction object to the array
+		parsedTransactions.push(transactionObj);
+	}
+  
+	return parsedTransactions;
+}
+
 
 
 
 
 
 function display() {
-	const result = document.querySelector(".transactions").value;
-
+	const input = document.querySelector(".transactions").value;
+	const result = parseInput(input)
 	document.querySelector(".output").innerHTML = result;
+	console.log(result)
 }
 
 
