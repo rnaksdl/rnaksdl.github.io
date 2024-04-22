@@ -4,6 +4,11 @@ This project is in progress.
 
 ## log
 
+04/21/2024
+	I'm finished with my Budget Helper!!
+	My next project will be polishing up about me page and the resume.
+	Doing so will refine my CSS even more!
+	
 04/18/2024
 	I scatched up my ideas! Hopefully I can find some time to code it up this weekend..
 
