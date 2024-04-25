@@ -2,6 +2,10 @@
 */
 html {
 	background-color: #FAF0CA;
+	font-size: 62.5%
+}
+body {
+	font-size: 1.6rem;
 }
 
 /* -------------------------------------------------- Home button
