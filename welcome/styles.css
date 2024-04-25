@@ -1,33 +1,22 @@
-/* Header
---------------------------------------------------*/
-header {
-	background: rgba(0, 0, 0, 0.2);
-	padding: 1px 0px;
-	border-radius: 10px;
-	margin: 0;
-}
-.nav_i {
-	display: inline;
-	padding: 10px 0;
-	border: 2px solid rgba(255, 255, 255, 0.4);
-	border-radius: 10px;
-	margin: 0 1em;
-}
-.nav_i a {
-	color: black;
-	text-decoration: none;
-	margin: 1em;
-}
-.nav_i:hover {
-	border: 2px solid white;
-}
-.current {
-	background: rgba(255, 255, 255, 0.2);
-	color: black;
-	text-decoration: none;
-	border: 2px solid white;
-	border-radius: 10px;
-}
-body {
+/* -------------------------------------------------- General
+*/
+html {
 	background-color: #FAF0CA;
+}
+
+/* -------------------------------------------------- Home button
+*/
+header {
+	display: flex;
+	justify-content: center;
+}
+.home_button a {
+	margin: 10px;
+	padding: 5px;
+	font-size: 3rem;
+	text-align: center;
+	text-decoration: none;
+}
+.home_button:hover {
+	transform: scale(1.1);
 }
