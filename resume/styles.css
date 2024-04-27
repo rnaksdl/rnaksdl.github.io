@@ -68,7 +68,7 @@ body {
 .section-content ul li {
     display: block;
     padding: 0;
-    margin-bottom: 3rem;
+    margin-bottom: 1rem;
 }
 .job-header {
     display: flex;
