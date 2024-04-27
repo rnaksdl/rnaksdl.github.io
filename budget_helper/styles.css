@@ -1,4 +1,11 @@
+/* -------------------------------------------------------- General
+*/
+html {
+    font-size: 62.5%;
+}
+
 body {
+    font-size: 1.6rem;
     font-family: system-ui;
     background-color: 	#9fd3c7;
     display: flex;
@@ -6,12 +13,14 @@ body {
     justify-content: center;
     align-items: center;
 }
-
+/* -------------------------------------------------------- header
+*/
 h1 {
     color: #142d4c;
     text-align: center;
 }
-
+/* -------------------------------------------------------- Example
+*/
 #example {
     max-width: 350px;
     padding: 1px 4px;
@@ -24,11 +33,13 @@ h1 {
     padding: 5px;
     margin: 0 auto;
 }
-
+/* -------------------------------------------------------- input
+*/
 .input {
     margin: 20px;
 }
-
+/* -------------------------------------------------------- button
+*/
 button {
     color: #ececec;
     background-color: #385170;
@@ -37,7 +48,8 @@ button {
     border-radius: 10px;
     margin-left: 30px;
 }
-
+/* -------------------------------------------------------- output
+*/
 .output td {
     padding: 10px;
     border: 2px solid;
