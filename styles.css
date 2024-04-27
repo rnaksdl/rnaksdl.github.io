@@ -14,23 +14,6 @@ body {
   min-height: 100vh;
 }
 
-/* -------------------------------------------------------- Home button
-*/
-.home_button {
-  display: flex;
-  justify-content: center;
-}
-.home_button img {
-  width: 7rem;
-  border-radius: 1rem;
-  object-fit: cover;
-  aspect-ratio: 1/1;
-}
-
-.home_button img:hover {
-  transform: scale(1.1);
-}
-
 /* -------------------------------------------------------- Nav
 */
 

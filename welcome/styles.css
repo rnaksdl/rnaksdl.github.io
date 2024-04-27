@@ -7,20 +7,3 @@ html {
 body {
 	font-size: 1.6rem;
 }
-
-/* -------------------------------------------------- Home button
-*/
-header {
-	display: flex;
-	justify-content: center;
-}
-.home_button a {
-	margin: 10px;
-	padding: 5px;
-	font-size: 3rem;
-	text-align: center;
-	text-decoration: none;
-}
-.home_button:hover {
-	transform: scale(1.1);
-}

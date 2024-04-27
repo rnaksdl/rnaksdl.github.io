@@ -7,9 +7,32 @@
 	<link rel="stylesheet" href="styles.css">
 </head>
 <body>
-    <header>
-        <h1 class="home_button"><a href="./index.html"><img src="./images/BIG_Logo.png"></a></h1>
-    </header>
+  <header>
+    <h1 class="home_button">
+      <a href="./index.html">
+        <img
+          src="./images/BIG_Logo.png" alt="Logo"
+          style="
+            width: 7rem;
+            border-radius: 1rem;
+            object-fit: cover;
+            aspect-ratio: 1/1;
+          "
+        />
+      </a>
+    </h1>
+  </header>
+  <style>
+    /* -------------------------------------------------------- Home button */
+    .home_button {
+      margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .home_button img:hover {
+      transform: scale(1.1);
+    }
+  </style>
 
 	<nav class="menu" role=“navigation” aria-label=“main menu”>
 		<ul>
