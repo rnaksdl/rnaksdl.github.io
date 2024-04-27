@@ -1,7 +1,6 @@
 # Portfolio of Kyumin Lee
 
 This project is in progress.
-Collection of static webapps by Kyumin Lee
 
 ## log
 
