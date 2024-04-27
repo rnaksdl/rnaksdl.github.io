@@ -8,21 +8,33 @@
     <script src="simperInput.js" defer></script>
 </head>
 <body>
-    <header>
-        <h1 class="home_button">
-          <a href="../index.html">
-            <img
-              src="../images/BIG_Logo.png" alt="Logo"
-              style="
-                width: 7rem;
-                border-radius: 1rem;
-                object-fit: cover;
-                aspect-ratio: 1/1;
-              "
-            />
-          </a>
-        </h1>
-      </header>
+  <header>
+    <h1 class="home_button">
+      <a href="../index.html">
+        <img
+          src="../images/BIG_Logo.png" alt="Logo"
+          style="
+            width: 7rem;
+            border-radius: 1rem;
+            object-fit: cover;
+            aspect-ratio: 1/1;
+          "
+        />
+      </a>
+    </h1>
+  </header>
+  <style>
+    /* -------------------------------------------------------- Home button */
+    .home_button {
+  margin: 0;
+      display: flex;
+      justify-content: center;
+    }
+    .home_button img:hover {
+      transform: scale(1.1);
+    }
+  </style>
+  
     <h1>Budget Helper</h1>
     <div id="example">
         <p>
