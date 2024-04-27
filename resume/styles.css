@@ -1,7 +1,86 @@
+/* -------------------------------------------------------- general
+*/
 html {
-    font-size: 62.5%;
+  font-size: 62.5%;
+}
+body {
+  font-size: 1.6rem;
+  font-family: Arial, Helvetica, sans-serif;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
 
-body {
-    font-size: 1.6rem;
+/* -------------------------------------------------------- basic-info
+*/
+.basic-info {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
 }
+.name {
+  font-size: 4rem;
+}
+.contact-info {
+  margin-top: auto;
+  padding: 0;
+}
+.contact-info li {
+  display: inline-block;
+  margin-left: 1rem;
+}
+.contact-info li a {
+  color: black;
+  text-decoration: none;
+}
+.contact-info li a:hover {
+  color: blue;
+}
+.basic-info img {
+  width: 2rem;
+}
+.contact-info img:hover {
+  opacity: 0.5;
+}
+
+/* -------------------------------------------------------- section
+*/
+.section {
+    margin: 0;
+}
+
+.section-title {
+  font-size: 2rem;
+  font-weight: bold;
+  margin-left: 2rem;
+  margin-bottom: 0;
+  position: relative;
+  display: inline-block;
+}
+
+.section-title::after {
+  content: "";
+  position: absolute;
+  left: -1rem;
+  right: -10rem;
+  bottom: -0.2rem;
+  border-bottom: 0.3rem solid black;
+}
+
+.section-content {
+  margin-left: 20px;
+}
+.section-content ul li {
+    display: block;
+    padding: 0;
+    margin-bottom: 3rem;
+}
+.job-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    margin-bottom: -2.5rem;
+}
+
+
+
