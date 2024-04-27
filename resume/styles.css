@@ -11,6 +11,11 @@ body {
   align-items: center;
 }
 
+.resume {
+  max-width: 80rem;
+  margin: 0 auto;
+}
+
 /* -------------------------------------------------------- basic-info
 */
 .basic-info {
@@ -53,18 +58,8 @@ body {
   font-size: 2rem;
   font-weight: bold;
   margin-left: 2rem;
-  margin-bottom: 0;
-  position: relative;
-  display: inline-block;
-}
-
-.section-title::after {
-  content: "";
-  position: absolute;
-  left: -1rem;
-  right: -10rem;
-  bottom: -0.4rem;
-  border-bottom: 0.3rem solid black;
+  padding: 0.2rem;
+  border-bottom: 2px solid #333;
 }
 
 .section-content {
