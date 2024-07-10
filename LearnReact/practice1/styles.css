@@ -1,0 +1,11 @@
+
+
+.todo-box {
+    border: 0.4rem solid;
+}
+
+.todo-item {
+    border: 0.2rem dashed;
+    padding: 0.1rem 1rem;
+    margin: 1rem;
+}
