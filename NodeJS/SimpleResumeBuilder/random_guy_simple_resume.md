@@ -2,7 +2,7 @@
 
 **Email:** randomguy@email.com
 
-**LinkedIn:** linkedin.com/randomguy
+**LinkedIn:** https://www.linkedin.com/in/Randomguy0/
 
 ## Summary
 I'm just  a random guy
