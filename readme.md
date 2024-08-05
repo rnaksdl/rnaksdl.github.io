@@ -4,6 +4,9 @@ This project is in progress.
 
 ## log
 
+08/05/2024
+	Finished Node.js course, and made a simple resume builder (terminal app)
+
 04/21/2024
 	I'm finished with my Budget Helper!!
 	My next project will be polishing up about me page and the resume.
