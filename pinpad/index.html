@@ -24,25 +24,26 @@
         .container {
             background: white;
             border-radius: 20px;
-            padding: 30px;
+            padding: 40px 50px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
-            max-width: 400px;
+            max-width: 650px;
+            width: 100%;
         }
 
         .mode-selector {
             display: flex;
-            gap: 10px;
-            margin-bottom: 30px;
+            gap: 15px;
+            margin-bottom: 40px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 12px;
-            border: 2px solid #667eea;
+            padding: 18px;
+            border: 3px solid #667eea;
             background: white;
             color: #667eea;
-            border-radius: 10px;
-            font-size: 16px;
+            border-radius: 12px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -58,24 +59,24 @@
         }
 
         .pin-display {
-            margin-bottom: 30px;
+            margin-bottom: 40px;
         }
 
         .pin-slot {
-            padding: 15px;
-            margin: 8px 0;
-            border-radius: 10px;
+            padding: 20px;
+            margin: 12px 0;
+            border-radius: 12px;
             text-align: center;
-            font-size: 24px;
+            font-size: 32px;
             font-weight: bold;
-            letter-spacing: 4px;
+            letter-spacing: 8px;
             transition: all 0.3s;
         }
 
         .pin-slot.previous {
             background: #f3f4f6;
             color: #9ca3af;
-            font-size: 18px;
+            font-size: 24px;
         }
 
         .pin-slot.current {
@@ -88,47 +89,54 @@
         .pin-slot.next {
             background: #f3f4f6;
             color: #9ca3af;
-            font-size: 18px;
+            font-size: 24px;
         }
 
         .pinpad {
             position: relative;
-            height: 240px;
-            margin-bottom: 30px;
+            height: 340px;
+            margin-bottom: 40px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .pinpad-inner {
+            position: relative;
+            width: 380px;
         }
 
         .pin-button {
             position: absolute;
-            width: 100px;
-            height: 55px;
+            width: 120px;
+            height: 70px;
             border: none;
             background: linear-gradient(145deg, #f0f0f0, #cacaca);
-            border-radius: 12px;
-            font-size: 24px;
+            border-radius: 15px;
+            font-size: 32px;
             font-weight: bold;
             color: #333;
             cursor: pointer;
-            box-shadow: 3px 3px 6px #bebebe, -3px -3px 6px #ffffff;
+            box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
             transition: all 0.1s;
         }
 
         .pin-button:active {
-            box-shadow: inset 2px 2px 5px #bebebe, inset -2px -2px 5px #ffffff;
+            box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
         }
 
         .navigation {
             display: flex;
-            gap: 15px;
+            gap: 20px;
         }
 
         .nav-btn {
             flex: 1;
-            padding: 15px;
+            padding: 20px;
             border: none;
             background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
             color: white;
-            border-radius: 12px;
-            font-size: 18px;
+            border-radius: 15px;
+            font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
@@ -147,9 +155,10 @@
 
         .counter {
             text-align: center;
-            margin-top: 15px;
+            margin-top: 20px;
             color: #667eea;
             font-weight: bold;
+            font-size: 18px;
         }
     </style>
 </head>
@@ -166,8 +175,10 @@
             <div class="pin-slot next" id="nextPin">1014</div>
         </div>
 
-        <div class="pinpad" id="pinpad">
-            <!-- Buttons will be dynamically positioned -->
+        <div class="pinpad">
+            <div class="pinpad-inner" id="pinpad">
+                <!-- Buttons will be dynamically positioned -->
+            </div>
         </div>
 
         <div class="navigation">
@@ -197,18 +208,18 @@
             '271089', '280584', '290395', '300784', '311088', '333888', '456838', '656565', '666333', '919293'
         ];
 
-        // Pinpad coordinates based on your specifications
+        // Pinpad coordinates - scaled up for wider display
         const PINPAD_COORDS = [
-            [50, 27.5],   // 1
-            [109, 27.5],  // 2
-            [168, 27.5],  // 3
-            [50, 88],     // 4
-            [109, 88],    // 5
-            [168, 88],    // 6
-            [50, 148.5],  // 7
-            [109, 148.5], // 8
-            [168, 148.5], // 9
-            [109, 209]    // 0
+            [60, 35],     // 1
+            [190, 35],    // 2
+            [320, 35],    // 3
+            [60, 115],    // 4
+            [190, 115],   // 5
+            [320, 115],   // 6
+            [60, 195],    // 7
+            [190, 195],   // 8
+            [320, 195],   // 9
+            [190, 275]    // 0
         ];
 
         const PINPAD_DIGITS = ['1', '2', '3', '4', '5', '6', '7', '8', '9', '0'];
