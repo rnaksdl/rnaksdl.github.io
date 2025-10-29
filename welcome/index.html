@@ -1,62 +1,1000 @@
 <!DOCTYPE html>
-<html lang="en-US" class="Home">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Kyumin Lee</title>
-    <link rel="stylesheet" href="styles.css" />
-  </head>
-  <body>
-    <header>
-      <h1 class="home_button">
-        <a href="../index.html">
-          <img
-            src="../images/BIG_Logo.png" alt="Logo"
-            style="
-              width: 7rem;
-              border-radius: 1rem;
-              object-fit: cover;
-              aspect-ratio: 1/1;
-            "
-          />
-        </a>
-      </h1>
-    </header>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kyumin Lee - Portfolio</title>
     <style>
-      /* -------------------------------------------------------- Home button */
-      .home_button {
-		margin: 0;
-        display: flex;
-        justify-content: center;
-      }
-      .home_button img:hover {
-        transform: scale(1.1);
-      }
-    </style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
 
-    <h1>
-      Welcome!<br />
-      This dinky website was created<br />
-      by Kyumin Lee!
-    </h1>
-    <h2>There isn't much yet, but it's under construction.</h2>
-    <p>If you'd like, check out this video I made.</p>
-    <iframe
-      width="560"
-      height="315"
-      src="https://www.youtube.com/embed/6DDSJ5PzZRo?si=5RurBLSvQZjRXzOU"
-      title="YouTube video player"
-      frameborder="0"
-      allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share"
-      allowfullscreen
-    ></iframe>
-    <p>
-      yes... I am a Joji fan..<br />
-      Claire likes to call him 'George Miller' haha<br />
-      The videos were taken when I was staying at Savannah, GA for a year.<br />
-      I'm so glad that I've taken alot of pictures and videos with my
-      friends.<br />
-      I miss them alot.. :(
-    </p>
-  </body>
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+            background: #000000;
+            color: #ffffff;
+            overflow-x: hidden;
+        }
+
+        /* Animated grid background */
+        .grid-background {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(rgba(255, 255, 255, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(255, 255, 255, 0.03) 1px, transparent 1px);
+            background-size: 50px 50px;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Spotlight effect that follows cursor */
+        .spotlight {
+            position: fixed;
+            width: 600px;
+            height: 600px;
+            background: radial-gradient(circle, rgba(255, 255, 255, 0.08) 0%, transparent 70%);
+            pointer-events: none;
+            z-index: 1;
+            transition: transform 0.2s ease;
+            transform: translate(-50%, -50%);
+        }
+
+        /* Navigation */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            padding: 25px 60px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(0, 0, 0, 0.8);
+            backdrop-filter: blur(20px);
+            z-index: 1000;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .logo {
+            font-size: 28px;
+            font-weight: 700;
+            letter-spacing: -1px;
+            color: #ffffff;
+            text-transform: uppercase;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 40px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #666666;
+            text-decoration: none;
+            transition: color 0.3s;
+            font-weight: 500;
+            font-size: 15px;
+            position: relative;
+        }
+
+        .nav-links a::after {
+            content: '';
+            position: absolute;
+            bottom: -5px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffffff;
+            transition: width 0.3s;
+        }
+
+        .nav-links a:hover {
+            color: #ffffff;
+        }
+
+        .nav-links a:hover::after {
+            width: 100%;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 0 60px;
+            position: relative;
+            z-index: 2;
+        }
+
+        /* Hero Section */
+        .hero {
+            min-height: 100vh;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 80px;
+            padding-top: 100px;
+        }
+
+        .hero-content {
+            flex: 1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .hero-label {
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #666666;
+            margin-bottom: 20px;
+        }
+
+        .hero h1 {
+            font-size: 80px;
+            margin-bottom: 20px;
+            font-weight: 700;
+            line-height: 1.1;
+            letter-spacing: -2px;
+        }
+
+        .hero h2 {
+            font-size: 28px;
+            color: #999999;
+            margin-bottom: 40px;
+            font-weight: 400;
+        }
+
+        .hero p {
+            font-size: 18px;
+            line-height: 1.8;
+            color: #666666;
+            margin-bottom: 50px;
+            max-width: 600px;
+        }
+
+        .cta-buttons {
+            display: flex;
+            gap: 20px;
+        }
+
+        .btn {
+            padding: 18px 40px;
+            border: none;
+            border-radius: 8px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            text-decoration: none;
+            display: inline-block;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary {
+            background: #ffffff;
+            color: #000000;
+        }
+
+        .btn-primary::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: #cccccc;
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.5s, height 0.5s;
+            z-index: -1;
+        }
+
+        .btn-primary:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-secondary {
+            background: transparent;
+            color: #ffffff;
+            border: 2px solid #333333;
+        }
+
+        .btn-secondary:hover {
+            border-color: #ffffff;
+            transform: translateY(-2px);
+        }
+
+        /* Weather Widget */
+        .weather-widget {
+            flex: 0 0 450px;
+            background: rgba(255, 255, 255, 0.02);
+            backdrop-filter: blur(20px);
+            border-radius: 30px;
+            padding: 40px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            animation: fadeInRight 1s ease-out;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        @keyframes fadeInRight {
+            from {
+                opacity: 0;
+                transform: translateX(50px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .weather-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+        }
+
+        .weather-location {
+            font-size: 20px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .location-btn {
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            color: #ffffff;
+            padding: 8px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.3s;
+        }
+
+        .location-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        .weather-search {
+            margin-bottom: 30px;
+            position: relative;
+        }
+
+        .weather-search input {
+            width: 100%;
+            padding: 15px 20px;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 15px;
+            transition: all 0.3s;
+        }
+
+        .weather-search input:focus {
+            outline: none;
+            border-color: #ffffff;
+            background: rgba(255, 255, 255, 0.05);
+        }
+
+        .weather-search input::placeholder {
+            color: #444444;
+        }
+
+        .weather-main {
+            text-align: center;
+            margin: 40px 0;
+        }
+
+        .weather-icon-large {
+            font-size: 100px;
+            margin-bottom: 20px;
+            animation: float 3s ease-in-out infinite;
+        }
+
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+
+        .weather-temp {
+            font-size: 80px;
+            font-weight: 300;
+            letter-spacing: -3px;
+            margin-bottom: 10px;
+        }
+
+        .weather-description {
+            font-size: 20px;
+            color: #666666;
+            text-transform: capitalize;
+            margin-bottom: 40px;
+        }
+
+        .weather-details {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 15px;
+        }
+
+        .weather-detail {
+            background: rgba(255, 255, 255, 0.03);
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .weather-detail-label {
+            font-size: 11px;
+            color: #666666;
+            margin-bottom: 8px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+
+        .weather-detail-value {
+            font-size: 22px;
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        /* About Section */
+        .about {
+            padding: 150px 0;
+            position: relative;
+        }
+
+        .section-header {
+            margin-bottom: 80px;
+        }
+
+        .section-label {
+            font-size: 14px;
+            letter-spacing: 3px;
+            text-transform: uppercase;
+            color: #666666;
+            margin-bottom: 20px;
+        }
+
+        .section-title {
+            font-size: 64px;
+            font-weight: 700;
+            letter-spacing: -2px;
+            margin-bottom: 20px;
+        }
+
+        .section-subtitle {
+            font-size: 20px;
+            color: #666666;
+            max-width: 600px;
+        }
+
+        .about-content {
+            display: grid;
+            grid-template-columns: 1.2fr 1fr;
+            gap: 80px;
+            align-items: start;
+        }
+
+        .about-text p {
+            font-size: 18px;
+            line-height: 1.9;
+            color: #999999;
+            margin-bottom: 25px;
+        }
+
+        .skills-container {
+            position: relative;
+        }
+
+        .skills-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 15px;
+        }
+
+        .skill-item {
+            background: rgba(255, 255, 255, 0.02);
+            padding: 25px 30px;
+            border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.3s;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .skill-item::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 3px;
+            height: 0;
+            background: #ffffff;
+            transition: height 0.3s;
+        }
+
+        .skill-item:hover {
+            transform: translateX(10px);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+
+        .skill-item:hover::before {
+            height: 100%;
+        }
+
+        .skill-item h3 {
+            font-size: 20px;
+            margin-bottom: 10px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .skill-item p {
+            font-size: 15px;
+            color: #666666;
+            line-height: 1.6;
+        }
+
+        /* Projects Section */
+        .projects {
+            padding: 150px 0;
+            background: rgba(255, 255, 255, 0.01);
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(400px, 1fr));
+            gap: 40px;
+        }
+
+        .project-card {
+            background: rgba(255, 255, 255, 0.02);
+            border-radius: 20px;
+            overflow: hidden;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.4s;
+            cursor: pointer;
+        }
+
+        .project-card:hover {
+            transform: translateY(-10px);
+            border-color: rgba(255, 255, 255, 0.2);
+            box-shadow: 0 30px 60px rgba(0, 0, 0, 0.5);
+        }
+
+        .project-image {
+            width: 100%;
+            height: 250px;
+            background: linear-gradient(135deg, #1a1a1a 0%, #2a2a2a 100%);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 60px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .project-image::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+            transition: left 0.5s;
+        }
+
+        .project-card:hover .project-image::before {
+            left: 100%;
+        }
+
+        .project-content {
+            padding: 35px;
+        }
+
+        .project-content h3 {
+            font-size: 26px;
+            margin-bottom: 15px;
+            color: #ffffff;
+            font-weight: 600;
+        }
+
+        .project-content p {
+            font-size: 16px;
+            color: #666666;
+            line-height: 1.7;
+            margin-bottom: 25px;
+        }
+
+        .project-tags {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+        }
+
+        .tag {
+            padding: 6px 16px;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            font-size: 12px;
+            color: #999999;
+            transition: all 0.3s;
+        }
+
+        .project-card:hover .tag {
+            border-color: rgba(255, 255, 255, 0.3);
+            color: #ffffff;
+        }
+
+        /* Contact Section */
+        .contact {
+            padding: 150px 0;
+            text-align: center;
+        }
+
+        .contact-content {
+            max-width: 700px;
+            margin: 0 auto;
+        }
+
+        .contact p {
+            font-size: 20px;
+            color: #666666;
+            margin-bottom: 50px;
+            line-height: 1.8;
+        }
+
+        .contact-email {
+            font-size: 48px;
+            font-weight: 600;
+            color: #ffffff;
+            text-decoration: none;
+            display: inline-block;
+            margin-bottom: 50px;
+            transition: all 0.3s;
+            position: relative;
+        }
+
+        .contact-email::after {
+            content: '';
+            position: absolute;
+            bottom: -10px;
+            left: 0;
+            width: 0;
+            height: 2px;
+            background: #ffffff;
+            transition: width 0.3s;
+        }
+
+        .contact-email:hover::after {
+            width: 100%;
+        }
+
+        .social-links {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-top: 50px;
+        }
+
+        .social-link {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.02);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #ffffff;
+            text-decoration: none;
+            font-size: 22px;
+            transition: all 0.3s;
+        }
+
+        .social-link:hover {
+            background: #ffffff;
+            color: #000000;
+            transform: translateY(-5px);
+        }
+
+        /* Footer */
+        footer {
+            padding: 60px 0;
+            text-align: center;
+            color: #333333;
+            border-top: 1px solid rgba(255, 255, 255, 0.05);
+        }
+
+        .footer-content {
+            font-size: 14px;
+            line-height: 1.8;
+        }
+
+        /* Loading state */
+        .loading {
+            text-align: center;
+            color: #666666;
+            padding: 60px 20px;
+            font-size: 16px;
+        }
+
+        /* Responsive */
+        @media (max-width: 1024px) {
+            .hero {
+                flex-direction: column;
+                text-align: center;
+                gap: 60px;
+            }
+
+            .weather-widget {
+                flex: 1;
+                width: 100%;
+                max-width: 500px;
+            }
+
+            .hero h1 {
+                font-size: 60px;
+            }
+
+            .about-content {
+                grid-template-columns: 1fr;
+                gap: 50px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .container {
+                padding: 0 30px;
+            }
+
+            nav {
+                padding: 20px 30px;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .hero h1 {
+                font-size: 48px;
+            }
+
+            .section-title {
+                font-size: 48px;
+            }
+
+            .projects-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Background Effects -->
+    <div class="grid-background"></div>
+    <div class="spotlight" id="spotlight"></div>
+
+    <!-- Navigation -->
+    <nav>
+        <div class="logo">KL</div>
+        <ul class="nav-links">
+            <li><a href="#home">Home</a></li>
+            <li><a href="#about">About</a></li>
+            <li><a href="#projects">Projects</a></li>
+            <li><a href="#contact">Contact</a></li>
+        </ul>
+    </nav>
+
+    <!-- Hero Section -->
+    <section id="home" class="hero">
+        <div class="container" style="display: flex; align-items: center; gap: 80px; width: 100%;">
+            <div class="hero-content">
+                <div class="hero-label">Research Assistant at OU</div>
+                <h1>Kyumin Lee</h1>
+                <h2>Researcher & Developer</h2>
+                <p>Passionate about exploring new frontiers in research and technology. Currently working at the University of Oklahoma, contributing to innovative projects and pushing the boundaries of what's possible.</p>
+                <div class="cta-buttons">
+                    <a href="#projects" class="btn btn-primary">View My Work</a>
+                    <a href="#contact" class="btn btn-secondary">Get In Touch</a>
+                </div>
+            </div>
+
+            <!-- Weather Widget -->
+            <div class="weather-widget">
+                <div class="weather-header">
+                    <div class="weather-location" id="weatherCity">Norman, OK</div>
+                    <button class="location-btn" onclick="getLocation()">📍 My Location</button>
+                </div>
+                <div class="weather-search">
+                    <input type="text" id="cityInput" placeholder="Search another city..." onkeypress="if(event.key==='Enter') searchCity()">
+                </div>
+                <div id="weatherContent" class="loading">
+                    Loading weather data...
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Section -->
+    <section id="about" class="about">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Get to know me</div>
+                <h2 class="section-title">About Me</h2>
+                <p class="section-subtitle">Building the future through research and innovation</p>
+            </div>
+            <div class="about-content">
+                <div class="about-text">
+                    <p>As a Research Assistant at the University of Oklahoma, I'm dedicated to advancing knowledge through rigorous investigation and innovative problem-solving.</p>
+                    <p>My work focuses on bridging the gap between theoretical research and practical applications, always seeking new ways to make meaningful contributions to my field.</p>
+                    <p>When I'm not immersed in research, I enjoy exploring new technologies, collaborating with fellow researchers, and continuously expanding my skill set.</p>
+                </div>
+                <div class="skills-container">
+                    <div class="skills-grid">
+                        <div class="skill-item">
+                            <h3>Research & Analysis</h3>
+                            <p>Data analysis, experimental design, literature review</p>
+                        </div>
+                        <div class="skill-item">
+                            <h3>Technical Skills</h3>
+                            <p>Programming, statistical software, research tools</p>
+                        </div>
+                        <div class="skill-item">
+                            <h3>Communication</h3>
+                            <p>Academic writing, presentations, collaboration</p>
+                        </div>
+                        <div class="skill-item">
+                            <h3>Problem Solving</h3>
+                            <p>Critical thinking, innovative solutions, adaptability</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Projects Section -->
+    <section id="projects" class="projects">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">My Work</div>
+                <h2 class="section-title">Featured Projects</h2>
+                <p class="section-subtitle">Research and development initiatives I'm proud of</p>
+            </div>
+            <div class="projects-grid">
+                <div class="project-card">
+                    <div class="project-image">🔬</div>
+                    <div class="project-content">
+                        <h3>Research Project Alpha</h3>
+                        <p>A comprehensive study exploring innovative methodologies and their applications in real-world scenarios.</p>
+                        <div class="project-tags">
+                            <span class="tag">Research</span>
+                            <span class="tag">Data Analysis</span>
+                            <span class="tag">Innovation</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">📊</div>
+                    <div class="project-content">
+                        <h3>Data Analysis Framework</h3>
+                        <p>Development of a robust framework for analyzing complex datasets and extracting meaningful insights.</p>
+                        <div class="project-tags">
+                            <span class="tag">Statistics</span>
+                            <span class="tag">Python</span>
+                            <span class="tag">Visualization</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="project-card">
+                    <div class="project-image">🎯</div>
+                    <div class="project-content">
+                        <h3>Collaborative Initiative</h3>
+                        <p>Working with interdisciplinary teams to solve complex challenges through innovative approaches.</p>
+                        <div class="project-tags">
+                            <span class="tag">Teamwork</span>
+                            <span class="tag">Innovation</span>
+                            <span class="tag">Solutions</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Contact Section -->
+    <section id="contact" class="contact">
+        <div class="container">
+            <div class="section-header">
+                <div class="section-label">Let's Connect</div>
+                <h2 class="section-title">Get In Touch</h2>
+            </div>
+            <div class="contact-content">
+                <p>Interested in collaboration, have questions about my research, or just want to connect? I'd love to hear from you.</p>
+                <a href="mailto:kyumin@ou.edu" class="contact-email">kyumin@ou.edu</a>
+                <div class="social-links">
+                    <a href="https://www.linkedin.com/" target="_blank" class="social-link" title="LinkedIn">💼</a>
+                    <a href="#" class="social-link" title="GitHub">🔗</a>
+                    <a href="#" class="social-link" title="Twitter">🐦</a>
+                    <a href="#" class="social-link" title="Scholar">📚</a>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-content">
+                <p>&copy; 2025 Kyumin Lee. All rights reserved.</p>
+                <p>Research Assistant at University of Oklahoma</p>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Spotlight effect that follows cursor
+        const spotlight = document.getElementById('spotlight');
+        document.addEventListener('mousemove', (e) => {
+            spotlight.style.left = e.clientX + 'px';
+            spotlight.style.top = e.clientY + 'px';
+        });
+
+        // Weather API
+        const API_KEY = '3a6ff3f3d7f64d3690f134414252701'; // OpenWeatherMap API key
+        
+        async function getWeather(city) {
+            const weatherContent = document.getElementById('weatherContent');
+            const weatherCity = document.getElementById('weatherCity');
+            
+            try {
+                weatherContent.innerHTML = '<div class="loading">Loading weather data...</div>';
+                
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?q=${city}&appid=${API_KEY}&units=metric`);
+                const data = await response.json();
+                
+                if (data.cod === 200) {
+                    weatherCity.textContent = data.name + ', ' + (data.sys.country || '');
+                    displayWeather(data);
+                } else {
+                    weatherContent.innerHTML = '<div class="loading">City not found. Try another city.</div>';
+                }
+            } catch (error) {
+                weatherContent.innerHTML = '<div class="loading">Unable to fetch weather data</div>';
+            }
+        }
+
+        async function getWeatherByCoords(lat, lon) {
+            const weatherContent = document.getElementById('weatherContent');
+            const weatherCity = document.getElementById('weatherCity');
+            
+            try {
+                weatherContent.innerHTML = '<div class="loading">Loading weather data...</div>';
+                
+                const response = await fetch(`https://api.openweathermap.org/data/2.5/weather?lat=${lat}&lon=${lon}&appid=${API_KEY}&units=metric`);
+                const data = await response.json();
+                
+                if (data.cod === 200) {
+                    weatherCity.textContent = data.name + ', ' + (data.sys.country || '');
+                    displayWeather(data);
+                } else {
+                    weatherContent.innerHTML = '<div class="loading">Unable to get weather for your location</div>';
+                }
+            } catch (error) {
+                weatherContent.innerHTML = '<div class="loading">Unable to fetch weather data</div>';
+            }
+        }
+
+        function displayWeather(data) {
+            const weatherIcons = {
+                'Clear': '☀️',
+                'Clouds': '☁️',
+                'Rain': '🌧️',
+                'Snow': '❄️',
+                'Thunderstorm': '⛈️',
+                'Drizzle': '🌦️',
+                'Mist': '🌫️',
+                'Fog': '🌫️',
+                'Haze': '🌫️'
+            };
+
+            const icon = weatherIcons[data.weather[0].main] || '🌤️';
+            
+            document.getElementById('weatherContent').innerHTML = `
+                <div class="weather-main">
+                    <div class="weather-icon-large">${icon}</div>
+                    <div class="weather-temp">${Math.round(data.main.temp)}°</div>
+                    <div class="weather-description">${data.weather[0].description}</div>
+                </div>
+                <div class="weather-details">
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Feels Like</div>
+                        <div class="weather-detail-value">${Math.round(data.main.feels_like)}°</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Humidity</div>
+                        <div class="weather-detail-value">${data.main.humidity}%</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Wind</div>
+                        <div class="weather-detail-value">${Math.round(data.wind.speed * 3.6)} km/h</div>
+                    </div>
+                    <div class="weather-detail">
+                        <div class="weather-detail-label">Pressure</div>
+                        <div class="weather-detail-value">${data.main.pressure} hPa</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        function searchCity() {
+            const city = document.getElementById('cityInput').value.trim();
+            if (city) {
+                getWeather(city);
+                document.getElementById('cityInput').value = '';
+            }
+        }
+
+        function getLocation() {
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    (position) => {
+                        getWeatherByCoords(position.coords.latitude, position.coords.longitude);
+                    },
+                    (error) => {
+                        alert('Unable to get your location. Please search for a city manually.');
+                    }
+                );
+            } else {
+                alert('Geolocation is not supported by your browser.');
+            }
+        }
+
+        // Smooth scrolling
+        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                const target = document.querySelector(this.getAttribute('href'));
+                if (target) {
+                    target.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            });
+        });
+
+        // Initialize with Norman, Oklahoma weather
+        getWeather('Norman,Oklahoma,US');
+    </script>
+</body>
 </html>

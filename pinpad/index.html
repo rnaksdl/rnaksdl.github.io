@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: #0a0a0a;
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,26 +22,27 @@
         }
 
         .container {
-            background: white;
+            background: #1a1a1a;
             border-radius: 20px;
-            padding: 40px 50px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+            padding: 30px 50px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8);
             max-width: 650px;
             width: 100%;
+            border: 1px solid #2a2a2a;
         }
 
         .mode-selector {
             display: flex;
             gap: 15px;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
         }
 
         .mode-btn {
             flex: 1;
-            padding: 18px;
-            border: 3px solid #667eea;
-            background: white;
-            color: #667eea;
+            padding: 15px;
+            border: 2px solid #3a3a3a;
+            background: #1a1a1a;
+            color: #aaaaaa;
             border-radius: 12px;
             font-size: 20px;
             font-weight: bold;
@@ -50,52 +51,116 @@
         }
 
         .mode-btn.active {
-            background: #667eea;
-            color: white;
+            background: #2a2a2a;
+            color: #ffffff;
+            border-color: #4a4a4a;
         }
 
         .mode-btn:hover {
             transform: translateY(-2px);
+            border-color: #4a4a4a;
         }
 
         .pin-display {
-            margin-bottom: 40px;
+            margin-bottom: 10px;
         }
 
         .pin-slot {
-            padding: 20px;
-            margin: 12px 0;
+            padding: 18px;
+            margin: 10px 0;
             border-radius: 12px;
             text-align: center;
             font-size: 32px;
             font-weight: bold;
             letter-spacing: 8px;
             transition: all 0.3s;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .pin-slot-content {
+            display: inline-block;
         }
 
         .pin-slot.previous {
-            background: #f3f4f6;
-            color: #9ca3af;
+            background: #222222;
+            color: #555555;
             font-size: 24px;
         }
 
         .pin-slot.current {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
-            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.4);
+            background: #2a2a2a;
+            color: #ffffff;
+            box-shadow: 0 4px 15px rgba(255, 255, 255, 0.1);
             transform: scale(1.05);
+            border: 1px solid #3a3a3a;
         }
 
         .pin-slot.next {
-            background: #f3f4f6;
-            color: #9ca3af;
+            background: #222222;
+            color: #555555;
             font-size: 24px;
+        }
+
+        /* Rolling animations */
+        @keyframes rollUp {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            51% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes rollDown {
+            0% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+            50% {
+                transform: translateY(100%);
+                opacity: 0;
+            }
+            51% {
+                transform: translateY(-100%);
+                opacity: 0;
+            }
+            100% {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .pin-slot.roll-up .pin-slot-content {
+            animation: rollUp 0.4s ease-in-out;
+        }
+
+        .pin-slot.roll-down .pin-slot-content {
+            animation: rollDown 0.4s ease-in-out;
+        }
+
+        .counter {
+            text-align: center;
+            margin-bottom: 25px;
+            color: #cccccc;
+            font-weight: bold;
+            font-size: 18px;
         }
 
         .pinpad {
             position: relative;
             height: 340px;
-            margin-bottom: 40px;
+            margin-bottom: 25px;
             display: flex;
             justify-content: center;
         }
@@ -110,18 +175,26 @@
             width: 120px;
             height: 70px;
             border: none;
-            background: linear-gradient(145deg, #f0f0f0, #cacaca);
+            background: #2a2a2a;
             border-radius: 15px;
             font-size: 32px;
             font-weight: bold;
-            color: #333;
+            color: #ffffff;
             cursor: pointer;
-            box-shadow: 4px 4px 8px #bebebe, -4px -4px 8px #ffffff;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.4);
             transition: all 0.1s;
+            transform: translate(-50%, -50%);
+            border: 1px solid #3a3a3a;
+        }
+
+        .pin-button:hover {
+            background: #353535;
+            border-color: #4a4a4a;
         }
 
         .pin-button:active {
-            box-shadow: inset 3px 3px 6px #bebebe, inset -3px -3px 6px #ffffff;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.5);
+            transform: translate(-50%, -50%) scale(0.98);
         }
 
         .navigation {
@@ -131,34 +204,28 @@
 
         .nav-btn {
             flex: 1;
-            padding: 20px;
+            padding: 18px;
             border: none;
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
-            color: white;
+            background: #2a2a2a;
+            color: #ffffff;
             border-radius: 15px;
             font-size: 20px;
             font-weight: bold;
             cursor: pointer;
             transition: all 0.3s;
+            border: 1px solid #3a3a3a;
         }
 
         .nav-btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.4);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            background: #353535;
         }
 
         .nav-btn:disabled {
-            opacity: 0.5;
+            opacity: 0.3;
             cursor: not-allowed;
             transform: none;
-        }
-
-        .counter {
-            text-align: center;
-            margin-top: 20px;
-            color: #667eea;
-            font-weight: bold;
-            font-size: 18px;
         }
     </style>
 </head>
@@ -170,10 +237,18 @@
         </div>
 
         <div class="pin-display">
-            <div class="pin-slot previous" id="prevPin">----</div>
-            <div class="pin-slot current" id="currentPin">1010</div>
-            <div class="pin-slot next" id="nextPin">1014</div>
+            <div class="pin-slot previous" id="prevPin">
+                <span class="pin-slot-content">----</span>
+            </div>
+            <div class="pin-slot current" id="currentPin">
+                <span class="pin-slot-content">1010</span>
+            </div>
+            <div class="pin-slot next" id="nextPin">
+                <span class="pin-slot-content">1014</span>
+            </div>
         </div>
+
+        <div class="counter" id="counter">1 / 60</div>
 
         <div class="pinpad">
             <div class="pinpad-inner" id="pinpad">
@@ -185,8 +260,6 @@
             <button class="nav-btn" id="backBtn" onclick="navigate(-1)">← Back</button>
             <button class="nav-btn" id="nextBtn" onclick="navigate(1)">Next →</button>
         </div>
-
-        <div class="counter" id="counter">1 / 60</div>
     </div>
 
     <script>
@@ -208,7 +281,7 @@
             '271089', '280584', '290395', '300784', '311088', '333888', '456838', '656565', '666333', '919293'
         ];
 
-        // Pinpad coordinates - scaled up for wider display
+        // Pinpad coordinates - these are now CENTER positions
         const PINPAD_COORDS = [
             [60, 35],     // 1
             [190, 35],    // 2
@@ -227,6 +300,7 @@
         let currentMode = 4;
         let currentIndex = 0;
         let currentPins = PINS_4_DIGIT;
+        let isAnimating = false;
 
         // Initialize pinpad buttons
         function initPinpad() {
@@ -244,6 +318,8 @@
         }
 
         function setMode(mode) {
+            if (isAnimating) return;
+            
             currentMode = mode;
             currentIndex = 0;
             currentPins = mode === 4 ? PINS_4_DIGIT : PINS_6_DIGIT;
@@ -257,10 +333,31 @@
         }
 
         function navigate(direction) {
+            if (isAnimating) return;
+            
             const newIndex = currentIndex + direction;
             if (newIndex >= 0 && newIndex < currentPins.length) {
-                currentIndex = newIndex;
-                updateDisplay();
+                isAnimating = true;
+                
+                // Add rolling animation class
+                const animationClass = direction > 0 ? 'roll-up' : 'roll-down';
+                document.querySelectorAll('.pin-slot').forEach(slot => {
+                    slot.classList.add(animationClass);
+                });
+                
+                // Update index and display after a short delay
+                setTimeout(() => {
+                    currentIndex = newIndex;
+                    updateDisplay();
+                }, 200);
+                
+                // Remove animation class after animation completes
+                setTimeout(() => {
+                    document.querySelectorAll('.pin-slot').forEach(slot => {
+                        slot.classList.remove(animationClass);
+                    });
+                    isAnimating = false;
+                }, 400);
             }
         }
 
@@ -269,9 +366,9 @@
             const currPin = currentPins[currentIndex];
             const nextPin = currentIndex < currentPins.length - 1 ? currentPins[currentIndex + 1] : '----';
             
-            document.getElementById('prevPin').textContent = prevPin;
-            document.getElementById('currentPin').textContent = currPin;
-            document.getElementById('nextPin').textContent = nextPin;
+            document.querySelector('#prevPin .pin-slot-content').textContent = prevPin;
+            document.querySelector('#currentPin .pin-slot-content').textContent = currPin;
+            document.querySelector('#nextPin .pin-slot-content').textContent = nextPin;
             document.getElementById('counter').textContent = `${currentIndex + 1} / ${currentPins.length}`;
             
             // Update button states
