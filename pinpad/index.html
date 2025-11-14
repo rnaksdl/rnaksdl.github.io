@@ -102,52 +102,33 @@
             font-size: 24px;
         }
 
+        /* Highlight for fake digits */
+        .fake {
+            color: #ff6b6b;
+            background: rgba(255, 107, 107, 0.15);
+            border: 1px solid rgba(255, 107, 107, 0.35);
+            padding: 2px 6px;
+            border-radius: 8px;
+            letter-spacing: 2px; /* keep tighter spacing inside the badge */
+        }
+
         /* Rolling animations */
         @keyframes rollUp {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            51% {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(-100%); opacity: 0; }
+            51% { transform: translateY(100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
         @keyframes rollDown {
-            0% {
-                transform: translateY(0);
-                opacity: 1;
-            }
-            50% {
-                transform: translateY(100%);
-                opacity: 0;
-            }
-            51% {
-                transform: translateY(-100%);
-                opacity: 0;
-            }
-            100% {
-                transform: translateY(0);
-                opacity: 1;
-            }
+            0% { transform: translateY(0); opacity: 1; }
+            50% { transform: translateY(100%); opacity: 0; }
+            51% { transform: translateY(-100%); opacity: 0; }
+            100% { transform: translateY(0); opacity: 1; }
         }
 
-        .pin-slot.roll-up .pin-slot-content {
-            animation: rollUp 0.4s ease-in-out;
-        }
-
-        .pin-slot.roll-down .pin-slot-content {
-            animation: rollDown 0.4s ease-in-out;
-        }
+        .pin-slot.roll-up .pin-slot-content { animation: rollUp 0.4s ease-in-out; }
+        .pin-slot.roll-down .pin-slot-content { animation: rollDown 0.4s ease-in-out; }
 
         .counter {
             text-align: center;
@@ -263,13 +244,68 @@
     </div>
 
     <script>
+        // 4-digit pins with highlighted fake digits
         const PINS_4_DIGIT = [
-            '1010', '1014', '1017', '1041', '1105', '1264', '1366', '1786', '1993', '2046',
-            '2082', '2106', '2433', '2460', '2479', '2559', '2563', '2576', '2598', '2613',
-            '2690', '3061', '3097', '3158', '3174', '3216', '3272', '3783', '3857', '4105',
-            '4168', '4217', '4312', '4398', '4424', '4598', '4641', '4669', '4687', '4932',
-            '5052', '5123', '5395', '5664', '5725', '5849', '5903', '6120', '6606', '6705',
-            '7459', '7512', '7573', '7849', '8339', '9079', '9397', '9444', '9695', '9746'
+            '<span class="fake">3</span>1010',
+            '1<span class="fake">6</span>014',
+            '10<span class="fake">9</span>17',
+            '104<span class="fake">2</span>1',
+            '1105<span class="fake">5</span>',
+            '<span class="fake">8</span>1264',
+            '1<span class="fake">1</span>366',
+            '17<span class="fake">4</span>86',
+            '199<span class="fake">7</span>3',
+            '2046<span class="fake">0</span>',
+            '<span class="fake">3</span>2082',
+            '2<span class="fake">6</span>106',
+            '24<span class="fake">9</span>33',
+            '246<span class="fake">2</span>0',
+            '2479<span class="fake">5</span>',
+            '<span class="fake">8</span>2559',
+            '2<span class="fake">1</span>563',
+            '25<span class="fake">4</span>76',
+            '259<span class="fake">7</span>8',
+            '2613<span class="fake">0</span>',
+            '<span class="fake">3</span>2690',
+            '3<span class="fake">6</span>061',
+            '30<span class="fake">9</span>97',
+            '315<span class="fake">2</span>8',
+            '3174<span class="fake">5</span>',
+            '<span class="fake">8</span>3216',
+            '3<span class="fake">1</span>272',
+            '37<span class="fake">4</span>83',
+            '385<span class="fake">7</span>7',
+            '4105<span class="fake">0</span>',
+            '<span class="fake">3</span>4168',
+            '4<span class="fake">6</span>217',
+            '43<span class="fake">9</span>12',
+            '439<span class="fake">2</span>8',
+            '4424<span class="fake">5</span>',
+            '<span class="fake">8</span>4598',
+            '4<span class="fake">1</span>641',
+            '46<span class="fake">4</span>69',
+            '468<span class="fake">7</span>7',
+            '4932<span class="fake">0</span>',
+            '<span class="fake">3</span>5052',
+            '5<span class="fake">6</span>123',
+            '53<span class="fake">9</span>95',
+            '566<span class="fake">2</span>4',
+            '5725<span class="fake">5</span>',
+            '<span class="fake">8</span>5849',
+            '5<span class="fake">1</span>903',
+            '61<span class="fake">4</span>20',
+            '660<span class="fake">7</span>6',
+            '6705<span class="fake">0</span>',
+            '<span class="fake">3</span>7459',
+            '7<span class="fake">6</span>512',
+            '75<span class="fake">9</span>73',
+            '784<span class="fake">2</span>9',
+            '8339<span class="fake">5</span>',
+            '<span class="fake">8</span>9079',
+            '9<span class="fake">1</span>397',
+            '94<span class="fake">4</span>44',
+            '969<span class="fake">7</span>5',
+            '9746<span class="fake">0</span>'
         ];
 
         const PINS_6_DIGIT = [
@@ -281,7 +317,7 @@
             '271089', '280584', '290395', '300784', '311088', '333888', '456838', '656565', '666333', '919293'
         ];
 
-        // Pinpad coordinates - these are now CENTER positions
+        // Pinpad coordinates - CENTER positions
         const PINPAD_COORDS = [
             [60, 35],     // 1
             [190, 35],    // 2
@@ -366,9 +402,10 @@
             const currPin = currentPins[currentIndex];
             const nextPin = currentIndex < currentPins.length - 1 ? currentPins[currentIndex + 1] : '----';
             
-            document.querySelector('#prevPin .pin-slot-content').textContent = prevPin;
-            document.querySelector('#currentPin .pin-slot-content').textContent = currPin;
-            document.querySelector('#nextPin .pin-slot-content').textContent = nextPin;
+            // Use innerHTML so fake spans render with color
+            document.querySelector('#prevPin .pin-slot-content').innerHTML = prevPin;
+            document.querySelector('#currentPin .pin-slot-content').innerHTML = currPin;
+            document.querySelector('#nextPin .pin-slot-content').innerHTML = nextPin;
             document.getElementById('counter').textContent = `${currentIndex + 1} / ${currentPins.length}`;
             
             // Update button states
