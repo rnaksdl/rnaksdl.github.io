@@ -215,6 +215,7 @@
         <div class="mode-selector">
             <button class="mode-btn active" onclick="setMode(4)">4 Digit</button>
             <button class="mode-btn" onclick="setMode(6)">6 Digit</button>
+            <button class="mode-btn" onclick="setMode('record')">Record</button>
         </div>
 
         <div class="pin-display">
@@ -227,6 +228,24 @@
             <div class="pin-slot next" id="nextPin">
                 <span class="pin-slot-content">1014</span>
             </div>
+        </div>
+
+        <!-- Record mode UI -->
+        <div id="recordSection" style="display:none; margin-bottom:25px; color:#cccccc;">
+            <p style="margin-bottom:10px; font-weight:bold;">
+                Record mode: click or type the digits <code>1 3 9 7</code> on the pinpad/keyboard.
+            </p>
+            <ul style="margin-left:18px; margin-bottom:10px; font-size:14px; color:#aaaaaa;">
+                <li>Recording starts when you enter <strong>1</strong>.</li>
+                <li>Recording stops when you enter <strong>7</strong>.</li>
+                <li>Mouse movement between 1 and 7 is captured as CSV: <code>time_ms,x,y</code>.</li>
+            </ul>
+            <textarea id="recordOutput"
+                      style="width:100%; height:160px; background:#111; color:#eee; border:1px solid #333; border-radius:8px; padding:8px; font-family:monospace; font-size:12px;"
+                      placeholder="CSV output will appear here after you finish with 7..."></textarea>
+            <button class="nav-btn" style="margin-top:10px; width:100%;" onclick="copyRecordCSV()">
+                Copy CSV to Clipboard
+            </button>
         </div>
 
         <div class="counter" id="counter">1 / 60</div>
@@ -338,6 +357,11 @@
         let currentPins = PINS_4_DIGIT;
         let isAnimating = false;
 
+        // Recording state
+        let recording = false;
+        let recordData = [];      // array of "time_ms,x,y"
+        let recordStartTime = 0;
+
         // Initialize pinpad buttons
         function initPinpad() {
             const pinpad = document.getElementById('pinpad');
@@ -349,23 +373,56 @@
                 button.textContent = digit;
                 button.style.left = PINPAD_COORDS[i][0] + 'px';
                 button.style.top = PINPAD_COORDS[i][1] + 'px';
+
+                // Hook clicks into record-mode handler
+                button.addEventListener('click', () => handleDigitInput(digit));
+
                 pinpad.appendChild(button);
             });
         }
 
         function setMode(mode) {
             if (isAnimating) return;
-            
+
             currentMode = mode;
-            currentIndex = 0;
-            currentPins = mode === 4 ? PINS_4_DIGIT : PINS_6_DIGIT;
-            
-            // Update button states
-            document.querySelectorAll('.mode-btn').forEach((btn, idx) => {
-                btn.classList.toggle('active', (idx === 0 && mode === 4) || (idx === 1 && mode === 6));
-            });
-            
-            updateDisplay();
+
+            const modeButtons = document.querySelectorAll('.mode-btn');
+            const pinDisplay = document.querySelector('.pin-display');
+            const navigation = document.querySelector('.navigation');
+            const recordSection = document.getElementById('recordSection');
+
+            // Clear active state
+            modeButtons.forEach(btn => btn.classList.remove('active'));
+
+            if (mode === 4 || mode === 6) {
+                // Activate proper button
+                if (mode === 4) {
+                    modeButtons[0].classList.add('active');
+                } else {
+                    modeButtons[1].classList.add('active');
+                }
+
+                // Show normal UI, hide record UI
+                if (pinDisplay) pinDisplay.style.display = 'block';
+                if (navigation) navigation.style.display = 'flex';
+                if (recordSection) recordSection.style.display = 'none';
+
+                // Reset PIN list
+                currentIndex = 0;
+                currentPins = mode === 4 ? PINS_4_DIGIT : PINS_6_DIGIT;
+                resetRecording();
+                updateDisplay();
+            } else if (mode === 'record') {
+                // Activate record button
+                modeButtons[2].classList.add('active');
+
+                // Hide normal PIN navigation, show record UI
+                if (pinDisplay) pinDisplay.style.display = 'none';
+                if (navigation) navigation.style.display = 'none';
+                if (recordSection) recordSection.style.display = 'block';
+
+                resetRecording();
+            }
         }
 
         function navigate(direction) {
@@ -411,6 +468,85 @@
             // Update button states
             document.getElementById('backBtn').disabled = currentIndex === 0;
             document.getElementById('nextBtn').disabled = currentIndex === currentPins.length - 1;
+        }
+
+        // Handle digit input for record mode (pinpad clicks and keyboard)
+        function handleDigitInput(digit) {
+            if (currentMode !== 'record') return;
+
+            const output = document.getElementById('recordOutput');
+
+            // Start recording on first '1'
+            if (!recording && digit === '1') {
+                recording = true;
+                recordData = [];
+                recordStartTime = performance.now();
+                if (output) {
+                    output.value = 'Recording started… move the mouse, then finish with 7.\n';
+                }
+                return;
+            }
+
+            // Stop recording on '7'
+            if (recording && digit === '7') {
+                recording = false;
+                generateRecordCSV();
+            }
+        }
+
+        // Mouse movement listener (for record mode)
+        document.addEventListener('mousemove', (e) => {
+            if (currentMode === 'record' && recording) {
+                const t = performance.now() - recordStartTime;
+                recordData.push(`${t.toFixed(2)},${e.clientX},${e.clientY}`);
+            }
+        });
+
+        // Keyboard support for digits
+        document.addEventListener('keydown', (e) => {
+            // Ignore typing inside textareas/inputs
+            const tag = e.target.tagName;
+            if (tag === 'TEXTAREA' || tag === 'INPUT') return;
+
+            const d = e.key;
+            if ('0123456789'.includes(d)) {
+                handleDigitInput(d);
+            }
+        });
+
+        function generateRecordCSV() {
+            const output = document.getElementById('recordOutput');
+            if (!output) return;
+
+            if (!recordData.length) {
+                output.value = 'No movement recorded.';
+                return;
+            }
+
+            const header = 'time_ms,x,y';
+            const csv = [header, ...recordData].join('\n');
+            output.value = csv;
+        }
+
+        function copyRecordCSV() {
+            const ta = document.getElementById('recordOutput');
+            if (!ta) return;
+            ta.focus();
+            ta.select();
+            ta.setSelectionRange(0, ta.value.length);
+            try {
+                document.execCommand('copy');
+            } catch (e) {
+                // execCommand may fail silently in some environments
+            }
+        }
+
+        function resetRecording() {
+            recording = false;
+            recordData = [];
+            recordStartTime = 0;
+            const out = document.getElementById('recordOutput');
+            if (out) out.value = '';
         }
 
         // Initialize
