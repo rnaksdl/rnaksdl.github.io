@@ -494,13 +494,16 @@
             }
         }
 
-        // Mouse movement listener (for record mode)
+        // Mouse movement listener (for record mode) – maximum frequency
         document.addEventListener('mousemove', (e) => {
             if (currentMode === 'record' && recording) {
+                // High‑resolution timestamp (sub‑ms where available)
                 const t = performance.now() - recordStartTime;
-                recordData.push(`${t.toFixed(2)},${e.clientX},${e.clientY}`);
+                // Do NOT round; store raw value
+                recordData.push(`${t},${e.clientX},${e.clientY}`);
             }
         });
+
 
         // Keyboard support for digits
         document.addEventListener('keydown', (e) => {
