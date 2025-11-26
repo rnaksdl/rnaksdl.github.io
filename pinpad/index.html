@@ -529,11 +529,42 @@
             if (recordDigitPos === currentPin.length - 1) {
                 // Last digit of this PIN
                 recording = false;
-                generateRecordCSV();
+                finishRecordingForCurrentPin(output, currentPin);
+                recordDigitPos = 0;
+                recordPinIndex++;
+                updateRecordUI();
+            } else {
+                recordDigitPos++;
             }
         }
 
-        // Mouse movement listener (for record mode)
+        function startRecordingForCurrentPin(output, pin) {
+            recording = true;
+            recordData = [];
+            recordStartTime = performance.now();
+            if (output) {
+                output.value += `\n--- Recording PIN ${pin} ---\n`;
+            }
+        }
+
+        function finishRecordingForCurrentPin(output, pin) {
+            if (!output) return;
+
+            if (!recordData.length) {
+                output.value += `No movement recorded for PIN ${pin}.\n`;
+                return;
+            }
+
+            const header = 'pin,time_ms,x,y';
+            const hasHeader = output.value.trim().startsWith(header);
+            const rows = recordData.map(line => `${pin},${line}`);
+            if (!hasHeader) {
+                output.value += header + '\n';
+            }
+            output.value += rows.join('\n') + '\n';
+        }
+
+        // Mouse movement: update indicator + record real trajectory
         document.addEventListener('mousemove', (e) => {
             // Move the visible cursor indicator
             const indicator = document.getElementById('cursorIndicator');
@@ -544,13 +575,10 @@
 
             // Log movement if currently recording in record mode
             if (currentMode === 'record' && recording) {
-                // High‑resolution timestamp (sub‑ms where available)
                 const t = performance.now() - recordStartTime;
-                // Do NOT round; store raw value
-                recordData.push(`${t},${e.clientX},${e.clientY}`);
+                recordData.push(`${t.toFixed(2)},${e.clientX},${e.clientY}`);
             }
         });
-
 
         // Keyboard support for digits (also works if VR sends key events)
         document.addEventListener('keydown', (e) => {
