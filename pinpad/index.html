@@ -246,21 +246,12 @@
             </div>
         </div>
 
-        <!-- Record mode UI -->
+        <!-- Record mode UI (simplified text) -->
         <div id="recordSection" style="display:none; margin-bottom:25px; color:#cccccc;">
-            <p style="margin-bottom:6px; font-weight:bold;">
-                Record mode: type the shown 4‑digit PIN using the pinpad or keyboard.
-            </p>
             <p id="recordPinLabel"
                style="margin-bottom:8px; font-weight:bold; color:#ffffff;">
                 Current PIN: 1010 (1 / 60)
             </p>
-            <ul style="margin-left:18px; margin-bottom:10px; font-size:14px; color:#aaaaaa;">
-                <li>Recording starts when you enter the <strong>first</strong> digit of the PIN.</li>
-                <li>Recording stops when you enter the <strong>last</strong> digit of the PIN.</li>
-                <li>Real mouse movement between those digits is captured as CSV: <code>pin,time_ms,x,y</code>.</li>
-                <li>Follow the glowing circle: that’s where the desktop cursor really is.</li>
-            </ul>
             <textarea id="recordOutput"
                       style="width:100%; height:160px; background:#111; color:#eee; border:1px solid #333; border-radius:8px; padding:8px; font-family:monospace; font-size:12px;"
                       placeholder="CSV output will appear here as you complete each PIN..."></textarea>
@@ -348,7 +339,7 @@
             '9746<span class="fake">0</span>'
         ];
 
-        // PLAIN 4-digit pins for RECORD mode (your list)
+        // PLAIN 4-digit pins for RECORD mode
         const RECORD_PINS_4_DIGIT = [
             '1010','1014','1017','1041','1105','1264','1366','1786','1993','2046',
             '2082','2106','2433','2460','2479','2559','2563','2576','2598','2613',
@@ -437,7 +428,7 @@
                 modeButtons[2].classList.add('active');
 
                 if (pinDisplay) pinDisplay.style.display = 'none';
-                if (navigation) navigation.style.display = 'none';
+                if (navigation) navigation.style.display = 'flex';
                 if (recordSection) recordSection.style.display = 'block';
 
                 resetRecording();
@@ -447,6 +438,12 @@
 
         function navigate(direction) {
             if (isAnimating) return;
+
+            if (currentMode === 'record') {
+                navigateRecordPins(direction);
+                return;
+            }
+
             const newIndex = currentIndex + direction;
             if (newIndex >= 0 && newIndex < currentPins.length) {
                 isAnimating = true;
@@ -485,15 +482,40 @@
 
         function updateRecordUI() {
             const label = document.getElementById('recordPinLabel');
-            if (!label) return;
+            const counter = document.getElementById('counter');
+            if (!label || !counter) return;
+
             const total = RECORD_PINS_4_DIGIT.length;
             const idx = recordPinIndex;
+
             if (idx >= total) {
                 label.textContent = 'All PINs completed.';
+                counter.textContent = `${total} / ${total}`;
+                document.getElementById('backBtn').disabled = false;
+                document.getElementById('nextBtn').disabled = true;
                 return;
             }
+
             const pin = RECORD_PINS_4_DIGIT[idx];
             label.textContent = `Current PIN: ${pin} (${idx + 1} / ${total})`;
+            counter.textContent = `${idx + 1} / ${total}`;
+
+            document.getElementById('backBtn').disabled = idx === 0;
+            document.getElementById('nextBtn').disabled = idx === total - 1;
+        }
+
+        function navigateRecordPins(direction) {
+            const total = RECORD_PINS_4_DIGIT.length;
+            const newIndex = recordPinIndex + direction;
+            if (newIndex < 0 || newIndex >= total) return;
+
+            // Cancel any ongoing recording when you change PIN manually
+            recording = false;
+            recordData = [];
+            recordDigitPos = 0;
+
+            recordPinIndex = newIndex;
+            updateRecordUI();
         }
 
         function handleDigitInput(digit) {
@@ -525,7 +547,6 @@
                 startRecordingForCurrentPin(output, currentPin);
             }
 
-            // Advance digit position
             if (recordDigitPos === currentPin.length - 1) {
                 // Last digit of this PIN
                 recording = false;
@@ -566,17 +587,23 @@
 
         // Mouse movement: update indicator + record real trajectory
         document.addEventListener('mousemove', (e) => {
-            // Move the visible cursor indicator
             const indicator = document.getElementById('cursorIndicator');
+            let ix = e.clientX;
+            let iy = e.clientY;
+
             if (indicator) {
                 indicator.style.left = e.clientX + 'px';
                 indicator.style.top = e.clientY + 'px';
+
+                // Record indicator center (robust if you later change its size/transform)
+                const rect = indicator.getBoundingClientRect();
+                ix = rect.left + rect.width / 2;
+                iy = rect.top + rect.height / 2;
             }
 
-            // Log movement if currently recording in record mode
             if (currentMode === 'record' && recording) {
                 const t = performance.now() - recordStartTime;
-                recordData.push(`${t.toFixed(2)},${e.clientX},${e.clientY}`);
+                recordData.push(`${t.toFixed(2)},${ix},${iy}`);
             }
         });
 
