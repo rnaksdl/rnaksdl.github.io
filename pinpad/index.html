@@ -246,7 +246,7 @@
             </div>
         </div>
 
-        <!-- Record mode UI (simplified text) -->
+        <!-- Record mode UI (minimal text) -->
         <div id="recordSection" style="display:none; margin-bottom:25px; color:#cccccc;">
             <p id="recordPinLabel"
                style="margin-bottom:8px; font-weight:bold; color:#ffffff;">
@@ -257,6 +257,9 @@
                       placeholder="CSV output will appear here as you complete each PIN..."></textarea>
             <button class="nav-btn" style="margin-top:10px; width:100%;" onclick="copyRecordCSV()">
                 Copy CSV to Clipboard
+            </button>
+            <button class="nav-btn" style="margin-top:10px; width:100%;" onclick="downloadRecordCSV()">
+                Download CSV File
             </button>
         </div>
 
@@ -275,7 +278,7 @@
     </div>
 
     <script>
-        // 4-digit pins with highlighted fake digits (for normal mode only)
+        // 4-digit pins with highlighted fake digits (normal modes)
         const PINS_4_DIGIT = [
             '<span class="fake">3</span>1010',
             '1<span class="fake">6</span>014',
@@ -339,7 +342,7 @@
             '9746<span class="fake">0</span>'
         ];
 
-        // PLAIN 4-digit pins for RECORD mode
+        // Plain 4-digit pins for RECORD mode
         const RECORD_PINS_4_DIGIT = [
             '1010','1014','1017','1041','1105','1264','1366','1786','1993','2046',
             '2082','2106','2433','2460','2479','2559','2563','2576','2598','2613',
@@ -379,12 +382,18 @@
         let currentPins = PINS_4_DIGIT;
         let isAnimating = false;
 
-        // Recording state (real cursor)
+        // Recording state (per-PIN)
         let recording = false;
         let recordData = [];      // array of "time_ms,x,y"
         let recordStartTime = 0;
         let recordPinIndex = 0;   // which PIN from RECORD_PINS_4_DIGIT
         let recordDigitPos = 0;   // which digit within that PIN (0..3)
+
+        // Cursor tracking for 30 Hz sampling
+        let cursorX = 0;
+        let cursorY = 0;
+        let hasCursorPos = false;
+        let recordTimer = null;
 
         function initPinpad() {
             const pinpad = document.getElementById('pinpad');
@@ -478,7 +487,7 @@
             document.getElementById('nextBtn').disabled = currentIndex === currentPins.length - 1;
         }
 
-        // ---------- RECORD MODE (real cursor, VR-visible indicator) ----------
+        // ---------- RECORD MODE ----------
 
         function updateRecordUI() {
             const label = document.getElementById('recordPinLabel');
@@ -491,7 +500,7 @@
             if (idx >= total) {
                 label.textContent = 'All PINs completed.';
                 counter.textContent = `${total} / ${total}`;
-                document.getElementById('backBtn').disabled = false;
+                document.getElementById('backBtn').disabled = total === 0;
                 document.getElementById('nextBtn').disabled = true;
                 return;
             }
@@ -513,25 +522,16 @@
             recording = false;
             recordData = [];
             recordDigitPos = 0;
+            stopRecordTimer();
 
             recordPinIndex = newIndex;
             updateRecordUI();
         }
 
-        // Helper: append text to recordOutput and keep view/caret at the end
-        function appendToRecordOutput(text) {
-            const output = document.getElementById('recordOutput');
-            if (!output) return;
-
-            output.value += text;
-            output.scrollTop = output.scrollHeight;
-            const len = output.value.length;
-            output.selectionStart = output.selectionEnd = len;
-        }
-
         function handleDigitInput(digit) {
             if (currentMode !== 'record') return;
 
+            const output = document.getElementById('recordOutput');
             const totalPins = RECORD_PINS_4_DIGIT.length;
             if (recordPinIndex >= totalPins) return;
 
@@ -540,14 +540,19 @@
 
             // Wrong digit: reset sequence for this PIN
             if (digit !== expectedDigit) {
+                // If we were already recording this PIN, stop & discard
+                if (recording) {
+                    recording = false;
+                    stopRecordTimer();
+                    recordData = [];
+                }
                 recordDigitPos = 0;
-                appendToRecordOutput(
-                    `Wrong digit "${digit}" (expected "${expectedDigit}") ` +
-                    `for PIN ${currentPin}. Sequence reset.\n`
-                );
+                if (output) {
+                    output.value += `Wrong digit "${digit}" (expected "${expectedDigit}") for PIN ${currentPin}. Sequence reset.\n`;
+                }
                 // If they immediately press the correct first digit, start fresh
                 if (digit === currentPin[0]) {
-                    startRecordingForCurrentPin(currentPin);
+                    startRecordingForCurrentPin(output, currentPin);
                     recordDigitPos = 1;
                 }
                 return;
@@ -555,13 +560,13 @@
 
             // Correct digit:
             if (!recording && recordDigitPos === 0) {
-                startRecordingForCurrentPin(currentPin);
+                startRecordingForCurrentPin(output, currentPin);
             }
 
             if (recordDigitPos === currentPin.length - 1) {
                 // Last digit of this PIN
                 recording = false;
-                finishRecordingForCurrentPin(currentPin);
+                finishRecordingForCurrentPin(output, currentPin);
                 recordDigitPos = 0;
                 recordPinIndex++;
                 updateRecordUI();
@@ -570,33 +575,53 @@
             }
         }
 
-        function startRecordingForCurrentPin(pin) {
+        function startRecordingForCurrentPin(output, pin) {
             recording = true;
             recordData = [];
             recordStartTime = performance.now();
-            appendToRecordOutput(`\n--- Recording PIN ${pin} ---\n`);
+            hasCursorPos = false;
+
+            // Clear any previous timer
+            stopRecordTimer();
+
+            // 30 Hz sampling
+            recordTimer = setInterval(() => {
+                if (!recording || currentMode !== 'record' || !hasCursorPos) return;
+                const t = performance.now() - recordStartTime;
+                recordData.push(`${t.toFixed(2)},${cursorX},${cursorY}`);
+            }, 1000 / 30);
+
+            if (output) {
+                output.value += `\n--- Recording PIN ${pin} ---\n`;
+            }
         }
 
-        function finishRecordingForCurrentPin(pin) {
-            const output = document.getElementById('recordOutput');
+        function stopRecordTimer() {
+            if (recordTimer) {
+                clearInterval(recordTimer);
+                recordTimer = null;
+            }
+        }
+
+        function finishRecordingForCurrentPin(output, pin) {
+            stopRecordTimer();
             if (!output) return;
 
             if (!recordData.length) {
-                appendToRecordOutput(`No movement recorded for PIN ${pin}.\n`);
+                output.value += `No movement recorded for PIN ${pin}.\n`;
                 return;
             }
 
             const header = 'pin,time_ms,x,y';
             const hasHeader = output.value.trim().startsWith(header);
             const rows = recordData.map(line => `${pin},${line}`);
-
             if (!hasHeader) {
-                appendToRecordOutput(header + '\n');
+                output.value += header + '\n';
             }
-            appendToRecordOutput(rows.join('\n') + '\n');
+            output.value += rows.join('\n') + '\n';
         }
 
-        // Mouse movement: update indicator + record real trajectory
+        // Mouse movement: update indicator + track cursor position
         document.addEventListener('mousemove', (e) => {
             const indicator = document.getElementById('cursorIndicator');
             let ix = e.clientX;
@@ -606,19 +631,18 @@
                 indicator.style.left = e.clientX + 'px';
                 indicator.style.top = e.clientY + 'px';
 
-                // Record indicator center (robust if you later change its size/transform)
+                // Use indicator's center as reference point
                 const rect = indicator.getBoundingClientRect();
                 ix = rect.left + rect.width / 2;
                 iy = rect.top + rect.height / 2;
             }
 
-            if (currentMode === 'record' && recording) {
-                const t = performance.now() - recordStartTime;
-                recordData.push(`${t.toFixed(2)},${ix},${iy}`);
-            }
+            cursorX = ix;
+            cursorY = iy;
+            hasCursorPos = true;
         });
 
-        // Keyboard support for digits (also works if VR sends key events)
+        // Keyboard support for digits
         document.addEventListener('keydown', (e) => {
             const tag = e.target.tagName;
             if (tag === 'TEXTAREA' || tag === 'INPUT') return;
@@ -639,18 +663,36 @@
             } catch (e) {}
         }
 
+        function downloadRecordCSV() {
+            const ta = document.getElementById('recordOutput');
+            if (!ta) return;
+
+            const text = ta.value;
+            if (!text.trim()) return;
+
+            const blob = new Blob([text], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = 'pin_trajectories.csv';
+
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+        }
+
         function resetRecording() {
             recording = false;
             recordData = [];
             recordStartTime = 0;
             recordDigitPos = 0;
             recordPinIndex = 0;
+            hasCursorPos = false;
+            stopRecordTimer();
             const out = document.getElementById('recordOutput');
-            if (out) {
-                out.value = '';
-                out.scrollTop = 0;
-                out.selectionStart = out.selectionEnd = 0;
-            }
+            if (out) out.value = '';
         }
 
         // Initialize
