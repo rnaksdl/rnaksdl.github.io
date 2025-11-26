@@ -518,10 +518,20 @@
             updateRecordUI();
         }
 
+        // Helper: append text to recordOutput and keep view/caret at the end
+        function appendToRecordOutput(text) {
+            const output = document.getElementById('recordOutput');
+            if (!output) return;
+
+            output.value += text;
+            output.scrollTop = output.scrollHeight;
+            const len = output.value.length;
+            output.selectionStart = output.selectionEnd = len;
+        }
+
         function handleDigitInput(digit) {
             if (currentMode !== 'record') return;
 
-            const output = document.getElementById('recordOutput');
             const totalPins = RECORD_PINS_4_DIGIT.length;
             if (recordPinIndex >= totalPins) return;
 
@@ -531,12 +541,13 @@
             // Wrong digit: reset sequence for this PIN
             if (digit !== expectedDigit) {
                 recordDigitPos = 0;
-                if (output) {
-                    output.value += `Wrong digit "${digit}" (expected "${expectedDigit}") for PIN ${currentPin}. Sequence reset.\n`;
-                }
+                appendToRecordOutput(
+                    `Wrong digit "${digit}" (expected "${expectedDigit}") ` +
+                    `for PIN ${currentPin}. Sequence reset.\n`
+                );
                 // If they immediately press the correct first digit, start fresh
                 if (digit === currentPin[0]) {
-                    startRecordingForCurrentPin(output, currentPin);
+                    startRecordingForCurrentPin(currentPin);
                     recordDigitPos = 1;
                 }
                 return;
@@ -544,13 +555,13 @@
 
             // Correct digit:
             if (!recording && recordDigitPos === 0) {
-                startRecordingForCurrentPin(output, currentPin);
+                startRecordingForCurrentPin(currentPin);
             }
 
             if (recordDigitPos === currentPin.length - 1) {
                 // Last digit of this PIN
                 recording = false;
-                finishRecordingForCurrentPin(output, currentPin);
+                finishRecordingForCurrentPin(currentPin);
                 recordDigitPos = 0;
                 recordPinIndex++;
                 updateRecordUI();
@@ -559,30 +570,30 @@
             }
         }
 
-        function startRecordingForCurrentPin(output, pin) {
+        function startRecordingForCurrentPin(pin) {
             recording = true;
             recordData = [];
             recordStartTime = performance.now();
-            if (output) {
-                output.value += `\n--- Recording PIN ${pin} ---\n`;
-            }
+            appendToRecordOutput(`\n--- Recording PIN ${pin} ---\n`);
         }
 
-        function finishRecordingForCurrentPin(output, pin) {
+        function finishRecordingForCurrentPin(pin) {
+            const output = document.getElementById('recordOutput');
             if (!output) return;
 
             if (!recordData.length) {
-                output.value += `No movement recorded for PIN ${pin}.\n`;
+                appendToRecordOutput(`No movement recorded for PIN ${pin}.\n`);
                 return;
             }
 
             const header = 'pin,time_ms,x,y';
             const hasHeader = output.value.trim().startsWith(header);
             const rows = recordData.map(line => `${pin},${line}`);
+
             if (!hasHeader) {
-                output.value += header + '\n';
+                appendToRecordOutput(header + '\n');
             }
-            output.value += rows.join('\n') + '\n';
+            appendToRecordOutput(rows.join('\n') + '\n');
         }
 
         // Mouse movement: update indicator + record real trajectory
@@ -635,7 +646,11 @@
             recordDigitPos = 0;
             recordPinIndex = 0;
             const out = document.getElementById('recordOutput');
-            if (out) out.value = '';
+            if (out) {
+                out.value = '';
+                out.scrollTop = 0;
+                out.selectionStart = out.selectionEnd = 0;
+            }
         }
 
         // Initialize
