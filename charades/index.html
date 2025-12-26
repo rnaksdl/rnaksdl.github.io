@@ -1,0 +1,220 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Charades Word</title>
+  <style>
+    :root { color-scheme: dark; }
+    html, body { height: 100%; }
+    body{
+      margin:0;
+      display:grid;
+      place-items:center;
+      background:#000;
+      color:#fff;
+      font-family: system-ui, -apple-system, Segoe UI, Roboto, Helvetica, Arial, sans-serif;
+    }
+    #word{
+      font-size: clamp(32px, 7vw, 80px);
+      font-weight: 800;
+      letter-spacing: 0.5px;
+      margin: 0 0 18px 0;
+      text-align:center;
+      user-select:none;
+    }
+    button{
+      background:#fff;
+      color:#000;
+      border: 2px solid #fff;
+      border-radius: 14px;
+      padding: 14px 18px;
+      font-size: 16px;
+      font-weight: 800;
+      cursor:pointer;
+    }
+    button:active{ transform: translateY(1px); }
+    .wrap{
+      width:min(900px, 94vw);
+      padding: 22px;
+      text-align:center;
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <div id="word" aria-live="polite">press the button</div>
+    <button id="btn" type="button">New word</button>
+  </div>
+
+  <script>
+    // Time context: Friday, December 26, 2025 UTC
+
+    // --- Nouns (base form only) ---
+    // One-token words only; add/remove freely.
+    const NOUNS = `
+      actor adult agent air alarm album alley animal ankle apple apron arcade arm army arrow artist attic
+      aunt author award ax baby backpack badge bag bakery ball balloon banana band bank barrel basket bath
+      battery beach beard bed bee belt bench bicycle bike bird blanket blizzard block board boat body bolt
+      bone book boot bottle bowl box boy brain branch bread bridge brother brush bucket building burger bus
+      bush button cabin cable cactus cake camera camp candle canyon cap captain car card carpet cart castle
+      cat cave ceiling cell chair chalk champion cheese chef cherry chess chest chicken child chimney circle
+      city claw clock closet cloud coach coast coat coin comet compass concert cookie cord corner couch
+      counter country coupon court cousin crab crate crown crowd cup cupcake curtain curve dad dancer danger
+      dashboard date daughter dawn day desert desk detective diamond diary dice diner dinosaur dish doctor doll
+      dolphin door dragon drawer dream dress drill driver drum duck dungeon dust eagle ear earth echo egg elbow
+      engine envelope essay exit eyebrow face factory fairy family fan farmer feather fence ferry field film
+      finger fire flag flame flute fog folder forest fork fountain fox frame friend frog fruit galaxy game
+      garage garden gate ghost giant gift giraffe girl glacier glove goat gold golfer grain grape grass
+      greenhouse grill grocery ground group guard guest guitar gym hair hallway hammer hamster hand harbor hat
+      hawk head health heart hedge helmet hero hill history hobby hockey hole holiday honey hook hospital hotel
+      hour house island jacket jail jar jeans jelly jewel judge jug juice jungle kettle key keyboard kid kingdom
+      kitchen kite kitten knife knight ladder lake lamp laptop laser lawyer leaf lemon lesson letter library
+      lighthouse lightning lion list lizard loan lock log lobby lunch machine magician mail mailbox marble
+      market mask master match math medal medicine melody member memory menu message meteor microphone midnight
+      milk mirror mistake mitten model money monitor monkey month moon mop morning mother mountain mouse movie
+      museum mushroom music nail name napkin necklace neighbor nerve net network newspaper night notebook novel
+      nurse ocean office oil onion opera orange orchard order oven owl page painter palace pancake paper parade
+      parent park party passport pasta patch path patient payment peach peanut pen pencil penguin pepper person
+      phone photo piano pickle picture pie pilot pin pirate pizza planet plank plate player pocket poem poet
+      police pool poster potato powder power printer prison prize problem professor pumpkin puppy purse puzzle
+      queen question quilt rabbit race radio rail rain ranch ranger recipe record referee refrigerator region
+      report restaurant reward rhythm ribbon river road rocket room rope rose route rule salad sailor salt
+      sandbox sandwich satellite sauce scarf school scientist scooter screen script sculptor sea season seat
+      secretary seed shadow ship shirt shoe shop shore shower shrimp sidewalk signal singer sister sketch ski
+      skill skin skirt sky sled sleep smile smoke snack snake snow soccer sock soda soldier song sound soup
+      space spaghetti speaker spider spoon sport spring spy square stadium star station steak stone store storm
+      story stove stranger stream street student sugar suitcase summer sun sunset surgeon sweater sword table
+      taco talent tank tape target taxi teacher team theater thief thunder ticket tiger time title toast toaster
+      tomato tongue tool tooth tornado tower town toy track trader train treasure tree truck trumpet tunnel
+      turtle uncle uniform universe vacation valley vampire van vase vehicle velvet vendor verse video village
+      violin visitor voice volcano waiter wallet wall war watch water weapon week whale wheel window winner
+      winter wire wizard wolf woman wood worker world wrench writer yard year zebra zipper
+
+      acorn anchor angle anvil arcade archer arena attic badge bakery banner barn barrel beacon beaker berry
+      blanket blossom border bottle buckle cabinet cactus canyon carpet carrot cellar chalet circus clinic
+      closet coconut comet cookie coral cottage crater crayon credit crocus cruelty curtain cushion dagger
+      daisy damage den dessert diaper diesel dinner discus donut drawer drought emerald engine error evening
+      fabric falcon faucet feather festival filter firewall fishing fitness fortress fossil fountain freezer
+      furnace gadget galaxy garage garlic gazelle gemstone glacier goggle granite gravity hammock hazard helmet
+      highway horizon igloo image inbox insect invoice jacket jasmine jigsaw kettle kiosk lantern leather legend
+      lettuce locket locket lorry locket magnet mansion marble meadow medal melody mercury message mineral minute
+      mirror module mustard nectar nugget number object outlet package paddle palace pancake parcel parrot passport
+      password pattern peanut pepper perfume physics pigment pillow pioneer plasma platter podcast pocketbook
+      polygon popcorn postage protein pyramid quartz racket random ranger reactor refund relic remote reptile
+      request robot rocket rooster rubber sandbox scandal scarf schedule shelter shipment shortcut shrimp signal
+      sketch skillet slogan snorkel socket software solder soldier sonar spanner sparkle species sponsor stadium
+      sticker stomach sunset surplus survey sweater symbol tablet tariff temple thermal thunder ticket tissue
+      toaster tornado tractor traffic trophy tunnel turban turbine umbrella vendor velvet verdict village wallet
+      wallpaper weekday weekend widget window windshield workshop worksheet yogurt zipper
+    `.trim().split(/\s+/).filter(w => /^[a-z]+$/i.test(w));
+
+    // --- Base verbs -> we will convert to "-ing" only ---
+    // Rules like drop final "e" (make->making) and double consonant in some CVC cases (run->running) [[6]]
+    const BASE_VERBS = `
+      accept achieve add admire admit advise afford agree alert allow amuse announce answer appear apply argue
+      arrange arrive ask attack avoid bake balance bathe battle beam beg begin behave believe belong bend bet
+      bite blink bloom blow boast boil borrow bounce break breathe bring build burn burst buy call camp carry
+      catch change chase cheer chew choose clap clean climb close collect color come complain complete cook copy
+      count cover crash crawl create cry cut dance decide deliver depend describe design destroy develop dig
+      disappear discover discuss dive do draw dream dress drink drive drop dry earn eat echo edit end enjoy
+      enter escape examine exist explain explore face fail fasten feed feel fetch fight fill film find finish
+      fix float fly fold follow forget forgive freeze fry gather giggle give glow go grab greet grin grow guess
+      guide handle hang happen hate heal hear help hide hike hit hold hop hope hug hurry imagine improve include
+      increase influence invite jump keep kick kiss kneel know laugh launch learn leave lend lift like listen
+      live look lose love make manage march measure meet melt memorize mend mention mix move nap need nod notice
+      obey open paint pass pay peel perform phone pick plan play point pour practice pray prefer prepare press
+      pretend print pull push race rain raise reach read realize receive record reduce relax remember repair
+      repeat reply rescue rest return ride ring rise roast roll run sail save scare scratch scream search see
+      seem sell send serve sew shake share shine shout show sing sink sit skate sleep smell smile sneeze snow
+      solve speak spell spend spill spin split spray spread stand start stay steal step stir stop study swim
+      swing take talk taste teach tell thank think throw tie travel try turn type understand use visit wait wake
+      walk want wash watch wave wear whisper win wish work worry write yawn
+
+      activate adapt addres align allocate alter analyze applaud approve assemble assist assume attach attempt
+      attract audit authorize bake barter boast boost calculate capture celebrate certify challenge charge chase
+      check coach code combine command compare compete compile compose compute concentrate conduct confirm connect
+      consider consist consult contact contain continue control convert convince cooperate coordinate correct
+      counsel craft crash critique cross cure cycle decode decorate decrease defend define delay delete demand
+      deny deploy derive describe detect diagnose direct disagree disappear distribute document download dress
+      educate eliminate email emerge empower enable encourage engineer enhance enroll ensure entertain evaluate
+      exchange execute exercise expand expect export extend extract feature file filter finance focus forecast
+      format found function govern graduate grant greet grind guard harvest highlight hire identify illustrate
+      imagine import improve index influence inform initiate inspect inspire install instruct integrate intend
+      intercept introduce invent invest invite involve join judge justify label launch learn lecture license
+      limit locate log maintain manage manufacture market mentor migrate model modify monitor motivate negotiate
+      network note observe obtain occupy offer organize outline overcome package participate perform persuade
+      photograph pitch plan polish predict prefer present preserve prevent process produce program project
+      promise propose protect prove publish purchase qualify question rank reach react record recover recruit
+      recycle refine reflect refresh refuse register regulate rehearse relate release relieve rely remove render
+      renew repair replace report request research resolve respond restore retire revise risk rotate route
+      satisfy schedule screen seal secure select separate settle share shorten simplify simulate skip slow
+      sort specify sponsor stabilize standardize store streamline strengthen summarize supervise support suppose
+      surprise survive tackle target test track train transfer transform translate transport treat trim trust
+      update upgrade upload urge validate verify visit volunteer warn welcome whisper withdraw witness wonder
+      wrestle
+    `.trim().split(/\s+/).filter(w => /^[a-z]+$/i.test(w));
+
+    function toIng(v){
+      v = v.toLowerCase();
+
+      // die -> dying, tie -> tying
+      if (v.endsWith("ie")) return v.slice(0, -2) + "ying";
+
+      // make -> making (drop final e) [[6]]
+      if (v.endsWith("e") && v.length > 2 && !v.endsWith("ee")) return v.slice(0, -1) + "ing";
+
+      // run -> running (basic CVC doubling) [[6]]
+      // Not perfect English morphology, but good enough for charades prompts.
+      if (/[^aeiou][aeiou][^aeiou]$/.test(v) && !/(w|x|y)$/.test(v)) {
+        return v + v.slice(-1) + "ing";
+      }
+      return v + "ing";
+    }
+
+    const VERBS_ING = BASE_VERBS.map(toIng);
+
+    // Combine + dedupe => thousands of one-word prompts
+    const WORDS = Array.from(new Set([...NOUNS, ...VERBS_ING]));
+
+    // --- UI logic ---
+    const wordEl = document.getElementById("word");
+    const btn = document.getElementById("btn");
+    let last = "";
+
+    function randInt(max){
+      // Stronger randomness when available
+      if (max <= 0) return 0;
+      if (globalThis.crypto?.getRandomValues) {
+        const buf = new Uint32Array(1);
+        crypto.getRandomValues(buf);
+        return buf[0] % max;
+      }
+      return Math.floor(Math.random() * max);
+    }
+
+    function newWord(){
+      if (!WORDS.length) return;
+      let w = WORDS[randInt(WORDS.length)];
+      if (WORDS.length > 1) {
+        while (w === last) w = WORDS[randInt(WORDS.length)];
+      }
+      last = w;
+      wordEl.textContent = w;
+    }
+
+    btn.addEventListener("click", newWord);
+
+    // Optional: Space/Enter also gets a new word (still a very simple UI)
+    window.addEventListener("keydown", (e) => {
+      if (e.key === " " || e.key === "Enter") {
+        e.preventDefault();
+        newWord();
+      }
+    });
+
+    // (Optional) Debug: see how many you have
+    // console.log("Total words:", WORDS.length);
+  </script>
+</body>
+</html>
