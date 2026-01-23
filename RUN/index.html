@@ -1,0 +1,76 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+    <title>Pose Detection</title>
+    <link rel="stylesheet" href="css/styles.css">
+</head>
+<body>
+    <div id="loading">
+        <div class="spinner"></div>
+        <p>Loading camera...</p>
+    </div>
+
+    <div id="app" class="hidden">
+        <!-- Hidden video for MediaPipe input -->
+        <video id="video" autoplay playsinline></video>
+        
+        <!-- Skeleton canvas -->
+        <div id="skeleton-container">
+            <canvas id="canvas"></canvas>
+            
+            <!-- Get Ready overlay -->
+            <div id="get-ready-overlay">
+                <h2>Pose Detection</h2>
+                <p>Stand back so your full body is visible</p>
+                <button id="get-ready-btn">Get Ready</button>
+            </div>
+            
+            <!-- Countdown overlay -->
+            <div id="countdown-overlay" class="hidden">
+                <div id="countdown-number">5</div>
+                <p>Get into position!</p>
+            </div>
+        </div>
+        
+        <!-- Detected pose display -->
+        <div id="pose-display" class="hidden">
+            <div id="current-pose">—</div>
+        </div>
+        
+        <!-- Pose indicators -->
+        <div id="pose-list" class="hidden">
+            <div class="pose-item" data-pose="jump">↑ JUMP</div>
+            <div class="pose-item" data-pose="duck">↓ DUCK</div>
+            <div class="pose-item" data-pose="arms-x">✕ ARMS X</div>
+            <div class="pose-item" data-pose="arms-o">○ ARMS O</div>
+            <div class="pose-item" data-pose="arms-spread">— ARMS SPREAD</div>
+            <div class="pose-item" data-pose="arms-up">▲ ARMS UP</div>
+            <div class="pose-item" data-pose="left-hook">← LEFT HOOK</div>
+            <div class="pose-item" data-pose="right-hook">→ RIGHT HOOK</div>
+            <div class="pose-item" data-pose="left-uppercut">↖ LEFT UPPERCUT</div>
+            <div class="pose-item" data-pose="right-uppercut">↗ RIGHT UPPERCUT</div>
+            <div class="pose-item" data-pose="kick-left">🦵 LEFT KICK</div>
+            <div class="pose-item" data-pose="kick-right">🦵 RIGHT KICK</div>
+        </div>
+        
+        <!-- Recalibrate button -->
+        <button id="calibrate-btn" class="hidden">⟳ Recalibrate</button>
+        
+        <!-- Status -->
+        <div id="status">
+            <span id="status-dot">●</span>
+            <span id="status-text">Press "Get Ready" to start</span>
+        </div>
+    </div>
+
+    <!-- Scripts -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/pose/pose.js" crossorigin="anonymous"></script>
+    
+    <script src="js/poseDetection.js"></script>
+    <script src="js/poseRecognition.js"></script>
+    <script src="js/main.js"></script>
+</body>
+</html>

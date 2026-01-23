@@ -1,0 +1,346 @@
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+}
+
+body {
+    background: #08080f;
+    color: #fff;
+    font-family: 'Segoe UI', Tahoma, sans-serif;
+    overflow: hidden;
+    height: 100vh;
+}
+
+/* Loading */
+#loading {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    background: #08080f;
+    z-index: 1000;
+}
+
+#loading.hidden {
+    display: none;
+}
+
+.spinner {
+    width: 50px;
+    height: 50px;
+    border: 4px solid #222;
+    border-top-color: #00ffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+    to { transform: rotate(360deg); }
+}
+
+#loading p {
+    margin-top: 15px;
+    color: #666;
+}
+
+/* App */
+#app {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 15px;
+    height: 100vh;
+}
+
+#app.hidden {
+    display: none;
+}
+
+/* Hidden video */
+#video {
+    position: absolute;
+    top: -9999px;
+    left: -9999px;
+    width: 640px;
+    height: 480px;
+}
+
+/* Skeleton container */
+#skeleton-container {
+    position: relative;
+    width: 700px;
+    max-width: 95vw;
+    height: 500px;
+    max-height: 55vh;
+    background: linear-gradient(180deg, #0a0a15 0%, #12121f 100%);
+    border-radius: 12px;
+    border: 2px solid #222;
+    overflow: hidden;
+    box-shadow: 0 0 40px rgba(0, 0, 0, 0.5);
+}
+
+#skeleton-container.detected {
+    border-color: #00ffff;
+    box-shadow: 0 0 30px rgba(0, 255, 255, 0.15);
+}
+
+#canvas {
+    width: 100%;
+    height: 100%;
+}
+
+/* Get Ready overlay */
+#get-ready-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 15, 0.95);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#get-ready-overlay.hidden {
+    display: none;
+}
+
+#get-ready-overlay h2 {
+    font-size: 1.8rem;
+    color: #00ffff;
+    margin-bottom: 15px;
+    text-shadow: 0 0 20px rgba(0, 255, 255, 0.5);
+}
+
+#get-ready-overlay p {
+    color: #888;
+    margin-bottom: 30px;
+    text-align: center;
+    padding: 0 20px;
+}
+
+#get-ready-btn {
+    padding: 15px 50px;
+    font-size: 1.2rem;
+    font-weight: 700;
+    background: #00ffff;
+    color: #080810;
+    border: none;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+    box-shadow: 0 0 25px rgba(0, 255, 255, 0.4);
+}
+
+#get-ready-btn:hover {
+    transform: scale(1.05);
+    box-shadow: 0 0 35px rgba(0, 255, 255, 0.6);
+}
+
+#get-ready-btn:active {
+    transform: scale(0.98);
+}
+
+/* Countdown overlay */
+#countdown-overlay {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(8, 8, 15, 0.9);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 10;
+}
+
+#countdown-overlay.hidden {
+    display: none;
+}
+
+#countdown-number {
+    font-size: 8rem;
+    font-weight: 900;
+    color: #00ffff;
+    text-shadow: 0 0 50px rgba(0, 255, 255, 0.6);
+    animation: pulse 1s ease-in-out infinite;
+}
+
+@keyframes pulse {
+    0%, 100% { transform: scale(1); opacity: 1; }
+    50% { transform: scale(1.1); opacity: 0.8; }
+}
+
+#countdown-overlay p {
+    color: #888;
+    font-size: 1.2rem;
+    margin-top: 20px;
+}
+
+/* Pose display */
+#pose-display {
+    margin-top: 15px;
+    text-align: center;
+}
+
+#pose-display.hidden {
+    display: none;
+}
+
+#current-pose {
+    font-size: 2.2rem;
+    font-weight: 700;
+    color: #00ffff;
+    text-shadow: 0 0 25px rgba(0, 255, 255, 0.6);
+    min-height: 50px;
+    letter-spacing: 2px;
+    transition: all 0.2s ease;
+}
+
+#current-pose.detected {
+    animation: glow 0.3s ease;
+}
+
+#current-pose.combat {
+    color: #ff4444;
+    text-shadow: 0 0 30px rgba(255, 68, 68, 0.8);
+    animation: combatFlash 0.15s ease;
+}
+
+@keyframes glow {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.1); }
+    100% { transform: scale(1); }
+}
+
+@keyframes combatFlash {
+    0% { transform: scale(1); }
+    50% { transform: scale(1.2); }
+    100% { transform: scale(1); }
+}
+
+/* Pose list */
+#pose-list {
+    display: flex;
+    flex-wrap: wrap;
+    justify-content: center;
+    gap: 8px;
+    margin-top: 15px;
+    max-width: 750px;
+}
+
+#pose-list.hidden {
+    display: none;
+}
+
+.pose-item {
+    padding: 8px 14px;
+    background: rgba(255, 255, 255, 0.03);
+    border: 2px solid #1a1a25;
+    border-radius: 8px;
+    font-size: 0.8rem;
+    color: #555;
+    transition: all 0.15s ease;
+}
+
+.pose-item.active {
+    border-color: #00ffff;
+    color: #00ffff;
+    background: rgba(0, 255, 255, 0.08);
+    box-shadow: 0 0 20px rgba(0, 255, 255, 0.25);
+    transform: scale(1.05);
+}
+
+/* Combat move items when active */
+.pose-item[data-pose="left-hook"].active,
+.pose-item[data-pose="right-hook"].active,
+.pose-item[data-pose="left-uppercut"].active,
+.pose-item[data-pose="right-uppercut"].active {
+    border-color: #ff4444;
+    color: #ff4444;
+    background: rgba(255, 68, 68, 0.15);
+    box-shadow: 0 0 25px rgba(255, 68, 68, 0.4);
+}
+
+/* Calibrate button */
+#calibrate-btn {
+    margin-top: 15px;
+    padding: 10px 25px;
+    background: transparent;
+    border: 2px solid #333;
+    border-radius: 6px;
+    color: #888;
+    font-size: 0.85rem;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+#calibrate-btn.hidden {
+    display: none;
+}
+
+#calibrate-btn:hover {
+    border-color: #00ffff;
+    color: #00ffff;
+}
+
+/* Status */
+#status {
+    position: fixed;
+    bottom: 15px;
+    left: 15px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: #555;
+}
+
+#status-dot {
+    color: #555;
+    font-size: 0.7rem;
+}
+
+#status-dot.waiting {
+    color: #ffaa00;
+}
+
+#status-dot.ready {
+    color: #00ff88;
+}
+
+/* Mobile */
+@media (max-width: 600px) {
+    #skeleton-container {
+        height: 350px;
+    }
+    
+    #countdown-number {
+        font-size: 5rem;
+    }
+    
+    #current-pose {
+        font-size: 1.6rem;
+    }
+    
+    .pose-item {
+        font-size: 0.7rem;
+        padding: 6px 10px;
+    }
+    
+    #get-ready-btn {
+        padding: 12px 35px;
+        font-size: 1rem;
+    }
+}
