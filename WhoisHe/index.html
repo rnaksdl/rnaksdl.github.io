@@ -1,0 +1,982 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Who is He</title>
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<style>
+  :root{
+    --bg:#000000; --panel:#262626; --panel2:#515151; --text:#FFFFFF;
+    --muted:rgba(255,255,255,.5); --accent:#C9E9FF;
+    --red:#FF383C; --yellow:#FFCC00; --green:#34C759; --blue:#0088FF;
+    --danger: var(--red);
+  }
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
+  html,body{height:100%; margin:0; background:#000; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  #phone{
+    max-width:430px; height:100vh; margin:0 auto; background:var(--bg); color:var(--text);
+    position:relative; overflow:hidden; display:flex; flex-direction:column; border-left:1px solid #111; border-right:1px solid #111;
+  }
+  .screen{position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg);}
+  .screen.active{display:flex;}
+  /* ---------- Splash ---------- */
+  #splash{align-items:center; justify-content:center; gap:10px;}
+  .splash-bars{display:flex; gap:10px;}
+  .bar{width:34px; height:70px; background:#fff; border-radius:6px; animation:pulse 1.2s ease-in-out infinite;}
+  .bar:nth-child(2){animation-delay:.15s;} .bar:nth-child(3){animation-delay:.3s;} .bar:nth-child(4){animation-delay:.45s;}
+  @keyframes pulse{0%,100%{opacity:.35; transform:scaleY(.8);} 50%{opacity:1; transform:scaleY(1);}}
+
+  /* ---------- Main reading screen ---------- */
+  #main{padding:20px 18px 110px; overflow-y:auto;}
+  #passageHeader{font-size:13px; color:var(--muted); margin-bottom:10px;}
+  #verseContent{font-size:18px; line-height:1.6;}
+  #verseContent .heading{font-weight:700; font-size:19px; margin:18px 0 8px;}
+  .verse{position:relative; cursor:pointer;}
+  .verse sup{color:var(--muted); font-size:11px; margin-right:2px;}
+  .verse.selected{text-decoration:underline dotted; text-underline-offset:4px;}
+  .verse.has-note{text-decoration:underline dotted rgba(255,255,255,.4); text-underline-offset:3px;}
+  .verse.hl-red{background:rgba(255,56,60,.28); border-radius:4px;}
+  .verse.hl-yellow{background:rgba(255,204,0,.28); border-radius:4px;}
+  .verse.hl-green{background:rgba(52,199,89,.28); border-radius:4px;}
+  .verse.hl-blue{background:rgba(0,136,255,.28); border-radius:4px;}
+
+  /* ---------- Backdrop for floating panels ---------- */
+  #sheetBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:15;
+    opacity:0; pointer-events:none; transition:opacity .2s ease;}
+  #sheetBackdrop.show{opacity:1; pointer-events:auto;}
+
+  /* Bottom nav on main screen — floating pills */
+  #navFade{position:absolute; bottom:0; left:0; right:0; height:120px; pointer-events:none;
+    background:linear-gradient(transparent, rgba(0,0,0,.7) 60%); z-index:9;}
+  #bottomNav{position:absolute; bottom:22px; left:14px; right:14px; z-index:10; display:flex; align-items:center; gap:12px;}
+  .nav-btn{width:50px; height:50px; border-radius:50%; background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.55);
+    display:flex; align-items:center; justify-content:center; border:none; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0;}
+  #tabPillWrap{flex:1;}
+  #tabPill{background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.55); border-radius:26px; padding:11px 16px;
+    text-align:center; font-size:14px; color:#fff; cursor:pointer; user-select:none;}
+  #tabDots{display:flex; gap:4px; justify-content:center; margin-top:6px;}
+  .tab-dot{width:5px; height:5px; border-radius:50%; background:var(--muted);}
+  .tab-dot.active{background:var(--accent);}
+
+  /* ---------- Floating Sheets (Settings / Search / Notes) ---------- */
+  .sheet{position:absolute; left:14px; right:14px; bottom:100px; max-height:70vh; background:var(--panel);
+    border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,.6); z-index:20; display:none; flex-direction:column;
+    padding:18px; overflow-y:auto;}
+  .sheet.open{display:flex;}
+  .sheet-top{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
+  .icon-btn{background:none; border:none; color:#fff; font-size:20px; cursor:pointer;}
+  .icon-btn.small{font-size:16px; width:32px; height:32px; border-radius:50%; background:var(--panel2);
+    display:flex; align-items:center; justify-content:center;}
+  .search-input, .text-input{flex:1; background:var(--panel2); border:none; border-radius:20px; padding:12px 16px;
+    color:#fff; font-size:15px; outline:none;}
+  .close-x{background:var(--panel2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer;}
+
+  /* Settings */
+  .settings-row{display:flex; align-items:center; justify-content:space-between; padding:14px 4px; border-bottom:1px solid rgba(255,255,255,.08);}
+  .settings-row label{font-size:15px;}
+  select, .btn{background:var(--panel2); color:#fff; border:none; border-radius:14px; padding:8px 14px; font-size:14px; cursor:pointer;}
+  .btn.full{width:100%; padding:12px 0; font-size:14px;}
+  .fontsize-toggle button{background:var(--panel2); border:none; color:#fff; border-radius:12px; padding:6px 12px; margin-left:6px; cursor:pointer;}
+  #signInBtn{background:#fff; color:#000; font-weight:600;}
+  input[type=range]{width:120px;}
+  #apiKeyInput{width:100%; margin-top:6px; background:var(--panel2); border:none; border-radius:10px; padding:8px 10px; color:#fff;}
+
+  /* Search suggestions */
+  #suggestions{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
+  .sugg-item{background:var(--panel2); padding:12px 14px; border-radius:12px; cursor:pointer;}
+  #quickTabs{display:flex; gap:8px; margin-top:16px;}
+  .quick-chip{flex:1; text-align:center; background:var(--panel2); padding:10px; border-radius:14px; font-size:13px; cursor:pointer;}
+  .quick-chip.active{outline:2px solid var(--accent);}
+
+  /* Notes list */
+  .note-row{display:flex; justify-content:space-between; align-items:center; padding:14px 6px; border-bottom:1px solid rgba(255,255,255,.08); cursor:pointer;}
+  .note-row .dot{width:8px; height:8px; border-radius:50%; margin-right:8px; display:inline-block;}
+  .note-date{color:var(--muted); font-size:12px;}
+  #graphBtn{margin-left:auto;}
+
+  /* Verse popup — floating, direct-highlight */
+  #versePopup{position:absolute; left:14px; right:14px; bottom:100px; background:var(--panel); border-radius:20px;
+    padding:14px; z-index:20; display:none; flex-direction:column; gap:10px; box-shadow:0 12px 40px rgba(0,0,0,.6);}
+  #versePopup.open{display:flex;}
+  .popup-header{display:flex; align-items:center; justify-content:flex-end;}
+  .popup-note-preview{background:var(--panel2); padding:8px 10px; border-radius:10px; font-size:13px; cursor:pointer;}
+  #highlightRow{display:flex; gap:12px; justify-content:center; padding:4px 0;}
+  .hl-swatch{width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  #blbLinkPopup{color:var(--accent); font-size:13px; text-decoration:underline; text-align:center; cursor:pointer;}
+
+  /* Note editor */
+  #noteEditor .sheet-top{align-items:flex-start;}
+  #noteTitle{font-size:16px; font-weight:600; background:var(--panel2); border:none; border-radius:12px; padding:10px 14px; color:#fff; width:100%;}
+  #refChip{background:var(--panel2); border-radius:14px; padding:6px 12px; font-size:12px; color:var(--muted); white-space:nowrap;}
+  #noteContentWrap{position:relative; flex:1; margin-top:12px;}
+  #noteContent{width:100%; height:100%; background:transparent; border:none; color:#fff; font-size:15px; resize:none; outline:none;}
+  #drawCanvas{position:absolute; inset:0; touch-action:none;}
+  #drawCanvas.active{pointer-events:auto;}
+  #drawCanvas:not(.active){pointer-events:none;}
+  #colorRow{display:flex; gap:8px; margin:10px 0;}
+  .tag-color{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .tag-color.selected{border-color:#fff;}
+  #blbLink{color:var(--accent); font-size:13px; text-decoration:underline; cursor:pointer;}
+  #drawToolbar{display:flex; align-items:center; gap:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08);}
+  #drawToolbar .tool{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:1;}
+  #drawToolbar .tool.dim{opacity:.2; pointer-events:none;}
+  #drawToolbar .tool.sel{outline:1px solid #fff; border-radius:8px; padding:4px;}
+  #colorSwatch{width:22px; height:22px; border-radius:50%; border:1px solid #666; cursor:pointer;}
+
+  /* Graph */
+  #graphCanvas{flex:1; touch-action:none;}
+</style>
+</head>
+<body>
+<div id="phone">
+
+  <!-- SPLASH -->
+  <div id="splash" class="screen active">
+    <div class="splash-bars">
+      <div class="bar"></div><div class="bar"></div><div class="bar"></div><div class="bar"></div>
+    </div>
+  </div>
+
+  <!-- MAIN -->
+  <div id="main" class="screen">
+    <div id="passageHeader"></div>
+    <div id="verseContent">Loading passage…</div>
+    <div id="navFade"></div>
+    <div id="bottomNav">
+      <button class="nav-btn" onclick="openSheet('settingsSheet')">⚙️</button>
+      <div id="tabPillWrap">
+        <div id="tabPill" onclick="openSheet('searchSheet')">Eph 5:15-20</div>
+        <div id="tabDots"></div>
+      </div>
+      <button class="nav-btn" onclick="openNotesList()">🗒️</button>
+    </div>
+  </div>
+
+  <!-- BACKDROP for floating panels -->
+  <div id="sheetBackdrop"></div>
+
+  <!-- VERSE POPUP -->
+  <div id="versePopup">
+    <div class="popup-header">
+      <button class="icon-btn small" onclick="popupAction('copy')" title="Copy">⧉</button>
+    </div>
+    <div id="popupNotes"></div>
+    <button class="btn full" onclick="popupAction('note')">＋ Leave a new note</button>
+    <div id="highlightRow">
+      <div class="hl-swatch" style="background:var(--red)" onclick="applyHighlight('red')"></div>
+      <div class="hl-swatch" style="background:var(--yellow)" onclick="applyHighlight('yellow')"></div>
+      <div class="hl-swatch" style="background:var(--green)" onclick="applyHighlight('green')"></div>
+      <div class="hl-swatch" style="background:var(--blue)" onclick="applyHighlight('blue')"></div>
+    </div>
+    <span id="blbLinkPopup" onclick="popupAction('blb')">Look up Blue Letter Bible</span>
+  </div>
+
+  <!-- SETTINGS SHEET -->
+  <div id="settingsSheet" class="sheet">
+    <div class="sheet-top">
+      <div style="flex:1; font-size:18px; font-weight:600;">Settings</div>
+      <button class="close-x" onclick="closeSheet('settingsSheet')">✕</button>
+    </div>
+
+    <div class="settings-row">
+      <label>Account</label>
+      <button id="signInBtn" class="btn" onclick="handleGoogleAuthClick()">Sign in</button>
+    </div>
+
+    <div class="settings-row">
+      <label>Bible letter size</label>
+      <div class="fontsize-toggle">
+        <button onclick="changeFontSize(-2)">A</button>
+        <button onclick="changeFontSize(2)" style="font-size:18px;">A</button>
+      </div>
+    </div>
+
+    <div class="settings-row">
+      <label>Translation</label>
+      <select id="translationSelect" onchange="onTranslationChange(this.value)">
+        <option value="">Load with API key ↓</option>
+      </select>
+    </div>
+
+    <div class="settings-row" style="flex-direction:column; align-items:flex-start;">
+      <label>api.bible API key</label>
+      <input id="apiKeyInput" placeholder="Paste your api.bible key…" />
+      <button class="btn" style="margin-top:8px;" onclick="loadBibleList()">Fetch my translations</button>
+    </div>
+
+    <div class="settings-row">
+      <label>Sync status</label>
+      <div id="syncStatus" style="font-size:12px; color:var(--muted);">Not signed in</div>
+    </div>
+
+    <div class="settings-row">
+      <label>Backup</label>
+      <button class="btn" onclick="exportBackup()">Export JSON</button>
+    </div>
+
+    <div class="settings-row">
+      <label>Reset local data</label>
+      <button class="btn" style="background:var(--danger);" onclick="resetAll()">Clear</button>
+    </div>
+  </div>
+
+  <!-- SEARCH SHEET -->
+  <div id="searchSheet" class="sheet">
+    <div class="sheet-top">
+      <button class="icon-btn" onclick="openGraph()">✳️</button>
+      <input class="search-input" id="searchInput" placeholder="Search book, chapter, verse…" oninput="onSearchInput()" />
+      <button class="close-x" onclick="closeSheet('searchSheet')">✕</button>
+    </div>
+    <div id="quickTabs"></div>
+    <div id="suggestions"></div>
+  </div>
+
+  <!-- NOTES LIST SHEET -->
+  <div id="notesSheet" class="sheet">
+    <div class="sheet-top">
+      <button class="icon-btn" onclick="openGraph()">✳️</button>
+      <input class="search-input" id="notesSearch" placeholder="Search notes…" oninput="renderNotesList()" />
+      <button class="close-x" onclick="closeSheet('notesSheet')">✕</button>
+    </div>
+    <div id="notesListWrap" style="overflow-y:auto; flex:1;"></div>
+    <button class="btn" style="margin-top:10px;" onclick="createNote()">Leave a new note</button>
+  </div>
+
+  <!-- NOTE EDITOR -->
+  <div id="noteEditor" class="screen">
+    <div class="sheet-top" style="padding:16px 16px 0;">
+      <button class="icon-btn" id="drawToggleBtn" onclick="toggleDrawMode()">✏️</button>
+      <span id="refChip"></span>
+      <div style="flex:1;"></div>
+      <button class="close-x" onclick="closeNoteEditor()">✕</button>
+    </div>
+    <div style="padding:0 16px;">
+      <input id="noteTitle" placeholder="Title" oninput="saveCurrentNote()" />
+    </div>
+    <div id="noteContentWrap" style="margin:0 16px;">
+      <textarea id="noteContent" placeholder="(and notes or drawings go here)" oninput="saveCurrentNote()"></textarea>
+      <canvas id="drawCanvas"></canvas>
+    </div>
+    <div style="padding:0 16px 16px;">
+      <div id="colorRow">
+        <div class="tag-color" style="background:var(--red)" onclick="setNoteColor('red')"></div>
+        <div class="tag-color" style="background:var(--yellow)" onclick="setNoteColor('yellow')"></div>
+        <div class="tag-color" style="background:var(--green)" onclick="setNoteColor('green')"></div>
+        <div class="tag-color" style="background:var(--blue)" onclick="setNoteColor('blue')"></div>
+      </div>
+      <span id="blbLink" onclick="openBLBForCurrentNote()">Look up Blue Letter Bible</span>
+      <div id="drawToolbar">
+        <div id="colorSwatch" style="background:#fff;" onclick="pickColor()"></div>
+        <input type="color" id="colorPicker" style="display:none;" onchange="setDrawColor(this.value)">
+        <button class="tool sel" id="penTool" onclick="selectTool('pen')">✒️</button>
+        <button class="tool" id="eraserTool" onclick="selectTool('eraser')">🧽</button>
+        <button class="tool dim" id="undoBtn" onclick="undoStroke()">↶</button>
+        <button class="tool dim" id="redoBtn" onclick="redoStroke()">↷</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- GRAPH VIEW -->
+  <div id="graphScreen" class="screen">
+    <div class="sheet-top" style="padding:16px;">
+      <div style="flex:1; font-size:18px; font-weight:600;">Knowledge Graph</div>
+      <button class="close-x" onclick="closeGraph()">✕</button>
+    </div>
+    <canvas id="graphCanvas"></canvas>
+  </div>
+
+</div>
+
+<script>
+/* =========================================================
+   CONFIG — fill these in for your own deployment
+========================================================= */
+const GOOGLE_CLIENT_ID = "198827651836-8ml3cr2uonbvprflnim9reqe2ovo8865.apps.googleusercontent.com";
+const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.appdata";
+const DRIVE_FILE_NAME = "whoishe-data.json";
+const API_BIBLE_BASE = "https://api.scripture.api.bible/v1";
+
+/* =========================================================
+   BOOK DATA (standard USFM-style ids + chapter counts)
+========================================================= */
+const BOOKS = [
+ {id:"GEN",name:"Genesis",chapters:50},{id:"EXO",name:"Exodus",chapters:40},
+ {id:"LEV",name:"Leviticus",chapters:27},{id:"NUM",name:"Numbers",chapters:36},
+ {id:"DEU",name:"Deuteronomy",chapters:34},{id:"JOS",name:"Joshua",chapters:24},
+ {id:"JDG",name:"Judges",chapters:21},{id:"RUT",name:"Ruth",chapters:4},
+ {id:"1SA",name:"1 Samuel",chapters:31},{id:"2SA",name:"2 Samuel",chapters:24},
+ {id:"1KI",name:"1 Kings",chapters:22},{id:"2KI",name:"2 Kings",chapters:25},
+ {id:"1CH",name:"1 Chronicles",chapters:29},{id:"2CH",name:"2 Chronicles",chapters:36},
+ {id:"EZR",name:"Ezra",chapters:10},{id:"NEH",name:"Nehemiah",chapters:13},
+ {id:"EST",name:"Esther",chapters:10},{id:"JOB",name:"Job",chapters:42},
+ {id:"PSA",name:"Psalms",chapters:150},{id:"PRO",name:"Proverbs",chapters:31},
+ {id:"ECC",name:"Ecclesiastes",chapters:12},{id:"SNG",name:"Song of Solomon",chapters:8},
+ {id:"ISA",name:"Isaiah",chapters:66},{id:"JER",name:"Jeremiah",chapters:52},
+ {id:"LAM",name:"Lamentations",chapters:5},{id:"EZK",name:"Ezekiel",chapters:48},
+ {id:"DAN",name:"Daniel",chapters:12},{id:"HOS",name:"Hosea",chapters:14},
+ {id:"JOL",name:"Joel",chapters:3},{id:"AMO",name:"Amos",chapters:9},
+ {id:"OBA",name:"Obadiah",chapters:1},{id:"JON",name:"Jonah",chapters:4},
+ {id:"MIC",name:"Micah",chapters:7},{id:"NAM",name:"Nahum",chapters:3},
+ {id:"HAB",name:"Habakkuk",chapters:3},{id:"ZEP",name:"Zephaniah",chapters:3},
+ {id:"HAG",name:"Haggai",chapters:2},{id:"ZEC",name:"Zechariah",chapters:14},
+ {id:"MAL",name:"Malachi",chapters:4},{id:"MAT",name:"Matthew",chapters:28},
+ {id:"MRK",name:"Mark",chapters:16},{id:"LUK",name:"Luke",chapters:24},
+ {id:"JHN",name:"John",chapters:21},{id:"ACT",name:"Acts",chapters:28},
+ {id:"ROM",name:"Romans",chapters:16},{id:"1CO",name:"1 Corinthians",chapters:16},
+ {id:"2CO",name:"2 Corinthians",chapters:13},{id:"GAL",name:"Galatians",chapters:6},
+ {id:"EPH",name:"Ephesians",chapters:6},{id:"PHP",name:"Philippians",chapters:4},
+ {id:"COL",name:"Colossians",chapters:4},{id:"1TH",name:"1 Thessalonians",chapters:5},
+ {id:"2TH",name:"2 Thessalonians",chapters:3},{id:"1TI",name:"1 Timothy",chapters:6},
+ {id:"2TI",name:"2 Timothy",chapters:4},{id:"TIT",name:"Titus",chapters:3},
+ {id:"PHM",name:"Philemon",chapters:1},{id:"HEB",name:"Hebrews",chapters:13},
+ {id:"JAS",name:"James",chapters:5},{id:"1PE",name:"1 Peter",chapters:5},
+ {id:"2PE",name:"2 Peter",chapters:3},{id:"1JN",name:"1 John",chapters:5},
+ {id:"2JN",name:"2 John",chapters:1},{id:"3JN",name:"3 John",chapters:1},
+ {id:"JUD",name:"Jude",chapters:1},{id:"REV",name:"Revelation",chapters:22},
+];
+// Blue Letter Bible slug exceptions (BLB uses slightly different abbrevs for a few books)
+const BLB_SLUG_OVERRIDES = {SNG:"sos", EZK:"eze", JOL:"joe", NAM:"nah", "1SA":"1sa","2SA":"2sa"};
+
+/* Fallback offline sample (World English Bible — public domain) */
+const FALLBACK_PASSAGE = {
+  ref:"EPH.5", label:"Ephesians 5:14-20",
+  verses:{
+    14:"for the light makes everything visible. This is why it is said, “Awake, O sleeper, rise up from the dead, and Christ will give you light.”",
+    15:"So be careful how you live. Don't live like fools, but like those who are wise.",
+    16:"Make the most of every opportunity in these evil days.",
+    17:"Don't act thoughtlessly, but understand what the Lord wants you to do.",
+    18:"Don't be drunk with wine, because that will ruin your life. Instead, be filled with the Holy Spirit,",
+    19:"singing psalms and hymns and spiritual songs among yourselves, and making music to the Lord in your heart,",
+    20:"giving thanks always for all things in the name of our Lord Jesus Christ, to God the Father."
+  }
+};
+
+/* =========================================================
+   STATE + PERSISTENCE
+========================================================= */
+let state = loadState();
+function defaultState(){
+  return {
+    settings:{fontSize:18, bibleId:"", apiKey:"", signedIn:false},
+    tabs:[
+      {ref:"EPH.5", label:"Eph 5:15", verseFocus:15},
+      {ref:"JHN.3", label:"Jn 3:16", verseFocus:16},
+      {ref:"PSA.119", label:"Psa 119:176", verseFocus:176}
+    ],
+    activeTab:0,
+    notes:[],       // {id,title,verseRefs[],content,color,strokes[],createdAt,updatedAt}
+    highlights:{}   // verseKey -> "red"|"yellow"|"green"|"blue"
+  };
+}
+function loadState(){
+  try{ const raw = localStorage.getItem("whoishe_state"); return raw?JSON.parse(raw):defaultState(); }
+  catch(e){ return defaultState(); }
+}
+function saveState(){
+  localStorage.setItem("whoishe_state", JSON.stringify(state));
+  if(state.settings.signedIn) debounceDriveSave();
+}
+let driveSaveTimer=null;
+function debounceDriveSave(){ clearTimeout(driveSaveTimer); driveSaveTimer=setTimeout(driveSave, 1500); }
+
+/* =========================================================
+   NAV HELPERS
+========================================================= */
+function showScreen(id){
+  document.querySelectorAll(".screen").forEach(s=>s.classList.remove("active"));
+  document.getElementById(id).classList.add("active");
+}
+function showBackdrop(onClickClose){
+  const bd = document.getElementById("sheetBackdrop");
+  bd.classList.add("show");
+  bd.onclick = onClickClose;
+}
+function hideBackdrop(){
+  const bd = document.getElementById("sheetBackdrop");
+  bd.classList.remove("show");
+  bd.onclick = null;
+}
+function openSheet(id){
+  document.getElementById(id).classList.add("open");
+  showBackdrop(()=>closeSheet(id));
+  if(id==="searchSheet") renderQuickTabs();
+}
+function closeSheet(id){
+  document.getElementById(id).classList.remove("open");
+  hideBackdrop();
+}
+
+/* =========================================================
+   BOOT
+========================================================= */
+window.addEventListener("load", ()=>{
+  document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
+  applyFontSize();
+  setTimeout(()=>{ showScreen("main"); loadActiveTab(); }, 1200);
+  initGoogleAuth();
+});
+
+/* =========================================================
+   BIBLE TEXT — api.bible integration
+========================================================= */
+async function loadBibleList(){
+  const key = document.getElementById("apiKeyInput").value.trim();
+  if(!key){ alert("Paste your api.bible API key first."); return; }
+  state.settings.apiKey = key; saveState();
+  try{
+    const res = await fetch(`${API_BIBLE_BASE}/bibles`, {headers:{"api-key":key}});
+    const json = await res.json();
+    const sel = document.getElementById("translationSelect");
+    sel.innerHTML = "";
+    (json.data||[]).forEach(b=>{
+      const opt = document.createElement("option");
+      opt.value = b.id; opt.textContent = `${b.abbreviation||b.name}`;
+      sel.appendChild(opt);
+    });
+    if(json.data && json.data.length){
+      state.settings.bibleId = json.data[0].id; saveState();
+      loadActiveTab();
+    }
+  }catch(e){
+    alert("Couldn't reach api.bible. Check your key/network.");
+  }
+}
+function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveState(); loadActiveTab(); }
+
+async function fetchChapterVerses(bookId, chapter){
+  const {apiKey, bibleId} = state.settings;
+  if(!apiKey || !bibleId) return null; // no key set -> caller falls back to sample
+  try{
+    const res = await fetch(`${API_BIBLE_BASE}/bibles/${bibleId}/chapters/${bookId}.${chapter}?content-type=html&include-verse-numbers=true`, {headers:{"api-key":apiKey}});
+    const json = await res.json();
+    return parseVersesFromHTML(json.data.content);
+  }catch(e){ console.warn("Chapter fetch failed", e); return null; }
+}
+// api.bible wraps verse numbers in elements with class "v" and data-number — parse verse-by-verse text
+function parseVersesFromHTML(html){
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  const walker = document.createTreeWalker(div, NodeFilter.SHOW_ALL);
+  let verses={}, current=null, buffer="";
+  function flush(){ if(current!=null){ verses[current]=(verses[current]||"")+buffer; } buffer=""; }
+  let node;
+  while(node = walker.nextNode()){
+    if(node.nodeType===1 && node.classList && node.classList.contains("v")){
+      flush(); current = node.getAttribute("data-number")||node.textContent.trim(); buffer="";
+    } else if(node.nodeType===3){ buffer += node.textContent; }
+  }
+  flush();
+  Object.keys(verses).forEach(k=> verses[k]=verses[k].replace(/\s+/g," ").trim());
+  return verses;
+}
+
+async function loadActiveTab(){
+  const tab = state.tabs[state.activeTab];
+  const [bookId, chapter] = tab.ref.split(".");
+  const book = BOOKS.find(b=>b.id===bookId);
+  document.getElementById("tabPill").textContent = tab.label;
+  renderTabDots();
+
+  let verses = await fetchChapterVerses(bookId, chapter);
+  let usingFallback = false;
+  if(!verses){ verses = FALLBACK_PASSAGE.verses; usingFallback = true; }
+
+  document.getElementById("passageHeader").textContent =
+    (book?book.name:bookId) + " " + chapter + (usingFallback? "  ·  offline sample (WEB)":"");
+
+  const wrap = document.getElementById("verseContent");
+  wrap.innerHTML = "";
+  Object.keys(verses).sort((a,b)=>+a-+b).forEach(num=>{
+    const span = document.createElement("span");
+    span.className = "verse";
+    const key = `${bookId}.${chapter}.${num}`;
+    span.dataset.ref = key;
+    applyVerseClasses(span, key);
+    span.innerHTML = `<sup>${num}</sup>${verses[num]} `;
+    span.onclick = ()=> toggleVerseSelect(span, key);
+    wrap.appendChild(span);
+  });
+}
+function applyVerseClasses(el, key){
+  el.classList.remove("hl-red","hl-yellow","hl-green","hl-blue","has-note");
+  const hl = state.highlights[key];
+  if(hl) el.classList.add("hl-"+hl);
+  if(noteForVerse(key).length) el.classList.add("has-note");
+}
+
+/* =========================================================
+   TAB SWIPING
+========================================================= */
+function renderTabDots(){
+  const dotsWrap = document.getElementById("tabDots");
+  dotsWrap.innerHTML = "";
+  state.tabs.forEach((t,i)=>{
+    const d = document.createElement("div");
+    d.className = "tab-dot" + (i===state.activeTab?" active":"");
+    dotsWrap.appendChild(d);
+  });
+}
+let touchStartX=0;
+document.addEventListener("DOMContentLoaded", ()=>{
+  const pill = document.getElementById("tabPill");
+  pill.addEventListener("touchstart", e=> touchStartX = e.touches[0].clientX);
+  pill.addEventListener("touchend", e=>{
+    const dx = e.changedTouches[0].clientX - touchStartX;
+    if(Math.abs(dx) > 40){
+      state.activeTab = dx<0 ? (state.activeTab+1)%3 : (state.activeTab+2)%3;
+      saveState(); loadActiveTab();
+    }
+  });
+});
+function renderQuickTabs(){
+  const wrap = document.getElementById("quickTabs");
+  wrap.innerHTML = "";
+  state.tabs.forEach((t,i)=>{
+    const chip = document.createElement("div");
+    chip.className = "quick-chip" + (i===state.activeTab?" active":"");
+    chip.textContent = t.label;
+    chip.onclick = ()=>{ state.activeTab=i; saveState(); loadActiveTab(); closeSheet("searchSheet"); };
+    wrap.appendChild(chip);
+  });
+}
+
+/* =========================================================
+   PREDICTIVE SEARCH
+========================================================= */
+function onSearchInput(){
+  const q = document.getElementById("searchInput").value.trim().toLowerCase();
+  const list = document.getElementById("suggestions");
+  list.innerHTML = "";
+  if(!q) return;
+  const m = q.match(/^([1-3]?\s?[a-z]+)\.?\s*(\d+)?:?(\d+)?/i);
+  const bq = (m?m[1]:q).replace(/\s+/g,"");
+  const matches = BOOKS.filter(b =>
+    b.id.toLowerCase().startsWith(bq) ||
+    b.name.toLowerCase().replace(/\s+/g,"").startsWith(bq)
+  ).slice(0,5);
+  matches.forEach(b=>{
+    const chapter = (m && m[2]) ? Math.min(+m[2], b.chapters) : 1;
+    const verse = (m && m[3]) ? +m[3] : null;
+    const label = b.name + " " + chapter + (verse? ":"+verse:"");
+    const item = document.createElement("div");
+    item.className = "sugg-item";
+    item.textContent = label;
+    item.onclick = ()=>{
+      state.tabs[state.activeTab] = {ref:`${b.id}.${chapter}`, label, verseFocus:verse||1};
+      saveState(); loadActiveTab(); closeSheet("searchSheet");
+      document.getElementById("searchInput").value=""; list.innerHTML="";
+    };
+    list.appendChild(item);
+  });
+}
+
+/* =========================================================
+   VERSE SELECTION + POPUP
+========================================================= */
+let selectedVerses = [];
+function toggleVerseSelect(span, key){
+  const idx = selectedVerses.indexOf(key);
+  if(idx>-1){ selectedVerses.splice(idx,1); span.classList.remove("selected"); }
+  else{ selectedVerses.push(key); span.classList.add("selected"); }
+  renderVersePopup();
+}
+function renderVersePopup(){
+  const popup = document.getElementById("versePopup");
+  const preview = document.getElementById("popupNotes");
+  preview.innerHTML = "";
+  if(selectedVerses.length===0){
+    popup.classList.remove("open");
+    hideBackdrop();
+    return;
+  }
+  selectedVerses.forEach(key=>{
+    noteForVerse(key).forEach(n=>{
+      const d = document.createElement("div");
+      d.className = "popup-note-preview";
+      d.textContent = `${n.title||"Untitled"} — ${(n.content||"").slice(0,40)}`;
+      d.onclick = ()=> openNoteEditor(n.id);
+      preview.appendChild(d);
+    });
+  });
+  popup.classList.add("open");
+  showBackdrop(()=>clearVerseSelection());
+}
+function noteForVerse(key){ return state.notes.filter(n=> n.verseRefs.includes(key)); }
+
+function popupAction(action){
+  if(action==="note"){ createNote(selectedVerses.slice()); clearVerseSelection(); return; }
+  if(action==="copy"){ copySelectedVerses(); return; } // keep selection open after copy
+  if(action==="blb"){ openBLB(selectedVerses[0]); return; }
+}
+function applyHighlight(color){
+  selectedVerses.forEach(key=>{
+    // tapping the same color again removes the highlight (toggle)
+    state.highlights[key] = (state.highlights[key]===color) ? undefined : color;
+    if(state.highlights[key]===undefined) delete state.highlights[key];
+    const el = document.querySelector(`.verse[data-ref="${key}"]`);
+    if(el) applyVerseClasses(el, key);
+  });
+  saveState();
+  clearVerseSelection();
+}
+function clearVerseSelection(){
+  selectedVerses.forEach(key=>{
+    const el = document.querySelector(`.verse[data-ref="${key}"]`);
+    if(el) el.classList.remove("selected");
+  });
+  selectedVerses = [];
+  document.getElementById("versePopup").classList.remove("open");
+  hideBackdrop();
+}
+function copySelectedVerses(){
+  const text = selectedVerses.map(k=>{
+    const el = document.querySelector(`.verse[data-ref="${k}"]`);
+    return el ? el.textContent.trim() : "";
+  }).join(" ");
+  navigator.clipboard?.writeText(text);
+}
+function openBLB(key){
+  if(!key) return;
+  const [bookId, chapter, verse] = key.split(".");
+  const slug = (BLB_SLUG_OVERRIDES[bookId] || bookId.toLowerCase());
+  window.open(`https://www.blueletterbible.org/kjv/${slug}/${chapter}/${verse}/`, "_blank");
+}
+function openBLBForCurrentNote(){
+  const refs = currentNote?.verseRefs || [];
+  if(refs.length) openBLB(refs[0]);
+}
+
+/* =========================================================
+   NOTES LIST
+========================================================= */
+function openNotesList(){ openSheet("notesSheet"); renderNotesList(); }
+function renderNotesList(){
+  const q = (document.getElementById("notesSearch").value||"").toLowerCase();
+  const wrap = document.getElementById("notesListWrap");
+  wrap.innerHTML = "";
+  state.notes
+    .filter(n => !q || (n.title||"").toLowerCase().includes(q) || (n.content||"").toLowerCase().includes(q))
+    .sort((a,b)=> b.updatedAt - a.updatedAt)
+    .forEach(n=>{
+      const row = document.createElement("div");
+      row.className = "note-row";
+      row.innerHTML = `<span><span class="dot" style="background:${colorHex(n.color)}"></span>${n.title||"Untitled"}</span>
+                        <span class="note-date">${new Date(n.updatedAt).toLocaleDateString()}</span>`;
+      row.onclick = ()=> openNoteEditor(n.id);
+      wrap.appendChild(row);
+    });
+}
+function colorHex(c){ return {red:"#FF383C",yellow:"#FFCC00",green:"#34C759",blue:"#0088FF"}[c] || "#888"; }
+
+/* =========================================================
+   NOTE EDITOR + DRAWING
+========================================================= */
+let currentNote = null;
+let drawMode=false, drawTool="pen", drawColor="#ffffff", strokes=[], undoStack=[], redoStack=[], currentStroke=null;
+let ctx, canvasEl;
+
+function createNote(verseRefs=[]){
+  const n = {id:crypto.randomUUID(), title:"", verseRefs, content:"", color:"blue", strokes:[], createdAt:Date.now(), updatedAt:Date.now()};
+  state.notes.push(n); saveState();
+  openNoteEditor(n.id);
+}
+function openNoteEditor(id){
+  currentNote = state.notes.find(n=>n.id===id);
+  if(!currentNote) return;
+  document.getElementById("noteTitle").value = currentNote.title;
+  document.getElementById("noteContent").value = currentNote.content;
+  document.getElementById("refChip").textContent = currentNote.verseRefs.join(", ") || "No verse";
+  strokes = currentNote.strokes || [];
+  undoStack=[]; redoStack=[];
+  setNoteColor(currentNote.color, true);
+  showScreen("noteEditor");
+  requestAnimationFrame(setupCanvas);
+}
+function closeNoteEditor(){ showScreen("main"); drawMode=false; loadActiveTab(); }
+function saveCurrentNote(){
+  if(!currentNote) return;
+  currentNote.title = document.getElementById("noteTitle").value;
+  currentNote.content = document.getElementById("noteContent").value;
+  currentNote.updatedAt = Date.now();
+  saveState();
+}
+function setNoteColor(c, silent){
+  if(!currentNote) return;
+  currentNote.color = c;
+  document.querySelectorAll(".tag-color").forEach(el=>el.classList.remove("selected"));
+  if(!silent) saveState();
+}
+
+function setupCanvas(){
+  canvasEl = document.getElementById("drawCanvas");
+  const wrap = document.getElementById("noteContentWrap");
+  canvasEl.width = wrap.clientWidth; canvasEl.height = wrap.clientHeight;
+  ctx = canvasEl.getContext("2d");
+  redrawCanvas();
+  canvasEl.onpointerdown = onPointerDown;
+  canvasEl.onpointermove = onPointerMove;
+  canvasEl.onpointerup = onPointerUp;
+}
+function toggleDrawMode(){
+  drawMode = !drawMode;
+  canvasEl.classList.toggle("active", drawMode);
+  document.getElementById("noteContent").style.pointerEvents = drawMode? "none":"auto";
+}
+function selectTool(t){
+  drawTool = t;
+  document.getElementById("penTool").classList.toggle("sel", t==="pen");
+  document.getElementById("penTool").classList.toggle("dim", t!=="pen");
+  document.getElementById("eraserTool").classList.toggle("sel", t==="eraser");
+  document.getElementById("eraserTool").classList.toggle("dim", t!=="eraser");
+}
+function pickColor(){ document.getElementById("colorPicker").click(); }
+function setDrawColor(v){ drawColor=v; document.getElementById("colorSwatch").style.background=v; }
+
+function onPointerDown(e){
+  if(!drawMode) return;
+  const pos = getPos(e);
+  if(drawTool==="pen"){
+    currentStroke = {tool:"pen", color:drawColor, width:3, points:[pos]};
+  } else {
+    eraseAt(pos);
+  }
+}
+function onPointerMove(e){
+  if(!drawMode) return;
+  if(drawTool==="pen" && currentStroke){
+    currentStroke.points.push(getPos(e));
+    redrawCanvas(currentStroke);
+  } else if(drawTool==="eraser" && e.buttons===1){
+    eraseAt(getPos(e));
+  }
+}
+function onPointerUp(){
+  if(drawTool==="pen" && currentStroke){
+    strokes.push(currentStroke);
+    undoStack.push({type:"add", stroke:currentStroke});
+    redoStack=[];
+    currentStroke=null;
+    persistStrokes(); updateUndoRedoUI(); redrawCanvas();
+  }
+}
+function getPos(e){
+  const r = canvasEl.getBoundingClientRect();
+  return {x:e.clientX-r.left, y:e.clientY-r.top};
+}
+function eraseAt(pos){
+  const idx = strokes.findIndex(s => s.points.some(p => Math.hypot(p.x-pos.x,p.y-pos.y) < 12));
+  if(idx>-1){
+    const [removed] = strokes.splice(idx,1);
+    undoStack.push({type:"remove", stroke:removed, index:idx});
+    redoStack=[];
+    persistStrokes(); updateUndoRedoUI(); redrawCanvas();
+  }
+}
+function redrawCanvas(previewStroke){
+  if(!ctx) return;
+  ctx.clearRect(0,0,canvasEl.width,canvasEl.height);
+  [...strokes, previewStroke].filter(Boolean).forEach(s=>{
+    ctx.strokeStyle = s.color; ctx.lineWidth = s.width; ctx.lineJoin="round"; ctx.lineCap="round";
+    ctx.beginPath();
+    s.points.forEach((p,i)=> i===0 ? ctx.moveTo(p.x,p.y) : ctx.lineTo(p.x,p.y));
+    ctx.stroke();
+  });
+}
+function undoStroke(){
+  const action = undoStack.pop();
+  if(!action) return;
+  if(action.type==="add") strokes.splice(strokes.indexOf(action.stroke),1);
+  if(action.type==="remove") strokes.splice(action.index,0,action.stroke);
+  redoStack.push(action);
+  persistStrokes(); updateUndoRedoUI(); redrawCanvas();
+}
+function redoStroke(){
+  const action = redoStack.pop();
+  if(!action) return;
+  if(action.type==="add") strokes.push(action.stroke);
+  if(action.type==="remove") strokes.splice(strokes.indexOf(action.stroke),1);
+  undoStack.push(action);
+  persistStrokes(); updateUndoRedoUI(); redrawCanvas();
+}
+function updateUndoRedoUI(){
+  document.getElementById("undoBtn").classList.toggle("dim", undoStack.length===0);
+  document.getElementById("redoBtn").classList.toggle("dim", redoStack.length===0);
+}
+function persistStrokes(){ if(currentNote){ currentNote.strokes = strokes; currentNote.updatedAt = Date.now(); saveState(); } }
+
+/* =========================================================
+   KNOWLEDGE GRAPH (simple force layout, no external libs)
+========================================================= */
+let gnodes=[], gedges=[], gctx, gcanvas, dragNode=null;
+function openGraph(){
+  showScreen("graphScreen");
+  buildGraph();
+  requestAnimationFrame(()=>{
+    gcanvas = document.getElementById("graphCanvas");
+    gcanvas.width = gcanvas.clientWidth; gcanvas.height = gcanvas.clientHeight;
+    gctx = gcanvas.getContext("2d");
+    gcanvas.onpointerdown = gPointerDown;
+    gcanvas.onpointermove = gPointerMove;
+    gcanvas.onpointerup = ()=> dragNode=null;
+    simTick();
+  });
+}
+function closeGraph(){ showScreen("main"); }
+function buildGraph(){
+  gnodes = state.notes.map((n,i)=>({id:n.id, label:n.title||"Untitled", x:100+Math.random()*200, y:100+Math.random()*300, vx:0, vy:0, note:n}));
+  gedges = [];
+  for(let i=0;i<gnodes.length;i++){
+    for(let j=i+1;j<gnodes.length;j++){
+      if(shouldLink(gnodes[i].note, gnodes[j].note)) gedges.push({a:i,b:j});
+    }
+  }
+}
+function keywordsOf(n){
+  const stop = new Set(["the","and","for","that","with","this","from","have","was","are"]);
+  return ((n.title||"")+" "+(n.content||"")).toLowerCase().split(/\W+/).filter(w=>w.length>3 && !stop.has(w));
+}
+function shouldLink(a,b){
+  const sharedVerse = a.verseRefs.some(v=>b.verseRefs.includes(v));
+  if(sharedVerse) return true;
+  const wa = keywordsOf(a), wb = new Set(keywordsOf(b));
+  return wa.some(w=>wb.has(w));
+}
+function simTick(){
+  if(!gctx) return;
+  // repulsion
+  for(let i=0;i<gnodes.length;i++){
+    for(let j=i+1;j<gnodes.length;j++){
+      const a=gnodes[i], b=gnodes[j];
+      let dx=a.x-b.x, dy=a.y-b.y, dist=Math.hypot(dx,dy)||1;
+      const force = 800/(dist*dist);
+      dx/=dist; dy/=dist;
+      a.vx+=dx*force; a.vy+=dy*force; b.vx-=dx*force; b.vy-=dy*force;
+    }
+  }
+  // spring edges
+  gedges.forEach(e=>{
+    const a=gnodes[e.a], b=gnodes[e.b];
+    let dx=b.x-a.x, dy=b.y-a.y, dist=Math.hypot(dx,dy)||1;
+    const force=(dist-120)*0.01;
+    dx/=dist; dy/=dist;
+    a.vx+=dx*force; a.vy+=dy*force; b.vx-=dx*force; b.vy-=dy*force;
+  });
+  gnodes.forEach(n=>{
+    if(n===dragNode) return;
+    n.vx*=0.85; n.vy*=0.85;
+    n.x+=n.vx; n.y+=n.vy;
+    n.x=Math.max(30,Math.min(gcanvas.width-30,n.x));
+    n.y=Math.max(30,Math.min(gcanvas.height-30,n.y));
+  });
+  gctx.clearRect(0,0,gcanvas.width,gcanvas.height);
+  gctx.strokeStyle="rgba(255,255,255,.3)";
+  gedges.forEach(e=>{
+    gctx.beginPath(); gctx.moveTo(gnodes[e.a].x,gnodes[e.a].y); gctx.lineTo(gnodes[e.b].x,gnodes[e.b].y); gctx.stroke();
+  });
+  gnodes.forEach(n=>{
+    gctx.fillStyle="#262626";
+    roundRect(gctx, n.x-40, n.y-14, 80, 28, 14);
+    gctx.fill();
+    gctx.fillStyle="#fff"; gctx.font="12px sans-serif"; gctx.textAlign="center"; gctx.textBaseline="middle";
+    gctx.fillText(n.label.slice(0,12), n.x, n.y);
+  });
+  requestAnimationFrame(simTick);
+}
+function roundRect(c,x,y,w,h,r){ c.beginPath(); c.moveTo(x+r,y); c.arcTo(x+w,y,x+w,y+h,r); c.arcTo(x+w,y+h,x,y+h,r); c.arcTo(x,y+h,x,y,r); c.arcTo(x,y,x+w,y,r); c.closePath(); }
+function gPointerDown(e){
+  const r=gcanvas.getBoundingClientRect(); const x=e.clientX-r.left, y=e.clientY-r.top;
+  dragNode = gnodes.find(n=>Math.hypot(n.x-x,n.y-y)<40);
+}
+function gPointerMove(e){
+  if(!dragNode) return;
+  const r=gcanvas.getBoundingClientRect();
+  dragNode.x=e.clientX-r.left; dragNode.y=e.clientY-r.top;
+}
+
+/* =========================================================
+   SETTINGS: FONT SIZE
+========================================================= */
+function changeFontSize(delta){
+  state.settings.fontSize = Math.max(12, Math.min(30, state.settings.fontSize+delta));
+  applyFontSize(); saveState();
+}
+function applyFontSize(){ document.getElementById("verseContent").style.fontSize = state.settings.fontSize+"px"; }
+
+function exportBackup(){
+  const blob = new Blob([JSON.stringify(state,null,2)], {type:"application/json"});
+  const a = document.createElement("a");
+  a.href = URL.createObjectURL(blob); a.download = "whoishe-backup.json"; a.click();
+}
+function resetAll(){
+  if(confirm("This clears all local notes/settings. Continue?")){
+    localStorage.removeItem("whoishe_state"); location.reload();
+  }
+}
+
+/* =========================================================
+   GOOGLE SIGN-IN + DRIVE (appDataFolder) SYNC
+========================================================= */
+let tokenClient, accessToken=null;
+function initGoogleAuth(){
+  if(!window.google || GOOGLE_CLIENT_ID.startsWith("YOUR_")) return; // not configured yet
+  tokenClient = google.accounts.oauth2.initTokenClient({
+    client_id: GOOGLE_CLIENT_ID,
+    scope: DRIVE_SCOPE,
+    callback: async (resp)=>{
+      accessToken = resp.access_token;
+      state.settings.signedIn = true; saveState();
+      document.getElementById("signInBtn").textContent = "Signed in";
+      document.getElementById("syncStatus").textContent = "Synced just now";
+      await driveLoad();
+    }
+  });
+}
+function handleGoogleAuthClick(){
+  if(!tokenClient){ alert("Set GOOGLE_CLIENT_ID in the code first."); return; }
+  tokenClient.requestAccessToken();
+}
+async function driveFindFileId(){
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files?spaces=appDataFolder&q=name='${DRIVE_FILE_NAME}'&fields=files(id,name)`,
+    {headers:{Authorization:`Bearer ${accessToken}`}});
+  const json = await res.json();
+  return json.files && json.files[0] ? json.files[0].id : null;
+}
+async function driveLoad(){
+  if(!accessToken) return;
+  const id = await driveFindFileId();
+  if(!id) return;
+  const res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, {headers:{Authorization:`Bearer ${accessToken}`}});
+  const remote = await res.json();
+  // simple last-write-wins merge on notes by id
+  const localNotes = new Map(state.notes.map(n=>[n.id,n]));
+  (remote.notes||[]).forEach(rn=>{
+    const ln = localNotes.get(rn.id);
+    if(!ln || rn.updatedAt > ln.updatedAt) localNotes.set(rn.id, rn);
+  });
+  state.notes = Array.from(localNotes.values());
+  state.settings = {...state.settings, ...remote.settings, apiKey: state.settings.apiKey}; // keep local API key
+  saveState(); loadActiveTab();
+}
+async function driveSave(){
+  if(!accessToken) return;
+  const id = await driveFindFileId();
+  const body = JSON.stringify(state);
+  if(id){
+    await fetch(`https://www.googleapis.com/upload/drive/v3/files/${id}?uploadType=media`, {
+      method:"PATCH", headers:{Authorization:`Bearer ${accessToken}`, "Content-Type":"application/json"}, body
+    });
+  } else {
+    const metadata = {name:DRIVE_FILE_NAME, parents:["appDataFolder"]};
+    const form = new FormData();
+    form.append("metadata", new Blob([JSON.stringify(metadata)], {type:"application/json"}));
+    form.append("file", new Blob([body], {type:"application/json"}));
+    await fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=multipart", {
+      method:"POST", headers:{Authorization:`Bearer ${accessToken}`}, body: form
+    });
+  }
+  document.getElementById("syncStatus").textContent = "Synced " + new Date().toLocaleTimeString();
+}
+</script>
+</body>
+</html>
