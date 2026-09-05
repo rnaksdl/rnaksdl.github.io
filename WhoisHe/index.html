@@ -464,31 +464,72 @@ window.addEventListener("load", ()=>{
 /* =========================================================
    BIBLE TEXT — api.bible integration
 ========================================================= */
-async function loadBibleList(){
-  const key = document.getElementById("apiKeyInput").value.trim();
-  if(!key){ alert("Paste your api.bible API key first."); return; }
+const WANTED_TRANSLATIONS = [
+  {
+    // Matches id "a761ca71e0b3ddcf-01", name "New American Standard Bible 2020", abbreviation "NASB"
+    match: ["nasb"],
+    label: "NASB 2020"
+  },
+  {
+    // Matches name "New International Version 2011", abbreviation "NIV11"
+    match: ["niv11"],
+    label: "NIV"
+  },
+  {
+    // Matches abbreviation "engKJV" or "KJV"
+    match: ["kjv"],
+    label: "KJV"
+  },
+  {
+    match: ["nlt"],
+    label: "NLT"
+  }
+];
+
+async function loadBibleList(silent){
+  const key = (silent && state.settings.apiKey) ? state.settings.apiKey : document.getElementById("apiKeyInput").value.trim();
+  if(!key){ if(!silent) alert("Paste your api.bible API key first."); return; }
   state.settings.apiKey = key; saveState();
   try{
     const res = await fetch(`${API_BIBLE_BASE}/bibles`, {headers:{"api-key":key}});
     const json = await res.json();
+    const all = json.data || [];
+
+    // Filter down to only your 5 requested translations, matching on abbreviation/name text
+    const filtered = [];
+    WANTED_TRANSLATIONS.forEach(w=>{
+      const found = all.find(b=>{
+        const hay = `${b.abbreviation||""} ${b.name||""} ${b.abbreviationLocal||""}`.toLowerCase();
+        return w.match.some(m => hay.includes(m));
+      });
+      if(found) filtered.push({...found, _label:w.label});
+    });
+
     const sel = document.getElementById("translationSelect");
     sel.innerHTML = "";
-    const sorted = (json.data||[]).slice().sort((a,b)=>
-      (a.name||a.abbreviation||"").localeCompare(b.name||b.abbreviation||"")
-    );
-    sorted.forEach(b=>{
+    if(filtered.length === 0){
       const opt = document.createElement("option");
-      opt.value = b.id; opt.textContent = `${b.abbreviation||b.name}`;
+      opt.value = ""; opt.textContent = "None of your 5 translations available on this key";
       sel.appendChild(opt);
-    });
-    if(sorted.length){
-      state.settings.bibleId = sorted[0].id; saveState();
-      loadActiveTab();
+    } else {
+      filtered.forEach(b=>{
+        const opt = document.createElement("option");
+        opt.value = b.id; opt.textContent = b._label;
+        sel.appendChild(opt);
+      });
     }
+
+    if(state.settings.bibleId && filtered.some(b=>b.id===state.settings.bibleId)){
+      sel.value = state.settings.bibleId;
+    } else if(filtered.length){
+      state.settings.bibleId = filtered[0].id; saveState();
+    }
+    loadActiveTab();
   }catch(e){
-    alert("Couldn't reach api.bible. Check your key/network.");
+    if(!silent) alert("Couldn't reach api.bible. Check your key/network.");
   }
 }
+
 function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveState(); loadActiveTab(); }
 
 async function fetchChapterVerses(bookId, chapter){
@@ -1255,18 +1296,33 @@ async function driveFindFileId(){
 async function driveLoad(){
   if(!accessToken) return;
   const id = await driveFindFileId();
-  if(!id) return;
+  if(!id) return; // nothing saved yet for this account
   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, {headers:{Authorization:`Bearer ${accessToken}`}});
   const remote = await res.json();
+
   const localNotes = new Map(state.notes.map(n=>[n.id,n]));
   (remote.notes||[]).forEach(rn=>{
     const ln = localNotes.get(rn.id);
     if(!ln || rn.updatedAt > ln.updatedAt) localNotes.set(rn.id, rn);
   });
   state.notes = Array.from(localNotes.values());
-  state.settings = {...state.settings, ...remote.settings, apiKey: state.settings.apiKey};
-  saveState(); loadActiveTab();
+
+  // Restore apiKey/bibleId from Drive whenever this device doesn't already have one set —
+  // this is what makes the key "fetch automatically" after signing in on a new device/browser.
+  const remoteSettings = remote.settings || {};
+  state.settings = {
+    ...state.settings,
+    ...remoteSettings,
+    apiKey: state.settings.apiKey || remoteSettings.apiKey || "",
+    bibleId: state.settings.bibleId || remoteSettings.bibleId || ""
+  };
+
+  saveState();
+  document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
+  if(state.settings.apiKey) await loadBibleList(true); // silently repopulate translations using the restored key
+  else loadActiveTab();
 }
+
 async function driveSave(){
   if(!accessToken) return;
   const id = await driveFindFileId();
