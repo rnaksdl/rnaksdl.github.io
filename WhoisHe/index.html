@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Who is He</title>
 <script src="https://accounts.google.com/gsi/client" async defer></script>
 <style>
@@ -13,11 +13,14 @@
     --danger: var(--red);
   }
   *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
-  html,body{height:100%; margin:0; background:#000; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
+  html,body{height:100%; min-height:100dvh; margin:0; background:#000; font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,sans-serif;}
   #phone{
-    max-width:430px; height:100vh; margin:0 auto; background:var(--bg); color:var(--text);
-    position:relative; overflow:hidden; display:flex; flex-direction:column; border-left:1px solid #111; border-right:1px solid #111;
+    max-width:430px; width:100%; margin:0 auto; background:var(--bg); color:var(--text);
+    position:relative; overflow:hidden; display:flex; flex-direction:column;
+    border-left:1px solid #111; border-right:1px solid #111;
+    height:100vh; height:100dvh; min-height:100vh; min-height:100dvh;
   }
+  @media (min-width:700px){ #phone{ max-width:480px; } }
   .screen{position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg);}
   .screen.active{display:flex;}
   /* ---------- Splash ---------- */
@@ -28,52 +31,65 @@
   @keyframes pulse{0%,100%{opacity:.35; transform:scaleY(.8);} 50%{opacity:1; transform:scaleY(1);}}
 
   /* ---------- Main reading screen ---------- */
-  #main{padding:20px 18px 110px; overflow-y:auto;}
-  #passageHeader{font-size:13px; color:var(--muted); margin-bottom:10px;}
+  #main{min-height:0;}
+  #mainScroll{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
+    padding:16px clamp(14px,4vw,18px) 14px;}
+  #topSentinel, #bottomSentinel{height:1px; width:100%;}
   #verseContent{font-size:18px; line-height:1.6;}
-  #verseContent .heading{font-weight:700; font-size:19px; margin:18px 0 8px;}
-  .verse{position:relative; cursor:pointer;}
-  .verse sup{color:var(--muted); font-size:11px; margin-right:2px;}
+  .book-title{font-weight:800; font-size:24px; margin:26px 0 2px;}
+  .chapter-block:first-child .book-title{margin-top:4px;}
+  .chapter-heading{font-weight:700; font-size:13px; color:var(--muted); text-transform:uppercase;
+    letter-spacing:.05em; margin:0 0 14px;}
+  .verse{
+    display:block; position:relative; cursor:pointer;
+    padding:2px 4px; margin:0 -4px 0.9em -4px; border-radius:6px;
+    transition:background-color .15s ease;
+  }
+  .verse sup{color:var(--muted); font-size:11px; font-weight:600; margin-right:3px;}
   .verse.selected{text-decoration:underline dotted; text-underline-offset:4px;}
-  .verse.has-note{text-decoration:underline dotted rgba(255,255,255,.4); text-underline-offset:3px;}
-  .verse.hl-red{background:rgba(255,56,60,.28); border-radius:4px;}
-  .verse.hl-yellow{background:rgba(255,204,0,.28); border-radius:4px;}
-  .verse.hl-green{background:rgba(52,199,89,.28); border-radius:4px;}
-  .verse.hl-blue{background:rgba(0,136,255,.28); border-radius:4px;}
+  .verse.has-note{text-decoration:underline solid var(--text); text-underline-offset:3px;}  .verse.hl-red{background:rgba(255,56,60,.28);}
+  .verse.hl-yellow{background:rgba(255,204,0,.28);}
+  .verse.hl-green{background:rgba(52,199,89,.28);}
+  .verse.hl-blue{background:rgba(0,136,255,.28);}
+  .verse.placeholder{color:var(--muted); font-style:italic; cursor:default;}
 
   /* ---------- Backdrop for floating panels ---------- */
   #sheetBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:15;
     opacity:0; pointer-events:none; transition:opacity .2s ease;}
   #sheetBackdrop.show{opacity:1; pointer-events:auto;}
 
-  /* Bottom nav on main screen — floating pills */
-  #navFade{position:absolute; bottom:0; left:0; right:0; height:120px; pointer-events:none;
-    background:linear-gradient(transparent, rgba(0,0,0,.7) 60%); z-index:9;}
-  #bottomNav{position:absolute; bottom:22px; left:14px; right:14px; z-index:10; display:flex; align-items:center; gap:12px;}
-  .nav-btn{width:50px; height:50px; border-radius:50%; background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.55);
-    display:flex; align-items:center; justify-content:center; border:none; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0;}
-  #tabPillWrap{flex:1;}
-  #tabPill{background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.55); border-radius:26px; padding:11px 16px;
-    text-align:center; font-size:14px; color:#fff; cursor:pointer; user-select:none;}
+  /* Bottom nav — always docked at bottom of screen, outside the scroll area */
+  #bottomNav{
+    flex-shrink:0; display:flex; align-items:center; gap:12px; z-index:10;
+    padding: clamp(10px,3vw,14px) clamp(12px,4vw,20px) calc(clamp(10px,3vw,14px) + env(safe-area-inset-bottom,0px));
+    background:linear-gradient(to bottom, rgba(0,0,0,0), rgba(0,0,0,.85) 45%, #000 100%);
+  }
+  .nav-btn{width:clamp(44px,12vw,50px); height:clamp(44px,12vw,50px); border-radius:50%; background:var(--panel);
+    box-shadow:0 8px 24px rgba(0,0,0,.55); display:flex; align-items:center; justify-content:center;
+    border:none; color:#fff; font-size:18px; cursor:pointer; flex-shrink:0;}
+  #tabPillWrap{flex:1; min-width:0;}
+  #tabPill{background:var(--panel); box-shadow:0 8px 24px rgba(0,0,0,.55); border-radius:26px;
+    padding:11px 16px; text-align:center; font-size:14px; color:#fff; cursor:pointer; user-select:none;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis;}
   #tabDots{display:flex; gap:4px; justify-content:center; margin-top:6px;}
   .tab-dot{width:5px; height:5px; border-radius:50%; background:var(--muted);}
   .tab-dot.active{background:var(--accent);}
 
   /* ---------- Floating Sheets (Settings / Search / Notes) ---------- */
-  .sheet{position:absolute; left:14px; right:14px; bottom:100px; max-height:70vh; background:var(--panel);
+  .sheet{position:absolute; left:14px; right:14px; bottom:100px; max-height:70vh; max-height:70dvh; background:var(--panel);
     border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,.6); z-index:20; display:none; flex-direction:column;
     padding:18px; overflow-y:auto;}
   .sheet.open{display:flex;}
   .sheet-top{display:flex; align-items:center; gap:10px; margin-bottom:16px;}
-  .icon-btn{background:none; border:none; color:#fff; font-size:20px; cursor:pointer;}
+  .icon-btn{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; border-radius:50%;}
   .icon-btn.small{font-size:16px; width:32px; height:32px; border-radius:50%; background:var(--panel2);
-    display:flex; align-items:center; justify-content:center;}
+    display:flex; align-items:center; justify-content:center; flex-shrink:0;}
   .search-input, .text-input{flex:1; background:var(--panel2); border:none; border-radius:20px; padding:12px 16px;
-    color:#fff; font-size:15px; outline:none;}
-  .close-x{background:var(--panel2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer;}
+    color:#fff; font-size:15px; outline:none; min-width:0;}
+  .close-x{background:var(--panel2); border:none; color:#fff; width:36px; height:36px; border-radius:50%; cursor:pointer; flex-shrink:0;}
 
   /* Settings */
-  .settings-row{display:flex; align-items:center; justify-content:space-between; padding:14px 4px; border-bottom:1px solid rgba(255,255,255,.08);}
+  .settings-row{display:flex; align-items:center; justify-content:space-between; padding:14px 4px; border-bottom:1px solid rgba(255,255,255,.08); gap:10px;}
   .settings-row label{font-size:15px;}
   select, .btn{background:var(--panel2); color:#fff; border:none; border-radius:14px; padding:8px 14px; font-size:14px; cursor:pointer;}
   .btn.full{width:100%; padding:12px 0; font-size:14px;}
@@ -90,42 +106,57 @@
   .quick-chip.active{outline:2px solid var(--accent);}
 
   /* Notes list */
-  .note-row{display:flex; justify-content:space-between; align-items:center; padding:14px 6px; border-bottom:1px solid rgba(255,255,255,.08); cursor:pointer;}
-  .note-row .dot{width:8px; height:8px; border-radius:50%; margin-right:8px; display:inline-block;}
-  .note-date{color:var(--muted); font-size:12px;}
+  .note-row{display:flex; justify-content:space-between; align-items:center; padding:14px 6px; border-bottom:1px solid rgba(255,255,255,.08); cursor:pointer; gap:10px;}
+  .note-row-main{display:flex; align-items:center; gap:8px; flex:1; min-width:0;}
+  .note-row-title{overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
+  .note-row .dot{width:8px; height:8px; border-radius:50%; flex-shrink:0; display:inline-block;}
+  .note-date{color:var(--muted); font-size:12px; flex-shrink:0;}
+  .note-delete-btn{background:none; border:none; color:var(--red); font-size:16px; cursor:pointer; padding:4px; flex-shrink:0;}
   #graphBtn{margin-left:auto;}
 
   /* Verse popup — floating, direct-highlight */
   #versePopup{position:absolute; left:14px; right:14px; bottom:100px; background:var(--panel); border-radius:20px;
     padding:14px; z-index:20; display:none; flex-direction:column; gap:10px; box-shadow:0 12px 40px rgba(0,0,0,.6);}
   #versePopup.open{display:flex;}
-  .popup-header{display:flex; align-items:center; justify-content:flex-end;}
+  .popup-header{display:flex; align-items:center; justify-content:space-between; gap:10px;}
+  #popupRef{font-size:14px; font-weight:600; color:var(--text); flex:1; min-width:0;
+    overflow:hidden; text-overflow:ellipsis; white-space:nowrap;}
   .popup-note-preview{background:var(--panel2); padding:8px 10px; border-radius:10px; font-size:13px; cursor:pointer;}
   #highlightRow{display:flex; gap:12px; justify-content:center; padding:4px 0;}
-  .hl-swatch{width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
+  .hl-swatch{width:34px; height:34px; border-radius:50%; cursor:pointer; border:2px solid transparent; flex-shrink:0;}
   #blbLinkPopup{color:var(--accent); font-size:13px; text-decoration:underline; text-align:center; cursor:pointer;}
 
   /* Note editor */
-  #noteEditor .sheet-top{align-items:flex-start;}
+  #noteEditor .sheet-top{align-items:center; flex-wrap:wrap;}
   #noteTitle{font-size:16px; font-weight:600; background:var(--panel2); border:none; border-radius:12px; padding:10px 14px; color:#fff; width:100%;}
-  #refChip{background:var(--panel2); border-radius:14px; padding:6px 12px; font-size:12px; color:var(--muted); white-space:nowrap;}
-  #noteContentWrap{position:relative; flex:1; margin-top:12px;}
-  #noteContent{width:100%; height:100%; background:transparent; border:none; color:#fff; font-size:15px; resize:none; outline:none;}
-  #drawCanvas{position:absolute; inset:0; touch-action:none;}
+  #refChip{background:var(--panel2); border-radius:14px; padding:6px 12px; font-size:12px; color:var(--muted);
+    white-space:nowrap; cursor:pointer; max-width:55%; overflow:hidden; text-overflow:ellipsis;}
+  #modeBadge{font-size:12px; color:var(--muted); white-space:nowrap;}
+  #modeBadge.active{color:var(--accent); font-weight:700;}
+  #noteContentWrap{position:relative; flex:1; margin-top:12px; border-radius:14px; transition:outline-color .15s ease;
+    outline:2px solid transparent;}
+  #noteContentWrap.drawing{outline-color:var(--accent);}
+  #noteContent{width:100%; height:100%; background:transparent; border:none; color:#fff; font-size:15px; resize:none; outline:none; padding:2px;}
+  #drawCanvas{position:absolute; inset:0; touch-action:none; border-radius:14px;}
   #drawCanvas.active{pointer-events:auto;}
   #drawCanvas:not(.active){pointer-events:none;}
-  #colorRow{display:flex; gap:8px; margin:10px 0;}
-  .tag-color{width:26px; height:26px; border-radius:50%; cursor:pointer; border:2px solid transparent;}
-  .tag-color.selected{border-color:#fff;}
-  #blbLink{color:var(--accent); font-size:13px; text-decoration:underline; cursor:pointer;}
-  #drawToolbar{display:flex; align-items:center; gap:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08);}
-  #drawToolbar .tool{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:1;}
-  #drawToolbar .tool.dim{opacity:.2; pointer-events:none;}
-  #drawToolbar .tool.sel{outline:1px solid #fff; border-radius:8px; padding:4px;}
-  #colorSwatch{width:22px; height:22px; border-radius:50%; border:1px solid #666; cursor:pointer;}
+  #drawToolbar{display:flex; align-items:center; gap:14px; padding-top:10px; border-top:1px solid rgba(255,255,255,.08);
+    flex-wrap:wrap; transition:opacity .15s ease;}
+  #drawToolbar .tool{background:none; border:none; color:#fff; font-size:20px; cursor:pointer; opacity:1; border-radius:8px; padding:4px;}
+  #drawToolbar .tool.dim{opacity:.2; pointer-events:none;}       /* disabled state — undo/redo only */
+  #drawToolbar .tool.inactive{opacity:.4;}                        /* unselected but still clickable — pen/eraser */
+  #drawToolbar .tool.sel{outline:1px solid #fff;}
+  #colorSwatch{width:22px; height:22px; border-radius:50%; border:1px solid #666; cursor:pointer; flex-shrink:0;}
+  #drawToggleBtn{width:36px; height:36px; display:flex; align-items:center; justify-content:center; background:var(--panel2);}
+  #drawToggleBtn.draw-active{background:var(--accent); color:#000;}
 
   /* Graph */
   #graphCanvas{flex:1; touch-action:none;}
+
+  @media (max-width:360px){
+    .nav-btn{font-size:16px;}
+    #tabPill{padding:9px 12px; font-size:13px;}
+  }
 </style>
 </head>
 <body>
@@ -140,13 +171,15 @@
 
   <!-- MAIN -->
   <div id="main" class="screen">
-    <div id="passageHeader"></div>
-    <div id="verseContent">Loading passage…</div>
-    <div id="navFade"></div>
+    <div id="mainScroll">
+      <div id="topSentinel"></div>
+      <div id="verseContent">Loading passage…</div>
+      <div id="bottomSentinel"></div>
+    </div>
     <div id="bottomNav">
       <button class="nav-btn" onclick="openSheet('settingsSheet')">⚙️</button>
       <div id="tabPillWrap">
-        <div id="tabPill" onclick="openSheet('searchSheet')">Eph 5:15-20</div>
+        <div id="tabPill" onclick="openSheet('searchSheet')">Eph 5</div>
         <div id="tabDots"></div>
       </div>
       <button class="nav-btn" onclick="openNotesList()">🗒️</button>
@@ -159,6 +192,7 @@
   <!-- VERSE POPUP -->
   <div id="versePopup">
     <div class="popup-header">
+      <span id="popupRef"></span>
       <button class="icon-btn small" onclick="popupAction('copy')" title="Copy">⧉</button>
     </div>
     <div id="popupNotes"></div>
@@ -247,7 +281,8 @@
   <div id="noteEditor" class="screen">
     <div class="sheet-top" style="padding:16px 16px 0;">
       <button class="icon-btn" id="drawToggleBtn" onclick="toggleDrawMode()">✏️</button>
-      <span id="refChip"></span>
+      <span id="refChip" onclick="openVersePicker()"></span>
+      <span id="modeBadge">Typing</span>
       <div style="flex:1;"></div>
       <button class="close-x" onclick="closeNoteEditor()">✕</button>
     </div>
@@ -255,22 +290,15 @@
       <input id="noteTitle" placeholder="Title" oninput="saveCurrentNote()" />
     </div>
     <div id="noteContentWrap" style="margin:0 16px;">
-      <textarea id="noteContent" placeholder="(and notes or drawings go here)" oninput="saveCurrentNote()"></textarea>
+      <textarea id="noteContent" oninput="saveCurrentNote()"></textarea>
       <canvas id="drawCanvas"></canvas>
     </div>
     <div style="padding:0 16px 16px;">
-      <div id="colorRow">
-        <div class="tag-color" style="background:var(--red)" onclick="setNoteColor('red')"></div>
-        <div class="tag-color" style="background:var(--yellow)" onclick="setNoteColor('yellow')"></div>
-        <div class="tag-color" style="background:var(--green)" onclick="setNoteColor('green')"></div>
-        <div class="tag-color" style="background:var(--blue)" onclick="setNoteColor('blue')"></div>
-      </div>
-      <span id="blbLink" onclick="openBLBForCurrentNote()">Look up Blue Letter Bible</span>
       <div id="drawToolbar">
         <div id="colorSwatch" style="background:#fff;" onclick="pickColor()"></div>
         <input type="color" id="colorPicker" style="display:none;" onchange="setDrawColor(this.value)">
         <button class="tool sel" id="penTool" onclick="selectTool('pen')">✒️</button>
-        <button class="tool" id="eraserTool" onclick="selectTool('eraser')">🧽</button>
+        <button class="tool inactive" id="eraserTool" onclick="selectTool('eraser')">🧽</button>
         <button class="tool dim" id="undoBtn" onclick="undoStroke()">↶</button>
         <button class="tool dim" id="redoBtn" onclick="redoStroke()">↷</button>
       </div>
@@ -338,9 +366,9 @@ const BOOKS = [
 // Blue Letter Bible slug exceptions (BLB uses slightly different abbrevs for a few books)
 const BLB_SLUG_OVERRIDES = {SNG:"sos", EZK:"eze", JOL:"joe", NAM:"nah", "1SA":"1sa","2SA":"2sa"};
 
-/* Fallback offline sample (World English Bible — public domain) */
+/* Fallback offline sample (World English Bible — public domain) — only Eph 5 has real text */
 const FALLBACK_PASSAGE = {
-  ref:"EPH.5", label:"Ephesians 5:14-20",
+  ref:"EPH.5",
   verses:{
     14:"for the light makes everything visible. This is why it is said, “Awake, O sleeper, rise up from the dead, and Christ will give you light.”",
     15:"So be careful how you live. Don't live like fools, but like those who are wise.",
@@ -360,9 +388,9 @@ function defaultState(){
   return {
     settings:{fontSize:18, bibleId:"", apiKey:"", signedIn:false},
     tabs:[
-      {ref:"EPH.5", label:"Eph 5:15", verseFocus:15},
-      {ref:"JHN.3", label:"Jn 3:16", verseFocus:16},
-      {ref:"PSA.119", label:"Psa 119:176", verseFocus:176}
+      {ref:"EPH.5", label:"Eph 5", verseFocus:15},
+      {ref:"JHN.3", label:"Jn 3", verseFocus:16},
+      {ref:"PSA.119", label:"Psa 119", verseFocus:176}
     ],
     activeTab:0,
     notes:[],       // {id,title,verseRefs[],content,color,strokes[],createdAt,updatedAt}
@@ -405,6 +433,18 @@ function openSheet(id){
 function closeSheet(id){
   document.getElementById(id).classList.remove("open");
   hideBackdrop();
+  if(id==="searchSheet"){
+    searchPickTarget = null;
+    const input = document.getElementById("searchInput");
+    if(input) input.placeholder = "Search book, chapter, verse…";
+  }
+}
+function closeAllSheets(){
+  ["settingsSheet","searchSheet","notesSheet"].forEach(id=>{
+    document.getElementById(id).classList.remove("open");
+  });
+  hideBackdrop();
+  searchPickTarget = null;
 }
 
 /* =========================================================
@@ -413,6 +453,8 @@ function closeSheet(id){
 window.addEventListener("load", ()=>{
   document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
   applyFontSize();
+  setupInfiniteScroll();
+  setupHeaderScrollTracking();
   setTimeout(()=>{ showScreen("main"); loadActiveTab(); }, 1200);
   initGoogleAuth();
 });
@@ -429,13 +471,16 @@ async function loadBibleList(){
     const json = await res.json();
     const sel = document.getElementById("translationSelect");
     sel.innerHTML = "";
-    (json.data||[]).forEach(b=>{
+    const sorted = (json.data||[]).slice().sort((a,b)=>
+      (a.name||a.abbreviation||"").localeCompare(b.name||b.abbreviation||"")
+    );
+    sorted.forEach(b=>{
       const opt = document.createElement("option");
       opt.value = b.id; opt.textContent = `${b.abbreviation||b.name}`;
       sel.appendChild(opt);
     });
-    if(json.data && json.data.length){
-      state.settings.bibleId = json.data[0].id; saveState();
+    if(sorted.length){
+      state.settings.bibleId = sorted[0].id; saveState();
       loadActiveTab();
     }
   }catch(e){
@@ -446,14 +491,15 @@ function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveSta
 
 async function fetchChapterVerses(bookId, chapter){
   const {apiKey, bibleId} = state.settings;
-  if(!apiKey || !bibleId) return null; // no key set -> caller falls back to sample
+  if(!apiKey || !bibleId) return null; // no key set -> caller falls back / shows placeholder
   try{
     const res = await fetch(`${API_BIBLE_BASE}/bibles/${bibleId}/chapters/${bookId}.${chapter}?content-type=html&include-verse-numbers=true`, {headers:{"api-key":apiKey}});
     const json = await res.json();
     return parseVersesFromHTML(json.data.content);
   }catch(e){ console.warn("Chapter fetch failed", e); return null; }
 }
-// api.bible wraps verse numbers in elements with class "v" and data-number — parse verse-by-verse text
+// api.bible wraps verse numbers in elements with class "v" — we skip text INSIDE that
+// element (the number label itself) so we don't double-print it alongside our own <sup>.
 function parseVersesFromHTML(html){
   const div = document.createElement("div");
   div.innerHTML = html;
@@ -464,45 +510,217 @@ function parseVersesFromHTML(html){
   while(node = walker.nextNode()){
     if(node.nodeType===1 && node.classList && node.classList.contains("v")){
       flush(); current = node.getAttribute("data-number")||node.textContent.trim(); buffer="";
-    } else if(node.nodeType===3){ buffer += node.textContent; }
+    } else if(node.nodeType===3){
+      // skip the verse-number label text that lives inside the .v span itself
+      if(node.parentElement && node.parentElement.closest(".v")) continue;
+      buffer += node.textContent;
+    }
   }
   flush();
   Object.keys(verses).forEach(k=> verses[k]=verses[k].replace(/\s+/g," ").trim());
   return verses;
 }
+async function getVersesFor(bookId, chapter){
+  let verses = await fetchChapterVerses(bookId, chapter);
+  if(!verses && bookId==="EPH" && chapter===5){ verses = FALLBACK_PASSAGE.verses; }
+  return verses; // null means "no key / fetch failed" -> caller renders a placeholder line
+}
 
-async function loadActiveTab(){
-  const tab = state.tabs[state.activeTab];
-  const [bookId, chapter] = tab.ref.split(".");
+/* =========================================================
+   CONTINUOUS WHOLE-BIBLE SCROLL ENGINE
+========================================================= */
+const MAX_LOADED_CHAPTERS = 12;
+let loadedChapters = [];      // ordered front-to-back list of {bookId, chapter} currently in DOM
+let isBusy = false;           // guards concurrent loads / prevents races during reset
+let currentDisplayRef = null; // {bookId, chapter} currently at top of viewport, drives sticky tab label
+
+function bookArrIndex(bookId){ return BOOKS.findIndex(b=>b.id===bookId); }
+function nextChapterRef(bookId, chapter){
+  const idx = bookArrIndex(bookId); const book = BOOKS[idx];
+  if(chapter < book.chapters) return {bookId, chapter: chapter+1};
+  if(idx < BOOKS.length-1) return {bookId: BOOKS[idx+1].id, chapter: 1};
+  return null; // end of Revelation — end of Bible
+}
+function prevChapterRef(bookId, chapter){
+  if(chapter > 1) return {bookId, chapter: chapter-1};
+  const idx = bookArrIndex(bookId);
+  if(idx > 0){ const p = BOOKS[idx-1]; return {bookId:p.id, chapter:p.chapters}; }
+  return null; // before Genesis 1 — start of Bible
+}
+function globalChapterIndex(bookId, chapter){
+  let idx=0;
+  for(const b of BOOKS){ if(b.id===bookId) return idx+chapter; idx += b.chapters; }
+  return idx;
+}
+function chapterKeyEq(a,b){ return a.bookId===b.bookId && a.chapter===b.chapter; }
+
+function buildChapterDOM(bookId, chapter, verses){
   const book = BOOKS.find(b=>b.id===bookId);
-  document.getElementById("tabPill").textContent = tab.label;
+  const container = document.createElement("div");
+  container.className = "chapter-block";
+  container.dataset.book = bookId;
+  container.dataset.chapter = chapter;
+
+  if(chapter === 1){
+    const title = document.createElement("div");
+    title.className = "book-title";
+    title.textContent = book ? book.name : bookId;
+    container.appendChild(title);
+  }
+  const heading = document.createElement("div");
+  heading.className = "chapter-heading";
+  heading.textContent = "Chapter " + chapter;
+  container.appendChild(heading);
+
+  if(verses){
+    Object.keys(verses).sort((a,b)=>+a-+b).forEach(num=>{
+      const span = document.createElement("span");
+      span.className = "verse";
+      const key = `${bookId}.${chapter}.${num}`;
+      span.dataset.ref = key;
+      applyVerseClasses(span, key);
+      const sup = document.createElement("sup");
+      sup.textContent = num;             // verse number — small superscript, single source
+      span.appendChild(sup);
+      span.appendChild(document.createTextNode(verses[num]));
+      span.onclick = ()=> toggleVerseSelect(span, key);
+      container.appendChild(span);
+    });
+  } else {
+    const msg = document.createElement("div");
+    msg.className = "verse placeholder";
+    msg.textContent = "Add an api.bible API key in Settings to load this chapter.";
+    container.appendChild(msg);
+  }
+  return container;
+}
+
+async function appendChapterBlock(bookId, chapter){
+  const ref = {bookId, chapter};
+  if(loadedChapters.some(c=>chapterKeyEq(c,ref))) return;
+  const verses = await getVersesFor(bookId, chapter);
+  const el = buildChapterDOM(bookId, chapter, verses);
+  document.getElementById("verseContent").appendChild(el);
+  loadedChapters.push(ref);
+  trimChapters();
+}
+async function prependChapterBlock(bookId, chapter){
+  const ref = {bookId, chapter};
+  if(loadedChapters.some(c=>chapterKeyEq(c,ref))) return;
+  const verses = await getVersesFor(bookId, chapter);
+  const el = buildChapterDOM(bookId, chapter, verses);
+  const wrap = document.getElementById("verseContent");
+  const scroller = document.getElementById("mainScroll");
+  const prevHeight = scroller.scrollHeight;
+  wrap.insertBefore(el, wrap.firstChild);
+  loadedChapters.unshift(ref);
+  requestAnimationFrame(()=>{ scroller.scrollTop += (scroller.scrollHeight - prevHeight); });
+  trimChapters();
+}
+function trimChapters(){
+  const wrap = document.getElementById("verseContent");
+  const scroller = document.getElementById("mainScroll");
+  while(loadedChapters.length > MAX_LOADED_CHAPTERS && currentDisplayRef){
+    const first = loadedChapters[0], last = loadedChapters[loadedChapters.length-1];
+    const distFirst = Math.abs(globalChapterIndex(first.bookId,first.chapter) - globalChapterIndex(currentDisplayRef.bookId,currentDisplayRef.chapter));
+    const distLast  = Math.abs(globalChapterIndex(last.bookId,last.chapter) - globalChapterIndex(currentDisplayRef.bookId,currentDisplayRef.chapter));
+    if(distFirst >= distLast){
+      const block = wrap.querySelector(`.chapter-block[data-book="${first.bookId}"][data-chapter="${first.chapter}"]`);
+      if(block){ const h = block.offsetHeight; block.remove(); scroller.scrollTop -= h; }
+      loadedChapters.shift();
+    } else {
+      const block = wrap.querySelector(`.chapter-block[data-book="${last.bookId}"][data-chapter="${last.chapter}"]`);
+      if(block) block.remove();
+      loadedChapters.pop();
+    }
+  }
+}
+
+function setupInfiniteScroll(){
+  const scroller = document.getElementById("mainScroll");
+  const topSentinel = document.getElementById("topSentinel");
+  const bottomSentinel = document.getElementById("bottomSentinel");
+  const opts = {root:scroller, rootMargin:"600px 0px 600px 0px", threshold:0};
+
+  new IntersectionObserver(async entries=>{
+    if(entries[0].isIntersecting && !isBusy && loadedChapters.length){
+      const first = loadedChapters[0];
+      const prev = prevChapterRef(first.bookId, first.chapter);
+      if(prev){ isBusy=true; await prependChapterBlock(prev.bookId, prev.chapter); isBusy=false; }
+    }
+  }, opts).observe(topSentinel);
+
+  new IntersectionObserver(async entries=>{
+    if(entries[0].isIntersecting && !isBusy && loadedChapters.length){
+      const last = loadedChapters[loadedChapters.length-1];
+      const next = nextChapterRef(last.bookId, last.chapter);
+      if(next){ isBusy=true; await appendChapterBlock(next.bookId, next.chapter); isBusy=false; }
+    }
+  }, opts).observe(bottomSentinel);
+}
+
+/* Sticky tab-pill label tracks whichever chapter block currently sits at the top of the viewport */
+let headerRAFPending=false;
+function setupHeaderScrollTracking(){
+  document.getElementById("mainScroll").addEventListener("scroll", ()=>{
+    if(headerRAFPending) return;
+    headerRAFPending = true;
+    requestAnimationFrame(()=>{ updateHeaderFromScroll(); headerRAFPending=false; });
+  });
+}
+function updateHeaderFromScroll(){
+  const scroller = document.getElementById("mainScroll");
+  const scrollerTop = scroller.getBoundingClientRect().top;
+  let current = null;
+  document.querySelectorAll(".chapter-block").forEach(b=>{
+    if(b.getBoundingClientRect().top - scrollerTop <= 40) current = b;
+  });
+  if(current){
+    const bookId = current.dataset.book, chapter = +current.dataset.chapter;
+    if(!currentDisplayRef || currentDisplayRef.bookId!==bookId || currentDisplayRef.chapter!==chapter){
+      currentDisplayRef = {bookId, chapter};
+      updateTabLabel(bookId, chapter);
+    }
+  }
+}
+function updateTabLabel(bookId, chapter){
+  const book = BOOKS.find(b=>b.id===bookId);
+  document.getElementById("tabPill").textContent = (book?book.name:bookId) + " " + chapter;
+}
+
+/* Entry point — called on boot, tab swipe, and search selection.
+   Resets the scroll window around the requested chapter, then lets
+   the sentinels take over for continuous scrolling from there. */
+async function loadActiveTab(){
+  isBusy = true;
+  const tab = state.tabs[state.activeTab];
+  const [bookId, chapterStr] = tab.ref.split(".");
+  const chapter = +chapterStr;
+
+  loadedChapters = [];
+  currentDisplayRef = {bookId, chapter};
+  document.getElementById("verseContent").innerHTML = "";
+  updateTabLabel(bookId, chapter);
   renderTabDots();
 
-  let verses = await fetchChapterVerses(bookId, chapter);
-  let usingFallback = false;
-  if(!verses){ verses = FALLBACK_PASSAGE.verses; usingFallback = true; }
+  await appendChapterBlock(bookId, chapter);
+  const next = nextChapterRef(bookId, chapter);
+  if(next) await appendChapterBlock(next.bookId, next.chapter);
+  const prev = prevChapterRef(bookId, chapter);
+  if(prev) await prependChapterBlock(prev.bookId, prev.chapter);
 
-  document.getElementById("passageHeader").textContent =
-    (book?book.name:bookId) + " " + chapter + (usingFallback? "  ·  offline sample (WEB)":"");
-
-  const wrap = document.getElementById("verseContent");
-  wrap.innerHTML = "";
-  Object.keys(verses).sort((a,b)=>+a-+b).forEach(num=>{
-    const span = document.createElement("span");
-    span.className = "verse";
-    const key = `${bookId}.${chapter}.${num}`;
-    span.dataset.ref = key;
-    applyVerseClasses(span, key);
-    span.innerHTML = `<sup>${num}</sup>${verses[num]} `;
-    span.onclick = ()=> toggleVerseSelect(span, key);
-    wrap.appendChild(span);
-  });
+  const anchor = document.querySelector(`.chapter-block[data-book="${bookId}"][data-chapter="${chapter}"]`);
+  if(anchor) anchor.scrollIntoView({block:"start"});
+  isBusy = false;
 }
 function applyVerseClasses(el, key){
   el.classList.remove("hl-red","hl-yellow","hl-green","hl-blue","has-note");
   const hl = state.highlights[key];
   if(hl) el.classList.add("hl-"+hl);
   if(noteForVerse(key).length) el.classList.add("has-note");
+}
+function refreshVisibleVerseClasses(){
+  document.querySelectorAll(".verse[data-ref]").forEach(el=> applyVerseClasses(el, el.dataset.ref));
 }
 
 /* =========================================================
@@ -536,14 +754,19 @@ function renderQuickTabs(){
     const chip = document.createElement("div");
     chip.className = "quick-chip" + (i===state.activeTab?" active":"");
     chip.textContent = t.label;
-    chip.onclick = ()=>{ state.activeTab=i; saveState(); loadActiveTab(); closeSheet("searchSheet"); };
+    chip.onclick = ()=>{
+      if(searchPickTarget){ return; } // in picker mode, quick tabs are disabled — user must search a specific verse
+      state.activeTab=i; saveState(); loadActiveTab(); closeSheet("searchSheet");
+    };
     wrap.appendChild(chip);
   });
 }
 
 /* =========================================================
-   PREDICTIVE SEARCH
+   PREDICTIVE SEARCH  (dual-purpose: normal navigation + note verse-picker)
 ========================================================= */
+let searchPickTarget = null; // null | "note"  — when set, selecting a result assigns a verse ref to currentNote instead of navigating
+
 function onSearchInput(){
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
   const list = document.getElementById("suggestions");
@@ -563,12 +786,45 @@ function onSearchInput(){
     item.className = "sugg-item";
     item.textContent = label;
     item.onclick = ()=>{
-      state.tabs[state.activeTab] = {ref:`${b.id}.${chapter}`, label, verseFocus:verse||1};
+      if(searchPickTarget === "note" && currentNote){
+        const v = verse || 1;
+        currentNote.verseRefs = [`${b.id}.${chapter}.${v}`];
+        currentNote.updatedAt = Date.now();
+        saveState();
+        updateRefChip();
+        closeSheet("searchSheet");
+        document.getElementById("searchInput").value=""; list.innerHTML="";
+        return;
+      }
+      state.tabs[state.activeTab] = {ref:`${b.id}.${chapter}`, label: b.name+" "+chapter, verseFocus:verse||1};
       saveState(); loadActiveTab(); closeSheet("searchSheet");
       document.getElementById("searchInput").value=""; list.innerHTML="";
     };
     list.appendChild(item);
   });
+}
+
+/* =========================================================
+   VERSE REFERENCE LABEL FORMATTING  (e.g. "Exodus 3:21" or "Exodus 3:21-23")
+========================================================= */
+function formatVerseRefLabel(keys){
+  if(!keys || !keys.length) return "";
+  const parsed = keys.map(k=>{ const [bookId,chapter,verse]=k.split("."); return {bookId, chapter:+chapter, verse:+verse}; });
+  parsed.sort((a,b)=> (globalChapterIndex(a.bookId,a.chapter)*1000+a.verse) - (globalChapterIndex(b.bookId,b.chapter)*1000+b.verse));
+  const groups = [];
+  parsed.forEach(p=>{
+    const last = groups[groups.length-1];
+    if(last && last.bookId===p.bookId && last.chapter===p.chapter && p.verse === last.end+1){
+      last.end = p.verse;
+    } else {
+      groups.push({bookId:p.bookId, chapter:p.chapter, start:p.verse, end:p.verse});
+    }
+  });
+  return groups.map(g=>{
+    const book = BOOKS.find(b=>b.id===g.bookId);
+    const name = book ? book.name : g.bookId;
+    return g.start===g.end ? `${name} ${g.chapter}:${g.start}` : `${name} ${g.chapter}:${g.start}-${g.end}`;
+  }).join(", ");
 }
 
 /* =========================================================
@@ -590,6 +846,7 @@ function renderVersePopup(){
     hideBackdrop();
     return;
   }
+  document.getElementById("popupRef").textContent = formatVerseRefLabel(selectedVerses);
   selectedVerses.forEach(key=>{
     noteForVerse(key).forEach(n=>{
       const d = document.createElement("div");
@@ -611,7 +868,6 @@ function popupAction(action){
 }
 function applyHighlight(color){
   selectedVerses.forEach(key=>{
-    // tapping the same color again removes the highlight (toggle)
     state.highlights[key] = (state.highlights[key]===color) ? undefined : color;
     if(state.highlights[key]===undefined) delete state.highlights[key];
     const el = document.querySelector(`.verse[data-ref="${key}"]`);
@@ -632,7 +888,8 @@ function clearVerseSelection(){
 function copySelectedVerses(){
   const text = selectedVerses.map(k=>{
     const el = document.querySelector(`.verse[data-ref="${k}"]`);
-    return el ? el.textContent.trim() : "";
+    if(!el) return "";
+    return Array.from(el.childNodes).filter(n=>n.nodeName!=="SUP").map(n=>n.textContent).join("").trim();
   }).join(" ");
   navigator.clipboard?.writeText(text);
 }
@@ -642,13 +899,9 @@ function openBLB(key){
   const slug = (BLB_SLUG_OVERRIDES[bookId] || bookId.toLowerCase());
   window.open(`https://www.blueletterbible.org/kjv/${slug}/${chapter}/${verse}/`, "_blank");
 }
-function openBLBForCurrentNote(){
-  const refs = currentNote?.verseRefs || [];
-  if(refs.length) openBLB(refs[0]);
-}
 
 /* =========================================================
-   NOTES LIST
+   NOTES LIST  (with delete)
 ========================================================= */
 function openNotesList(){ openSheet("notesSheet"); renderNotesList(); }
 function renderNotesList(){
@@ -661,13 +914,40 @@ function renderNotesList(){
     .forEach(n=>{
       const row = document.createElement("div");
       row.className = "note-row";
-      row.innerHTML = `<span><span class="dot" style="background:${colorHex(n.color)}"></span>${n.title||"Untitled"}</span>
-                        <span class="note-date">${new Date(n.updatedAt).toLocaleDateString()}</span>`;
-      row.onclick = ()=> openNoteEditor(n.id);
+
+      const main = document.createElement("div");
+      main.className = "note-row-main";
+      main.onclick = ()=> openNoteEditor(n.id);
+      const dot = document.createElement("span");
+      dot.className = "dot";
+      dot.style.background = colorHex(n.color);
+      const title = document.createElement("span");
+      title.className = "note-row-title";
+      title.textContent = n.title || "Untitled";
+      main.appendChild(dot); main.appendChild(title);
+
+      const date = document.createElement("span");
+      date.className = "note-date";
+      date.textContent = new Date(n.updatedAt).toLocaleDateString();
+
+      const delBtn = document.createElement("button");
+      delBtn.className = "note-delete-btn";
+      delBtn.textContent = "🗑️";
+      delBtn.onclick = (e)=> deleteNote(n.id, e);
+
+      row.appendChild(main); row.appendChild(date); row.appendChild(delBtn);
       wrap.appendChild(row);
     });
 }
 function colorHex(c){ return {red:"#FF383C",yellow:"#FFCC00",green:"#34C759",blue:"#0088FF"}[c] || "#888"; }
+function deleteNote(id, evt){
+  if(evt) evt.stopPropagation();
+  if(!confirm("Delete this note? This can't be undone.")) return;
+  state.notes = state.notes.filter(n=>n.id!==id);
+  saveState();
+  renderNotesList();
+  refreshVisibleVerseClasses();
+}
 
 /* =========================================================
    NOTE EDITOR + DRAWING
@@ -677,23 +957,39 @@ let drawMode=false, drawTool="pen", drawColor="#ffffff", strokes=[], undoStack=[
 let ctx, canvasEl;
 
 function createNote(verseRefs=[]){
+  closeAllSheets(); // fixes: prevents an invisible sheet from stealing focus/input from the editor
   const n = {id:crypto.randomUUID(), title:"", verseRefs, content:"", color:"blue", strokes:[], createdAt:Date.now(), updatedAt:Date.now()};
   state.notes.push(n); saveState();
   openNoteEditor(n.id);
 }
 function openNoteEditor(id){
+  closeAllSheets();
   currentNote = state.notes.find(n=>n.id===id);
   if(!currentNote) return;
   document.getElementById("noteTitle").value = currentNote.title;
   document.getElementById("noteContent").value = currentNote.content;
-  document.getElementById("refChip").textContent = currentNote.verseRefs.join(", ") || "No verse";
+  updateRefChip();
   strokes = currentNote.strokes || [];
   undoStack=[]; redoStack=[];
-  setNoteColor(currentNote.color, true);
+
+  // reset drawing state defensively so a prior session can't block typing
+  drawMode = false;
+  drawTool = "pen";
+  document.getElementById("modeBadge").textContent = "Typing";
+  document.getElementById("modeBadge").classList.remove("active");
+  document.getElementById("drawToggleBtn").classList.remove("draw-active");
+  document.getElementById("noteContentWrap").classList.remove("drawing");
+
   showScreen("noteEditor");
-  requestAnimationFrame(setupCanvas);
+  requestAnimationFrame(()=>{
+    setupCanvas();
+    selectTool("pen");
+    const titleEl = document.getElementById("noteTitle");
+    titleEl.focus();
+    titleEl.selectionStart = titleEl.selectionEnd = titleEl.value.length;
+  });
 }
-function closeNoteEditor(){ showScreen("main"); drawMode=false; loadActiveTab(); }
+function closeNoteEditor(){ showScreen("main"); drawMode=false; }
 function saveCurrentNote(){
   if(!currentNote) return;
   currentNote.title = document.getElementById("noteTitle").value;
@@ -701,11 +997,16 @@ function saveCurrentNote(){
   currentNote.updatedAt = Date.now();
   saveState();
 }
-function setNoteColor(c, silent){
+
+function updateRefChip(){
+  const chip = document.getElementById("refChip");
+  chip.textContent = currentNote.verseRefs.length ? formatVerseRefLabel(currentNote.verseRefs) : "Choose a verse";
+}
+function openVersePicker(){
   if(!currentNote) return;
-  currentNote.color = c;
-  document.querySelectorAll(".tag-color").forEach(el=>el.classList.remove("selected"));
-  if(!silent) saveState();
+  searchPickTarget = "note";
+  document.getElementById("searchInput").placeholder = "Choose a verse for this note…";
+  openSheet("searchSheet");
 }
 
 function setupCanvas(){
@@ -722,13 +1023,22 @@ function toggleDrawMode(){
   drawMode = !drawMode;
   canvasEl.classList.toggle("active", drawMode);
   document.getElementById("noteContent").style.pointerEvents = drawMode? "none":"auto";
+  // clear, unmistakable mode indication
+  document.getElementById("drawToggleBtn").classList.toggle("draw-active", drawMode);
+  document.getElementById("noteContentWrap").classList.toggle("drawing", drawMode);
+  const badge = document.getElementById("modeBadge");
+  badge.textContent = drawMode ? "✏️ Drawing" : "Typing";
+  badge.classList.toggle("active", drawMode);
+  if(drawMode) document.getElementById("noteContent").blur();
+  else document.getElementById("noteContent").focus();
 }
 function selectTool(t){
   drawTool = t;
-  document.getElementById("penTool").classList.toggle("sel", t==="pen");
-  document.getElementById("penTool").classList.toggle("dim", t!=="pen");
-  document.getElementById("eraserTool").classList.toggle("sel", t==="eraser");
-  document.getElementById("eraserTool").classList.toggle("dim", t!=="eraser");
+  const pen = document.getElementById("penTool"), eraser = document.getElementById("eraserTool");
+  pen.classList.toggle("sel", t==="pen");
+  pen.classList.toggle("inactive", t!=="pen");
+  eraser.classList.toggle("sel", t==="eraser");
+  eraser.classList.toggle("inactive", t!=="eraser");
 }
 function pickColor(){ document.getElementById("colorPicker").click(); }
 function setDrawColor(v){ drawColor=v; document.getElementById("colorSwatch").style.background=v; }
@@ -844,7 +1154,6 @@ function shouldLink(a,b){
 }
 function simTick(){
   if(!gctx) return;
-  // repulsion
   for(let i=0;i<gnodes.length;i++){
     for(let j=i+1;j<gnodes.length;j++){
       const a=gnodes[i], b=gnodes[j];
@@ -854,7 +1163,6 @@ function simTick(){
       a.vx+=dx*force; a.vy+=dy*force; b.vx-=dx*force; b.vy-=dy*force;
     }
   }
-  // spring edges
   gedges.forEach(e=>{
     const a=gnodes[e.a], b=gnodes[e.b];
     let dx=b.x-a.x, dy=b.y-a.y, dist=Math.hypot(dx,dy)||1;
@@ -919,7 +1227,7 @@ function resetAll(){
 ========================================================= */
 let tokenClient, accessToken=null;
 function initGoogleAuth(){
-  if(!window.google || GOOGLE_CLIENT_ID.startsWith("YOUR_")) return; // not configured yet
+  if(!window.google || GOOGLE_CLIENT_ID.startsWith("YOUR_")) return;
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: DRIVE_SCOPE,
@@ -948,14 +1256,13 @@ async function driveLoad(){
   if(!id) return;
   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, {headers:{Authorization:`Bearer ${accessToken}`}});
   const remote = await res.json();
-  // simple last-write-wins merge on notes by id
   const localNotes = new Map(state.notes.map(n=>[n.id,n]));
   (remote.notes||[]).forEach(rn=>{
     const ln = localNotes.get(rn.id);
     if(!ln || rn.updatedAt > ln.updatedAt) localNotes.set(rn.id, rn);
   });
   state.notes = Array.from(localNotes.values());
-  state.settings = {...state.settings, ...remote.settings, apiKey: state.settings.apiKey}; // keep local API key
+  state.settings = {...state.settings, ...remote.settings, apiKey: state.settings.apiKey};
   saveState(); loadActiveTab();
 }
 async function driveSave(){
