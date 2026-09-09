@@ -273,8 +273,8 @@
 
     <div class="settings-row">
       <label>Translation</label>
-      <select id="translationSelect" onchange="onTranslationChange(this.value)">
-        <option value="">Load with API key ↓</option>
+      <select id="translationSelectSettings" onchange="onTranslationChange(this.value)" style="width:100%; margin-bottom:12px;">
+        <option value="">Load with API key in Settings ↓</option>
       </select>
     </div>
 
@@ -321,9 +321,14 @@
       <input class="search-input" id="searchInput" placeholder="Search book, chapter, verse…" oninput="onSearchInput()" />
       <button class="close-x" onclick="closeSheet('searchSheet')">✕</button>
     </div>
+    <select id="translationSelectSearch" onchange="onTranslationChange(this.value)" style="width:100%; margin-bottom:12px;">
+      <option value="">Load with API key in Settings ↓</option>
+    </select>
     <div id="quickTabs"></div>
     <div id="suggestions"></div>
   </div>
+
+
 
   <!-- NOTES LIST SHEET -->
   <div id="notesSheet" class="sheet">
@@ -443,7 +448,7 @@ const FALLBACK_PASSAGE = {
    TRANSLATION WHITELIST
 ========================================================= */
 const WANTED_TRANSLATIONS = [
-  {match:["nasb2020","nasb 2020"], label:"NASB 2020"},
+  {match:["nasb"], label:"NASB 2020"},
   {match:["nlt"], label:"NLT"},
   {match:["niv"], label:"NIV"},
   {match:["kjv"], label:"KJV"}
@@ -531,7 +536,8 @@ window.addEventListener("load", ()=>{
   document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
   document.getElementById("esvKeyInput").value = state.settings.esvApiKey || "";
   document.getElementById("esvKeyInput").addEventListener("change", e=>{
-    state.settings.esvApiKey = e.target.value.trim(); saveState();
+  state.settings.esvApiKey = e.target.value.trim(); saveState();
+  updateEsvOptionVisibility();
   });
   toggleKeyLink('apiKeyInput','getApiKeyLink');
   toggleKeyLink('esvKeyInput','getEsvKeyLink');
@@ -564,22 +570,35 @@ async function loadBibleList(silent){
       });
       if(found) filtered.push({...found, _label:w.label});
     });
-    // ESV always listed — served via Crossway's separate API, not api.bible
-    filtered.unshift({id:"ESV_CROSSWAY", _label:"ESV"});
+    if(state.settings.esvApiKey){
+      filtered.unshift({id:"ESV_CROSSWAY", _label:"ESV"});
+    }
 
-    const sel = document.getElementById("translationSelect");
-    sel.innerHTML = "";
-    filtered.forEach(b=>{
-      const opt = document.createElement("option");
-      opt.value = b.id; opt.textContent = b._label;
-      sel.appendChild(opt);
+    const selectIds = ["translationSelectSettings","translationSelectSearch"];
+    selectIds.forEach(id=>{
+      const sel = document.getElementById(id);
+      if(!sel){ console.warn(`Missing element #${id} — check your HTML`); return; }
+      sel.innerHTML = "";
+      if(filtered.length === 0){
+        const opt = document.createElement("option");
+        opt.value = ""; opt.textContent = "None of your 5 translations available on this key";
+        sel.appendChild(opt);
+      } else {
+        filtered.forEach(b=>{
+          const opt = document.createElement("option");
+          opt.value = b.id; opt.textContent = b._label;
+          sel.appendChild(opt);
+        });
+      }
     });
-
     if(state.settings.bibleId && filtered.some(b=>b.id===state.settings.bibleId)){
-      sel.value = state.settings.bibleId;
+      selectIds.forEach(id=>{ const s=document.getElementById(id); if(s) s.value = state.settings.bibleId; });
     } else if(filtered.length){
       state.settings.bibleId = filtered[0].id; saveState();
+      selectIds.forEach(id=>{ const s=document.getElementById(id); if(s) s.value = state.settings.bibleId; });
     }
+
+
     loadActiveTab();
   }catch(e){
     if(!silent) alert("Couldn't reach api.bible. Check your key/network.");
@@ -591,7 +610,35 @@ function toggleKeyLink(inputId, linkId){
   document.getElementById(linkId).style.display = hasKey ? "none" : "inline";
 }
 
-function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveState(); loadActiveTab(); }
+function onTranslationChange(bibleId){
+  state.settings.bibleId = bibleId; saveState();
+  ["translationSelectSettings","translationSelectSearch"].forEach(id=>{
+    const s = document.getElementById(id);
+    if(s && s.value !== bibleId) s.value = bibleId;
+  });
+  loadActiveTab();
+}
+
+function updateEsvOptionVisibility(){
+  ["translationSelectSettings","translationSelectSearch"].forEach(id=>{
+    const sel = document.getElementById(id);
+    if(!sel) return;
+    const existing = Array.from(sel.options).find(o => o.value === "ESV_CROSSWAY");
+    if(state.settings.esvApiKey && !existing){
+      const opt = document.createElement("option");
+      opt.value = "ESV_CROSSWAY"; opt.textContent = "ESV";
+      sel.insertBefore(opt, sel.firstChild);
+    } else if(!state.settings.esvApiKey && existing){
+      existing.remove();
+    }
+  });
+  if(!state.settings.esvApiKey && state.settings.bibleId === "ESV_CROSSWAY"){
+    const fallback = document.getElementById("translationSelectSettings");
+    state.settings.bibleId = fallback && fallback.options[0] ? fallback.options[0].value : "";
+    saveState(); loadActiveTab();
+  }
+}
+
 
 async function fetchChapterVerses(bookId, chapter){
   if(state.settings.bibleId === "ESV_CROSSWAY"){
