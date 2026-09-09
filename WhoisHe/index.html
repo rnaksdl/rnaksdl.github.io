@@ -21,14 +21,30 @@
     height:100vh; height:100dvh; min-height:100vh; min-height:100dvh;
   }
   @media (min-width:700px){ #phone{ max-width:480px; } }
+
+  /* ---------- Desktop / large-screen layout ---------- */
+  @media (min-width:900px){
+    #phone{ max-width:none; width:100%; border:none; }
+    #mainScroll{
+      padding-left:max(24px, calc(50% - 360px));
+      padding-right:max(24px, calc(50% - 360px));
+    }
+    #bottomNav{ max-width:520px; margin:0 auto; }
+    .sheet{ left:50%; right:auto; transform:translateX(-50%); width:460px; }
+    #versePopup{ left:50%; right:auto; transform:translateX(-50%); width:460px; }
+    .signin-tile{ left:50%; right:auto; transform:translateX(-50%); width:460px; }
+    #noteEditor #noteContentWrap, #noteEditor > div > #noteTitle{ max-width:700px; margin-left:auto; margin-right:auto; }
+  }
+
   .screen{position:absolute; inset:0; display:none; flex-direction:column; background:var(--bg);}
   .screen.active{display:flex;}
-  /* ---------- Splash ---------- */
-  #splash{align-items:center; justify-content:center; gap:10px;}
-  #splashLogo{width:120px; height:120px; fill:#fff; animation:logoPulse 1.4s ease-in-out infinite;}
-  @keyframes logoPulse{0%,100%{opacity:.4; transform:scale(.92);} 50%{opacity:1; transform:scale(1);}}
 
-/* ---------- Main reading screen ---------- */
+  /* ---------- Splash ---------- */
+  #splash{align-items:center; justify-content:center;}
+  .loading-mark{width:clamp(110px,30vw,180px); height:clamp(110px,30vw,180px); animation:breathe 1.6s ease-in-out infinite;}
+  @keyframes breathe{0%,100%{opacity:.55; transform:scale(.96);} 50%{opacity:1; transform:scale(1);}}
+
+  /* ---------- Main reading screen ---------- */
   #main{min-height:0;}
   #mainScroll{flex:1 1 auto; min-height:0; overflow-y:auto; -webkit-overflow-scrolling:touch;
     padding:16px clamp(14px,4vw,18px) 14px;}
@@ -38,6 +54,7 @@
   .chapter-block:first-child .book-title{margin-top:4px;}
   .chapter-heading{font-weight:700; font-size:13px; color:var(--muted); text-transform:uppercase;
     letter-spacing:.05em; margin:0 0 14px;}
+  .section-heading{font-weight:700; font-size:19px; margin:18px 0 10px;}
   .verse{
     display:block; position:relative; cursor:pointer;
     padding:2px 4px; margin:0 -4px 0.9em -4px; border-radius:6px;
@@ -45,7 +62,8 @@
   }
   .verse sup{color:var(--muted); font-size:11px; font-weight:600; margin-right:3px;}
   .verse.selected{text-decoration:underline dotted; text-underline-offset:4px;}
-  .verse.has-note{text-decoration:underline solid var(--text); text-underline-offset:3px;}  .verse.hl-red{background:rgba(255,56,60,.28);}
+  .verse.has-note{text-decoration:underline solid var(--text); text-underline-offset:3px;}
+  .verse.hl-red{background:rgba(255,56,60,.28);}
   .verse.hl-yellow{background:rgba(255,204,0,.28);}
   .verse.hl-green{background:rgba(52,199,89,.28);}
   .verse.hl-blue{background:rgba(0,136,255,.28);}
@@ -55,6 +73,19 @@
   #sheetBackdrop{position:absolute; inset:0; background:rgba(0,0,0,.55); z-index:15;
     opacity:0; pointer-events:none; transition:opacity .2s ease;}
   #sheetBackdrop.show{opacity:1; pointer-events:auto;}
+
+  /* ---------- Sign-in tile ---------- */
+  .signin-tile{
+    position:absolute; top:14px; left:14px; right:14px; z-index:25;
+    background:var(--panel); border-radius:16px; padding:14px 16px;
+    box-shadow:0 10px 30px rgba(0,0,0,.5);
+    display:none; align-items:center; justify-content:space-between; gap:12px;
+  }
+  .signin-tile.show{display:flex;}
+  .signin-tile-text{display:flex; flex-direction:column; gap:2px; font-size:13px; min-width:0;}
+  .signin-tile-text strong{font-size:14px;}
+  .signin-tile-text span{color:var(--muted);}
+  .signin-tile-actions{display:flex; align-items:center; gap:8px; flex-shrink:0;}
 
   /* Bottom nav — always docked at bottom of screen, outside the scroll area */
   #bottomNav{
@@ -94,7 +125,7 @@
   .fontsize-toggle button{background:var(--panel2); border:none; color:#fff; border-radius:12px; padding:6px 12px; margin-left:6px; cursor:pointer;}
   #signInBtn{background:#fff; color:#000; font-weight:600;}
   input[type=range]{width:120px;}
-  #apiKeyInput{width:100%; margin-top:6px; background:var(--panel2); border:none; border-radius:10px; padding:8px 10px; color:#fff;}
+  #apiKeyInput, #esvKeyInput{width:100%; margin-top:6px; background:var(--panel2); border:none; border-radius:10px; padding:8px 10px; color:#fff;}
 
   /* Search suggestions */
   #suggestions{margin-top:12px; display:flex; flex-direction:column; gap:8px;}
@@ -162,14 +193,13 @@
 
   <!-- SPLASH -->
   <div id="splash" class="screen active">
-    <svg id="splashLogo" viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
-      <rect x="29" y="20" width="16" height="14"/>
-      <rect x="55" y="20" width="16" height="14"/>
-      <rect x="29" y="44" width="16" height="36"/>
-      <rect x="55" y="44" width="16" height="36"/>
+    <svg class="loading-mark" viewBox="0 0 1080 1080" xmlns="http://www.w3.org/2000/svg">
+      <rect x="310" y="213" width="170" height="170" fill="#fff"/>
+      <rect x="600" y="213" width="170" height="170" fill="#fff"/>
+      <rect x="310" y="481" width="170" height="383" fill="#fff"/>
+      <rect x="600" y="481" width="170" height="383" fill="#fff"/>
     </svg>
   </div>
-
 
   <!-- MAIN -->
   <div id="main" class="screen">
@@ -190,6 +220,18 @@
 
   <!-- BACKDROP for floating panels -->
   <div id="sheetBackdrop"></div>
+
+  <!-- SIGN-IN TILE -->
+  <div id="signInTile" class="signin-tile">
+    <div class="signin-tile-text">
+      <strong>Sync your notes & settings?</strong>
+      <span>Sign in with Google to back up across devices.</span>
+    </div>
+    <div class="signin-tile-actions">
+      <button class="btn" onclick="signInFromTile()">Sign In</button>
+      <button class="icon-btn small" onclick="dismissSignInTile()">✕</button>
+    </div>
+  </div>
 
   <!-- VERSE POPUP -->
   <div id="versePopup">
@@ -239,6 +281,11 @@
       <label>api.bible API key</label>
       <input id="apiKeyInput" placeholder="Paste your api.bible key…" />
       <button class="btn" style="margin-top:8px;" onclick="loadBibleList()">Fetch my translations</button>
+    </div>
+
+    <div class="settings-row" style="flex-direction:column; align-items:flex-start;">
+      <label>ESV API key (api.esv.org)</label>
+      <input id="esvKeyInput" placeholder="Paste your Crossway ESV API token…" />
     </div>
 
     <div class="settings-row">
@@ -326,6 +373,7 @@ const GOOGLE_CLIENT_ID = "198827651836-8ml3cr2uonbvprflnim9reqe2ovo8865.apps.goo
 const DRIVE_SCOPE = "https://www.googleapis.com/auth/drive.appdata";
 const DRIVE_FILE_NAME = "whoishe-data.json";
 const API_BIBLE_BASE = "https://api.scripture.api.bible/v1";
+const CROSSWAY_ESV_API = "https://api.esv.org/v3/passage/html/";
 
 /* =========================================================
    BOOK DATA (standard USFM-style ids + chapter counts)
@@ -365,7 +413,6 @@ const BOOKS = [
  {id:"2JN",name:"2 John",chapters:1},{id:"3JN",name:"3 John",chapters:1},
  {id:"JUD",name:"Jude",chapters:1},{id:"REV",name:"Revelation",chapters:22},
 ];
-// Blue Letter Bible slug exceptions (BLB uses slightly different abbrevs for a few books)
 const BLB_SLUG_OVERRIDES = {SNG:"sos", EZK:"eze", JOL:"joe", NAM:"nah", "1SA":"1sa","2SA":"2sa"};
 
 /* Fallback offline sample (World English Bible — public domain) — only Eph 5 has real text */
@@ -383,12 +430,22 @@ const FALLBACK_PASSAGE = {
 };
 
 /* =========================================================
+   TRANSLATION WHITELIST
+========================================================= */
+const WANTED_TRANSLATIONS = [
+  {match:["nasb2020","nasb 2020"], label:"NASB 2020"},
+  {match:["nlt"], label:"NLT"},
+  {match:["niv"], label:"NIV"},
+  {match:["kjv"], label:"KJV"}
+];
+
+/* =========================================================
    STATE + PERSISTENCE
 ========================================================= */
 let state = loadState();
 function defaultState(){
   return {
-    settings:{fontSize:18, bibleId:"", apiKey:"", signedIn:false},
+    settings:{fontSize:18, bibleId:"", apiKey:"", esvApiKey:"", signedIn:false},
     tabs:[
       {ref:"EPH.5", label:"Eph 5", verseFocus:15},
       {ref:"JHN.3", label:"Jn 3", verseFocus:16},
@@ -454,38 +511,20 @@ function closeAllSheets(){
 ========================================================= */
 window.addEventListener("load", ()=>{
   document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
+  document.getElementById("esvKeyInput").value = state.settings.esvApiKey || "";
+  document.getElementById("esvKeyInput").addEventListener("change", e=>{
+    state.settings.esvApiKey = e.target.value.trim(); saveState();
+  });
   applyFontSize();
   setupInfiniteScroll();
-  setupHeaderScrollTracking();
+  setupTabLabelTracking();
   setTimeout(()=>{ showScreen("main"); loadActiveTab(); }, 1200);
   initGoogleAuth();
 });
 
 /* =========================================================
-   BIBLE TEXT — api.bible integration
+   BIBLE TEXT — api.bible + Crossway ESV integration
 ========================================================= */
-const WANTED_TRANSLATIONS = [
-  {
-    // Matches id "a761ca71e0b3ddcf-01", name "New American Standard Bible 2020", abbreviation "NASB"
-    match: ["nasb"],
-    label: "NASB 2020"
-  },
-  {
-    // Matches name "New International Version 2011", abbreviation "NIV11"
-    match: ["niv11"],
-    label: "NIV"
-  },
-  {
-    // Matches abbreviation "engKJV" or "KJV"
-    match: ["kjv"],
-    label: "KJV"
-  },
-  {
-    match: ["nlt"],
-    label: "NLT"
-  }
-];
-
 async function loadBibleList(silent){
   const key = (silent && state.settings.apiKey) ? state.settings.apiKey : document.getElementById("apiKeyInput").value.trim();
   if(!key){ if(!silent) alert("Paste your api.bible API key first."); return; }
@@ -495,7 +534,6 @@ async function loadBibleList(silent){
     const json = await res.json();
     const all = json.data || [];
 
-    // Filter down to only your 5 requested translations, matching on abbreviation/name text
     const filtered = [];
     WANTED_TRANSLATIONS.forEach(w=>{
       const found = all.find(b=>{
@@ -504,20 +542,16 @@ async function loadBibleList(silent){
       });
       if(found) filtered.push({...found, _label:w.label});
     });
+    // ESV always listed — served via Crossway's separate API, not api.bible
+    filtered.unshift({id:"ESV_CROSSWAY", _label:"ESV"});
 
     const sel = document.getElementById("translationSelect");
     sel.innerHTML = "";
-    if(filtered.length === 0){
+    filtered.forEach(b=>{
       const opt = document.createElement("option");
-      opt.value = ""; opt.textContent = "None of your 5 translations available on this key";
+      opt.value = b.id; opt.textContent = b._label;
       sel.appendChild(opt);
-    } else {
-      filtered.forEach(b=>{
-        const opt = document.createElement("option");
-        opt.value = b.id; opt.textContent = b._label;
-        sel.appendChild(opt);
-      });
-    }
+    });
 
     if(state.settings.bibleId && filtered.some(b=>b.id===state.settings.bibleId)){
       sel.value = state.settings.bibleId;
@@ -529,66 +563,146 @@ async function loadBibleList(silent){
     if(!silent) alert("Couldn't reach api.bible. Check your key/network.");
   }
 }
-
 function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveState(); loadActiveTab(); }
 
 async function fetchChapterVerses(bookId, chapter){
+  if(state.settings.bibleId === "ESV_CROSSWAY"){
+    return fetchESVChapter(bookId, chapter);
+  }
   const {apiKey, bibleId} = state.settings;
-  if(!apiKey || !bibleId) return null; // no key set -> caller falls back / shows placeholder
+  if(!apiKey || !bibleId) return null;
   try{
     const res = await fetch(`${API_BIBLE_BASE}/bibles/${bibleId}/chapters/${bookId}.${chapter}?content-type=html&include-verse-numbers=true`, {headers:{"api-key":apiKey}});
     const json = await res.json();
     return parseVersesFromHTML(json.data.content);
   }catch(e){ console.warn("Chapter fetch failed", e); return null; }
 }
-// api.bible wraps verse numbers in elements with class "v" — we skip text INSIDE that
-// element (the number label itself) so we don't double-print it alongside our own <sup>.
+
+async function fetchESVChapter(bookId, chapter){
+  const token = state.settings.esvApiKey;
+  if(!token) return null;
+  const book = BOOKS.find(b=>b.id===bookId);
+  const query = `${book ? book.name : bookId} ${chapter}`;
+  try{
+    const res = await fetch(`${CROSSWAY_ESV_API}?q=${encodeURIComponent(query)}&include-headings=true&include-footnotes=false&include-verse-numbers=true&include-first-verse-numbers=true`, {
+      headers:{ "Authorization": `Token ${token}` }
+    });
+    const json = await res.json();
+    const html = (json.passages && json.passages[0]) || "";
+    return parseESVHTML(html);
+  }catch(e){ console.warn("ESV fetch failed", e); return null; }
+}
+// Best-effort parser for Crossway's returned HTML — verify against real output via debugChapterHTML() and adjust if needed.
+function parseESVHTML(html){
+  const div = document.createElement("div");
+  div.innerHTML = html;
+  const verses = {}, headings = {};
+  let current = null, pendingHeading = "";
+  const walker = document.createTreeWalker(div, NodeFilter.SHOW_ALL);
+  let node;
+  while(node = walker.nextNode()){
+    if(node.nodeType===1 && (node.tagName==="H3" || (node.classList && node.classList.contains("extra_text")))){
+      pendingHeading += (pendingHeading?" ":"") + node.textContent.trim();
+      continue;
+    }
+    if(node.nodeType===1 && node.classList && node.classList.contains("verse-num")){
+      current = node.textContent.replace(/\D/g,"").trim();
+      if(pendingHeading){ headings[current]=pendingHeading; pendingHeading=""; }
+      verses[current] = verses[current] || "";
+      continue;
+    }
+    if(node.nodeType===3 && current){
+      if(node.parentElement && (node.parentElement.closest(".verse-num") || node.parentElement.closest(".extra_text"))) continue;
+      verses[current] += node.textContent;
+    }
+  }
+  Object.keys(verses).forEach(k=> verses[k]=verses[k].replace(/\s+/g," ").trim());
+  return {verses, headings};
+}
+
+// Generic heading/section-title detector — catches USX-style classes (.s, .s1, .ms...)
+// AND arbitrary publisher markup containing "head"/"title" in the class name, or H1-H4 tags.
+// This is what fixes headings getting jammed onto the end of the previous verse (e.g. NLT).
+function isHeadingElement(el){
+  if(!el || el.nodeType!==1) return false;
+  if(/^H[1-4]$/.test(el.tagName)) return true;
+  if(!el.classList) return false;
+  for(const cls of el.classList){
+    if(/^(s\d*|ms\d*|mr|d\d*|sp|r)$/i.test(cls)) return true;
+    if(/head|title/i.test(cls)) return true;
+  }
+  return false;
+}
+function closestHeadingAncestor(node){
+  let el = node.nodeType===1 ? node : node.parentElement;
+  while(el){ if(isHeadingElement(el)) return el; el = el.parentElement; }
+  return null;
+}
 function parseVersesFromHTML(html){
   const div = document.createElement("div");
   div.innerHTML = html;
   const walker = document.createTreeWalker(div, NodeFilter.SHOW_ALL);
-  let verses={}, current=null, buffer="";
+  let verses={}, headings={}, current=null, buffer="", pendingHeading="";
   function flush(){ if(current!=null){ verses[current]=(verses[current]||"")+buffer; } buffer=""; }
   let node;
   while(node = walker.nextNode()){
+    if(node.nodeType===1 && isHeadingElement(node)){
+      pendingHeading += (pendingHeading?" ":"") + node.textContent.trim();
+      continue;
+    }
     if(node.nodeType===1 && node.classList && node.classList.contains("v")){
-      flush(); current = node.getAttribute("data-number")||node.textContent.trim(); buffer="";
+      flush();
+      current = node.getAttribute("data-number")||node.textContent.trim();
+      if(pendingHeading){ headings[current]=pendingHeading; pendingHeading=""; }
+      buffer="";
     } else if(node.nodeType===3){
-      // skip the verse-number label text that lives inside the .v span itself
-      if(node.parentElement && node.parentElement.closest(".v")) continue;
+      if(node.parentElement && (node.parentElement.closest(".v") || closestHeadingAncestor(node))) continue;
       buffer += node.textContent;
     }
   }
   flush();
   Object.keys(verses).forEach(k=> verses[k]=verses[k].replace(/\s+/g," ").trim());
-  return verses;
+  return {verses, headings};
 }
 async function getVersesFor(bookId, chapter){
-  let verses = await fetchChapterVerses(bookId, chapter);
-  if(!verses && bookId==="EPH" && chapter===5){ verses = FALLBACK_PASSAGE.verses; }
-  return verses; // null means "no key / fetch failed" -> caller renders a placeholder line
+  let result = await fetchChapterVerses(bookId, chapter);
+  if(!result && bookId==="EPH" && chapter===5 && state.settings.bibleId!=="ESV_CROSSWAY"){
+    result = {verses: FALLBACK_PASSAGE.verses, headings:{}};
+  }
+  return result;
+}
+
+/* Debug helper — run debugChapterHTML("EPH",1) from the browser console to inspect
+   the raw HTML a translation returns, useful for verifying heading markup. */
+async function debugChapterHTML(bookId, chapter){
+  const {apiKey, bibleId} = state.settings;
+  if(!apiKey || !bibleId || bibleId==="ESV_CROSSWAY"){ console.warn("Set an api.bible key + non-ESV translation first."); return; }
+  const res = await fetch(`${API_BIBLE_BASE}/bibles/${bibleId}/chapters/${bookId}.${chapter}?content-type=html&include-verse-numbers=true`, {headers:{"api-key":apiKey}});
+  const json = await res.json();
+  console.log(json.data.content);
+  return json.data.content;
 }
 
 /* =========================================================
    CONTINUOUS WHOLE-BIBLE SCROLL ENGINE
 ========================================================= */
 const MAX_LOADED_CHAPTERS = 12;
-let loadedChapters = [];      // ordered front-to-back list of {bookId, chapter} currently in DOM
-let isBusy = false;           // guards concurrent loads / prevents races during reset
-let currentDisplayRef = null; // {bookId, chapter} currently at top of viewport, drives sticky tab label
+let loadedChapters = [];
+let isBusy = false;
+let currentDisplayRef = null;
 
 function bookArrIndex(bookId){ return BOOKS.findIndex(b=>b.id===bookId); }
 function nextChapterRef(bookId, chapter){
   const idx = bookArrIndex(bookId); const book = BOOKS[idx];
   if(chapter < book.chapters) return {bookId, chapter: chapter+1};
   if(idx < BOOKS.length-1) return {bookId: BOOKS[idx+1].id, chapter: 1};
-  return null; // end of Revelation — end of Bible
+  return null;
 }
 function prevChapterRef(bookId, chapter){
   if(chapter > 1) return {bookId, chapter: chapter-1};
   const idx = bookArrIndex(bookId);
   if(idx > 0){ const p = BOOKS[idx-1]; return {bookId:p.id, chapter:p.chapters}; }
-  return null; // before Genesis 1 — start of Bible
+  return null;
 }
 function globalChapterIndex(bookId, chapter){
   let idx=0;
@@ -597,7 +711,7 @@ function globalChapterIndex(bookId, chapter){
 }
 function chapterKeyEq(a,b){ return a.bookId===b.bookId && a.chapter===b.chapter; }
 
-function buildChapterDOM(bookId, chapter, verses){
+function buildChapterDOM(bookId, chapter, data){
   const book = BOOKS.find(b=>b.id===bookId);
   const container = document.createElement("div");
   container.className = "chapter-block";
@@ -615,15 +729,22 @@ function buildChapterDOM(bookId, chapter, verses){
   heading.textContent = "Chapter " + chapter;
   container.appendChild(heading);
 
-  if(verses){
+  if(data && data.verses){
+    const {verses, headings} = data;
     Object.keys(verses).sort((a,b)=>+a-+b).forEach(num=>{
+      if(headings[num]){
+        const h = document.createElement("div");
+        h.className = "section-heading";
+        h.textContent = headings[num];
+        container.appendChild(h);
+      }
       const span = document.createElement("span");
       span.className = "verse";
       const key = `${bookId}.${chapter}.${num}`;
       span.dataset.ref = key;
       applyVerseClasses(span, key);
       const sup = document.createElement("sup");
-      sup.textContent = num;             // verse number — small superscript, single source
+      sup.textContent = num;
       span.appendChild(sup);
       span.appendChild(document.createTextNode(verses[num]));
       span.onclick = ()=> toggleVerseSelect(span, key);
@@ -632,7 +753,7 @@ function buildChapterDOM(bookId, chapter, verses){
   } else {
     const msg = document.createElement("div");
     msg.className = "verse placeholder";
-    msg.textContent = "Add an api.bible API key in Settings to load this chapter.";
+    msg.textContent = "Add an API key in Settings to load this chapter.";
     container.appendChild(msg);
   }
   return container;
@@ -641,8 +762,8 @@ function buildChapterDOM(bookId, chapter, verses){
 async function appendChapterBlock(bookId, chapter){
   const ref = {bookId, chapter};
   if(loadedChapters.some(c=>chapterKeyEq(c,ref))) return;
-  const verses = await getVersesFor(bookId, chapter);
-  const el = buildChapterDOM(bookId, chapter, verses);
+  const data = await getVersesFor(bookId, chapter);
+  const el = buildChapterDOM(bookId, chapter, data);
   document.getElementById("verseContent").appendChild(el);
   loadedChapters.push(ref);
   trimChapters();
@@ -650,8 +771,8 @@ async function appendChapterBlock(bookId, chapter){
 async function prependChapterBlock(bookId, chapter){
   const ref = {bookId, chapter};
   if(loadedChapters.some(c=>chapterKeyEq(c,ref))) return;
-  const verses = await getVersesFor(bookId, chapter);
-  const el = buildChapterDOM(bookId, chapter, verses);
+  const data = await getVersesFor(bookId, chapter);
+  const el = buildChapterDOM(bookId, chapter, data);
   const wrap = document.getElementById("verseContent");
   const scroller = document.getElementById("mainScroll");
   const prevHeight = scroller.scrollHeight;
@@ -702,16 +823,16 @@ function setupInfiniteScroll(){
   }, opts).observe(bottomSentinel);
 }
 
-/* Sticky tab-pill label tracks whichever chapter block currently sits at the top of the viewport */
-let headerRAFPending=false;
-function setupHeaderScrollTracking(){
+/* Tab pill label tracks whichever chapter block currently sits at the top of the viewport */
+let labelRAFPending=false;
+function setupTabLabelTracking(){
   document.getElementById("mainScroll").addEventListener("scroll", ()=>{
-    if(headerRAFPending) return;
-    headerRAFPending = true;
-    requestAnimationFrame(()=>{ updateHeaderFromScroll(); headerRAFPending=false; });
+    if(labelRAFPending) return;
+    labelRAFPending = true;
+    requestAnimationFrame(()=>{ updateTabLabelFromScroll(); labelRAFPending=false; });
   });
 }
-function updateHeaderFromScroll(){
+function updateTabLabelFromScroll(){
   const scroller = document.getElementById("mainScroll");
   const scrollerTop = scroller.getBoundingClientRect().top;
   let current = null;
@@ -731,9 +852,6 @@ function updateTabLabel(bookId, chapter){
   document.getElementById("tabPill").textContent = (book?book.name:bookId) + " " + chapter;
 }
 
-/* Entry point — called on boot, tab swipe, and search selection.
-   Resets the scroll window around the requested chapter, then lets
-   the sentinels take over for continuous scrolling from there. */
 async function loadActiveTab(){
   isBusy = true;
   const tab = state.tabs[state.activeTab];
@@ -798,7 +916,7 @@ function renderQuickTabs(){
     chip.className = "quick-chip" + (i===state.activeTab?" active":"");
     chip.textContent = t.label;
     chip.onclick = ()=>{
-      if(searchPickTarget){ return; } // in picker mode, quick tabs are disabled — user must search a specific verse
+      if(searchPickTarget){ return; }
       state.activeTab=i; saveState(); loadActiveTab(); closeSheet("searchSheet");
     };
     wrap.appendChild(chip);
@@ -806,9 +924,9 @@ function renderQuickTabs(){
 }
 
 /* =========================================================
-   PREDICTIVE SEARCH  (dual-purpose: normal navigation + note verse-picker)
+   PREDICTIVE SEARCH (dual-purpose: navigation + note verse-picker)
 ========================================================= */
-let searchPickTarget = null; // null | "note"  — when set, selecting a result assigns a verse ref to currentNote instead of navigating
+let searchPickTarget = null;
 
 function onSearchInput(){
   const q = document.getElementById("searchInput").value.trim().toLowerCase();
@@ -848,7 +966,7 @@ function onSearchInput(){
 }
 
 /* =========================================================
-   VERSE REFERENCE LABEL FORMATTING  (e.g. "Exodus 3:21" or "Exodus 3:21-23")
+   VERSE REFERENCE LABEL FORMATTING (e.g. "Exodus 3:21" or "Exodus 3:21-23")
 ========================================================= */
 function formatVerseRefLabel(keys){
   if(!keys || !keys.length) return "";
@@ -906,7 +1024,7 @@ function noteForVerse(key){ return state.notes.filter(n=> n.verseRefs.includes(k
 
 function popupAction(action){
   if(action==="note"){ createNote(selectedVerses.slice()); clearVerseSelection(); return; }
-  if(action==="copy"){ copySelectedVerses(); return; } // keep selection open after copy
+  if(action==="copy"){ copySelectedVerses(); return; }
   if(action==="blb"){ openBLB(selectedVerses[0]); return; }
 }
 function applyHighlight(color){
@@ -944,7 +1062,7 @@ function openBLB(key){
 }
 
 /* =========================================================
-   NOTES LIST  (with delete)
+   NOTES LIST (with delete)
 ========================================================= */
 function openNotesList(){ openSheet("notesSheet"); renderNotesList(); }
 function renderNotesList(){
@@ -982,7 +1100,7 @@ function renderNotesList(){
       wrap.appendChild(row);
     });
 }
-function colorHex(c){ return {red:"#FF383C",yellow:"#FFCC00",green:"#34C759",blue:"#0088FF"}[c] || "#888"; }
+function colorHex(c){ return {red:"#FF383C",yellow:"#FFCC00",green:"#34C759",blue:"#0088FF"}[c] || "#0088FF"; }
 function deleteNote(id, evt){
   if(evt) evt.stopPropagation();
   if(!confirm("Delete this note? This can't be undone.")) return;
@@ -1000,7 +1118,7 @@ let drawMode=false, drawTool="pen", drawColor="#ffffff", strokes=[], undoStack=[
 let ctx, canvasEl;
 
 function createNote(verseRefs=[]){
-  closeAllSheets(); // fixes: prevents an invisible sheet from stealing focus/input from the editor
+  closeAllSheets();
   const n = {id:crypto.randomUUID(), title:"", verseRefs, content:"", color:"blue", strokes:[], createdAt:Date.now(), updatedAt:Date.now()};
   state.notes.push(n); saveState();
   openNoteEditor(n.id);
@@ -1015,7 +1133,6 @@ function openNoteEditor(id){
   strokes = currentNote.strokes || [];
   undoStack=[]; redoStack=[];
 
-  // reset drawing state defensively so a prior session can't block typing
   drawMode = false;
   drawTool = "pen";
   document.getElementById("modeBadge").textContent = "Typing";
@@ -1040,7 +1157,6 @@ function saveCurrentNote(){
   currentNote.updatedAt = Date.now();
   saveState();
 }
-
 function updateRefChip(){
   const chip = document.getElementById("refChip");
   chip.textContent = currentNote.verseRefs.length ? formatVerseRefLabel(currentNote.verseRefs) : "Choose a verse";
@@ -1066,7 +1182,6 @@ function toggleDrawMode(){
   drawMode = !drawMode;
   canvasEl.classList.toggle("active", drawMode);
   document.getElementById("noteContent").style.pointerEvents = drawMode? "none":"auto";
-  // clear, unmistakable mode indication
   document.getElementById("drawToggleBtn").classList.toggle("draw-active", drawMode);
   document.getElementById("noteContentWrap").classList.toggle("drawing", drawMode);
   const badge = document.getElementById("modeBadge");
@@ -1246,7 +1361,7 @@ function gPointerMove(e){
 }
 
 /* =========================================================
-   SETTINGS: FONT SIZE
+   SETTINGS: FONT SIZE / BACKUP / RESET
 ========================================================= */
 function changeFontSize(delta){
   state.settings.fontSize = Math.max(12, Math.min(30, state.settings.fontSize+delta));
@@ -1266,22 +1381,47 @@ function resetAll(){
 }
 
 /* =========================================================
-   GOOGLE SIGN-IN + DRIVE (appDataFolder) SYNC
+   GOOGLE SIGN-IN + DRIVE (appDataFolder) SYNC — with silent auto sign-in
 ========================================================= */
 let tokenClient, accessToken=null;
+const SIGNIN_DISMISS_KEY = "whoishe_signin_dismissed_session";
+
 function initGoogleAuth(){
   if(!window.google || GOOGLE_CLIENT_ID.startsWith("YOUR_")) return;
   tokenClient = google.accounts.oauth2.initTokenClient({
     client_id: GOOGLE_CLIENT_ID,
     scope: DRIVE_SCOPE,
-    callback: async (resp)=>{
-      accessToken = resp.access_token;
-      state.settings.signedIn = true; saveState();
-      document.getElementById("signInBtn").textContent = "Signed in";
-      document.getElementById("syncStatus").textContent = "Synced just now";
-      await driveLoad();
-    }
+    callback: handleTokenResponse
   });
+  attemptSilentSignIn();
+}
+function handleTokenResponse(resp){
+  if(resp && resp.access_token){
+    accessToken = resp.access_token;
+    state.settings.signedIn = true; saveState();
+    document.getElementById("signInBtn").textContent = "Signed in";
+    document.getElementById("syncStatus").textContent = "Synced just now";
+    hideSignInTile();
+    driveLoad();
+  } else {
+    if(!sessionStorage.getItem(SIGNIN_DISMISS_KEY)) showSignInTile();
+  }
+}
+function attemptSilentSignIn(){
+  if(!tokenClient) return;
+  // prompt:'' requests a no-UI token grant — succeeds silently if there's an
+  // active Google session + prior consent, otherwise fails quietly (no popup).
+  tokenClient.requestAccessToken({ prompt: '' });
+}
+function showSignInTile(){ document.getElementById("signInTile").classList.add("show"); }
+function hideSignInTile(){ document.getElementById("signInTile").classList.remove("show"); }
+function dismissSignInTile(){
+  hideSignInTile();
+  sessionStorage.setItem(SIGNIN_DISMISS_KEY, "1");
+}
+function signInFromTile(){
+  hideSignInTile();
+  handleGoogleAuthClick();
 }
 function handleGoogleAuthClick(){
   if(!tokenClient){ alert("Set GOOGLE_CLIENT_ID in the code first."); return; }
@@ -1296,7 +1436,7 @@ async function driveFindFileId(){
 async function driveLoad(){
   if(!accessToken) return;
   const id = await driveFindFileId();
-  if(!id) return; // nothing saved yet for this account
+  if(!id) return;
   const res = await fetch(`https://www.googleapis.com/drive/v3/files/${id}?alt=media`, {headers:{Authorization:`Bearer ${accessToken}`}});
   const remote = await res.json();
 
@@ -1307,22 +1447,21 @@ async function driveLoad(){
   });
   state.notes = Array.from(localNotes.values());
 
-  // Restore apiKey/bibleId from Drive whenever this device doesn't already have one set —
-  // this is what makes the key "fetch automatically" after signing in on a new device/browser.
   const remoteSettings = remote.settings || {};
   state.settings = {
     ...state.settings,
     ...remoteSettings,
     apiKey: state.settings.apiKey || remoteSettings.apiKey || "",
+    esvApiKey: state.settings.esvApiKey || remoteSettings.esvApiKey || "",
     bibleId: state.settings.bibleId || remoteSettings.bibleId || ""
   };
 
   saveState();
   document.getElementById("apiKeyInput").value = state.settings.apiKey || "";
-  if(state.settings.apiKey) await loadBibleList(true); // silently repopulate translations using the restored key
+  document.getElementById("esvKeyInput").value = state.settings.esvApiKey || "";
+  if(state.settings.apiKey) await loadBibleList(true);
   else loadActiveTab();
 }
-
 async function driveSave(){
   if(!accessToken) return;
   const id = await driveFindFileId();
