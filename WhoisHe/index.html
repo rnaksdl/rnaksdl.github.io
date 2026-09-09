@@ -27,7 +27,7 @@
 #bottomNav{ max-width:520px; margin:0 auto; width:100%; }
 .sheet, #versePopup, .signin-tile{
   left:50%; right:auto; transform:translateX(-50%);
-  width:min(94vw, 460px);
+  width:min(88vw, 380px);
 }
 #noteEditor #noteContentWrap, #noteEditor > div > #noteTitle{
   max-width:min(94%, 700px); margin-left:auto; margin-right:auto;
@@ -106,7 +106,7 @@
   .tab-dot.active{background:var(--accent);}
 
   /* ---------- Floating Sheets (Settings / Search / Notes) ---------- */
-  .sheet{position:absolute; left:50%; transform:translateX(-50%); width:min(94vw,460px); bottom:100px; max-height:70vh; max-height:70dvh; background:var(--panel);
+  .sheet{position:absolute; left:50%; transform:translateX(-50%); width:min(88vw,380px); bottom:100px; max-height:70vh; max-height:70dvh; background:var(--panel);
   border-radius:22px; box-shadow:0 12px 40px rgba(0,0,0,.6); z-index:20; display:none; flex-direction:column;
   padding:18px; overflow-y:auto;}
   .sheet.open{display:flex;}
@@ -145,7 +145,7 @@
   #graphBtn{margin-left:auto;}
 
   /* Verse popup — floating, direct-highlight */
-  #versePopup{position:absolute; left:50%; transform:translateX(-50%); width:min(94vw,460px); bottom:100px; background:var(--panel); border-radius:20px;
+  #versePopup{position:absolute; left:50%; transform:translateX(-50%); width:min(88vw,380px); bottom:100px; background:var(--panel); border-radius:20px;
   padding:14px; z-index:20; display:none; flex-direction:column; gap:10px; box-shadow:0 12px 40px rgba(0,0,0,.6);}
   #versePopup.open{display:flex;}
   .popup-header{display:flex; align-items:center; justify-content:space-between; gap:10px;}
@@ -280,13 +280,22 @@
 
     <div class="settings-row" style="flex-direction:column; align-items:flex-start;">
       <label>api.bible API key</label>
-      <input id="apiKeyInput" placeholder="Paste your api.bible key…" />
+      <input id="apiKeyInput" placeholder="Paste your api.bible key…" oninput="toggleKeyLink('apiKeyInput','getApiKeyLink')" />
+      <a id="getApiKeyLink" href="https://scripture.api.bible/" target="_blank" rel="noopener"
+        style="color:var(--accent); font-size:12px; text-decoration:underline; margin-top:6px;">
+        Don't have a key? Get one free at scripture.api.bible →
+      </a>
       <button class="btn" style="margin-top:8px;" onclick="loadBibleList()">Fetch my translations</button>
     </div>
 
+
     <div class="settings-row" style="flex-direction:column; align-items:flex-start;">
       <label>ESV API key (api.esv.org)</label>
-      <input id="esvKeyInput" placeholder="Paste your Crossway ESV API token…" />
+      <input id="esvKeyInput" placeholder="Paste your Crossway ESV API token…" oninput="toggleKeyLink('esvKeyInput','getEsvKeyLink')" />
+      <a id="getEsvKeyLink" href="https://api.esv.org/account/create-application/" target="_blank" rel="noopener"
+        style="color:var(--accent); font-size:12px; text-decoration:underline; margin-top:6px;">
+        Don't have a key? Get one free at api.esv.org →
+      </a>
     </div>
 
     <div class="settings-row">
@@ -506,6 +515,14 @@ function closeAllSheets(){
   hideBackdrop();
   searchPickTarget = null;
 }
+function alignFloatingPanels(){
+  const navHeight = document.getElementById("bottomNav").offsetHeight;
+  const gap = 8; // small breathing room above the nav
+  const bottomVal = (navHeight + gap) + "px";
+  document.querySelectorAll(".sheet, #versePopup, .signin-tile").forEach(el=>{
+    el.style.bottom = bottomVal;
+  });
+}
 
 /* =========================================================
    BOOT
@@ -516,9 +533,13 @@ window.addEventListener("load", ()=>{
   document.getElementById("esvKeyInput").addEventListener("change", e=>{
     state.settings.esvApiKey = e.target.value.trim(); saveState();
   });
+  toggleKeyLink('apiKeyInput','getApiKeyLink');
+  toggleKeyLink('esvKeyInput','getEsvKeyLink');
   applyFontSize();
   setupInfiniteScroll();
   setupTabLabelTracking();
+  alignFloatingPanels();
+  window.addEventListener("resize", alignFloatingPanels);
   setTimeout(()=>{ showScreen("main"); loadActiveTab(); }, 1200);
   initGoogleAuth();
 });
@@ -564,6 +585,12 @@ async function loadBibleList(silent){
     if(!silent) alert("Couldn't reach api.bible. Check your key/network.");
   }
 }
+
+function toggleKeyLink(inputId, linkId){
+  const hasKey = document.getElementById(inputId).value.trim().length > 0;
+  document.getElementById(linkId).style.display = hasKey ? "none" : "inline";
+}
+
 function onTranslationChange(bibleId){ state.settings.bibleId = bibleId; saveState(); loadActiveTab(); }
 
 async function fetchChapterVerses(bookId, chapter){
