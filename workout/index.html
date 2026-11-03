@@ -48,29 +48,8 @@
 </head>
 <body class="bg-slate-950 text-slate-100 h-full flex flex-col justify-between select-none overflow-x-hidden">
 
-  <!-- TOP APP BAR -->
-  <header class="sticky top-0 z-30 bg-slate-900/90 backdrop-blur-md border-b border-slate-800/80 px-4 py-3 flex justify-between items-center">
-    <div class="flex items-center space-x-2">
-      <div class="w-8 h-8 rounded-xl bg-brand-600 flex items-center justify-center font-black text-white text-lg shadow-lg shadow-brand-500/20">
-        W
-      </div>
-      <div>
-        <h1 class="text-base font-extrabold tracking-tight text-white leading-tight">Workout</h1>
-        <p class="text-[10px] text-slate-400 font-medium">30-Min Progressive Overload</p>
-      </div>
-    </div>
-    <div class="flex items-center space-x-2">
-      <button onclick="switchTab('analytics')" class="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-800/60 border border-slate-700/50">
-        <i class="fa-solid fa-chart-line text-sm"></i>
-      </button>
-      <button onclick="switchTab('manage')" class="p-2 text-slate-400 hover:text-white rounded-xl bg-slate-800/60 border border-slate-700/50">
-        <i class="fa-solid fa-sliders text-sm"></i>
-      </button>
-    </div>
-  </header>
-
   <!-- MAIN CONTAINER -->
-  <main class="flex-1 overflow-y-auto custom-scrollbar pb-28">
+  <main class="flex-1 overflow-y-auto custom-scrollbar pt-3 pb-28">
 
     <!-- WORKOUT TAB -->
     <div id="tab-workout" class="p-4 max-w-lg mx-auto space-y-4">
@@ -170,7 +149,7 @@
             </div>
             <div>
               <label class="text-[11px] text-slate-400">Default Reps</label>
-              <input type="text" id="new-ex-reps" value="8-10" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl p-2.5 mt-1 text-center font-bold">
+              <input type="number" id="new-ex-reps" value="10" class="w-full bg-slate-800 border border-slate-700 text-white text-xs rounded-xl p-2.5 mt-1 text-center font-bold">
             </div>
           </div>
 
@@ -226,7 +205,7 @@
   </nav>
 
   <!-- TOAST NOTIFICATION -->
-  <div id="toast" class="fixed top-16 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xl border border-slate-700 transition-all opacity-0 pointer-events-none z-50">
+  <div id="toast" class="fixed top-4 left-1/2 transform -translate-x-1/2 bg-slate-800 text-white px-4 py-2 rounded-xl text-xs font-bold shadow-xl border border-slate-700 transition-all opacity-0 pointer-events-none z-50">
     Notification
   </div>
 
@@ -267,11 +246,11 @@
         badge: "Monday",
         desc: "Chest, Back, Shoulders & Arms",
         exercises: [
-          { id: "mon-1", name: "Dumbbell Bench Press", sets: 3, weight: 20, reps: "8-10" },
-          { id: "mon-2", name: "Dumbbell Bent-Over Rows", sets: 3, weight: 25, reps: "8-10" },
-          { id: "mon-3", name: "Overhead Shoulder Press", sets: 3, weight: 15, reps: "8-10" },
-          { id: "mon-4", name: "Dumbbell Bicep Curls", sets: 3, weight: 12, reps: "12-15" },
-          { id: "mon-5", name: "Tricep Dips", sets: 3, weight: 0, reps: "12-15" }
+          { id: "mon-1", name: "Dumbbell Bench Press", sets: 3, weight: 20, reps: 10 },
+          { id: "mon-2", name: "Dumbbell Bent-Over Rows", sets: 3, weight: 25, reps: 10 },
+          { id: "mon-3", name: "Overhead Shoulder Press", sets: 3, weight: 15, reps: 10 },
+          { id: "mon-4", name: "Dumbbell Bicep Curls", sets: 3, weight: 12, reps: 12 },
+          { id: "mon-5", name: "Tricep Dips", sets: 3, weight: 0, reps: 12 }
         ]
       },
       tue: {
@@ -279,11 +258,11 @@
         badge: "Tuesday",
         desc: "Quads, Hamstrings, Glutes & Calves",
         exercises: [
-          { id: "tue-1", name: "Dumbbell Goblet Squats", sets: 3, weight: 30, reps: "8-10" },
-          { id: "tue-2", name: "Romanian Deadlifts", sets: 3, weight: 30, reps: "8-10" },
-          { id: "tue-3", name: "Dumbbell Reverse Lunges", sets: 3, weight: 15, reps: "10 ea" },
-          { id: "tue-4", name: "Dumbbell Glute Bridges", sets: 3, weight: 35, reps: "12-15" },
-          { id: "tue-5", name: "Standing Calf Raises", sets: 3, weight: 20, reps: "15-20" }
+          { id: "tue-1", name: "Dumbbell Goblet Squats", sets: 3, weight: 30, reps: 10 },
+          { id: "tue-2", name: "Romanian Deadlifts", sets: 3, weight: 30, reps: 10 },
+          { id: "tue-3", name: "Dumbbell Reverse Lunges", sets: 3, weight: 15, reps: 10 },
+          { id: "tue-4", name: "Dumbbell Glute Bridges", sets: 3, weight: 35, reps: 12 },
+          { id: "tue-5", name: "Standing Calf Raises", sets: 3, weight: 20, reps: 15 }
         ]
       },
       wed: {
@@ -291,11 +270,11 @@
         badge: "Wednesday",
         desc: "Heart Rate, Abdominals & Endurance",
         exercises: [
-          { id: "wed-1", name: "Jumping Jacks", sets: 4, weight: 0, reps: "40 sec" },
-          { id: "wed-2", name: "Dumbbell Woodchoppers", sets: 4, weight: 10, reps: "40 sec" },
-          { id: "wed-3", name: "Mountain Climbers", sets: 4, weight: 0, reps: "40 sec" },
-          { id: "wed-4", name: "Goblet Thrusters", sets: 4, weight: 15, reps: "40 sec" },
-          { id: "wed-5", name: "Forearm Plank Hold", sets: 4, weight: 0, reps: "40 sec" }
+          { id: "wed-1", name: "Jumping Jacks", sets: 4, weight: 0, reps: 40 },
+          { id: "wed-2", name: "Dumbbell Woodchoppers", sets: 4, weight: 10, reps: 40 },
+          { id: "wed-3", name: "Mountain Climbers", sets: 4, weight: 0, reps: 40 },
+          { id: "wed-4", name: "Goblet Thrusters", sets: 4, weight: 15, reps: 40 },
+          { id: "wed-5", name: "Forearm Plank Hold", sets: 4, weight: 0, reps: 40 }
         ]
       },
       thu: {
@@ -303,11 +282,11 @@
         badge: "Thursday",
         desc: "Total Body Conditioning & Strength",
         exercises: [
-          { id: "thu-1", name: "Sumo Squat to Upright Row", sets: 3, weight: 20, reps: "8-10" },
-          { id: "thu-2", name: "Renegade Rows", sets: 3, weight: 15, reps: "8-10" },
-          { id: "thu-3", name: "Dumbbell Step-Ups", sets: 3, weight: 15, reps: "10 ea" },
-          { id: "thu-4", name: "Push-Up to Side Plank", sets: 3, weight: 0, reps: "8-10" },
-          { id: "thu-5", name: "Russian Twists", sets: 3, weight: 10, reps: "20 total" }
+          { id: "thu-1", name: "Sumo Squat to Upright Row", sets: 3, weight: 20, reps: 10 },
+          { id: "thu-2", name: "Renegade Rows", sets: 3, weight: 15, reps: 10 },
+          { id: "thu-3", name: "Dumbbell Step-Ups", sets: 3, weight: 15, reps: 10 },
+          { id: "thu-4", name: "Push-Up to Side Plank", sets: 3, weight: 0, reps: 10 },
+          { id: "thu-5", name: "Russian Twists", sets: 3, weight: 10, reps: 20 }
         ]
       },
       fri: {
@@ -315,11 +294,11 @@
         badge: "Friday",
         desc: "Core Stability, Spine Health & Recovery",
         exercises: [
-          { id: "fri-1", name: "Dead Bugs", sets: 3, weight: 0, reps: "12 total" },
-          { id: "fri-2", name: "Bird-Dog", sets: 3, weight: 0, reps: "10 ea" },
-          { id: "fri-3", name: "Side Plank", sets: 3, weight: 0, reps: "30s ea" },
-          { id: "fri-4", name: "Superman Holds", sets: 3, weight: 0, reps: "10 reps" },
-          { id: "fri-5", name: "Reverse Crunches", sets: 3, weight: 0, reps: "12-15" }
+          { id: "fri-1", name: "Dead Bugs", sets: 3, weight: 0, reps: 12 },
+          { id: "fri-2", name: "Bird-Dog", sets: 3, weight: 0, reps: 10 },
+          { id: "fri-3", name: "Side Plank", sets: 3, weight: 0, reps: 30 },
+          { id: "fri-4", name: "Superman Holds", sets: 3, weight: 0, reps: 10 },
+          { id: "fri-5", name: "Reverse Crunches", sets: 3, weight: 0, reps: 12 }
         ]
       }
     };
@@ -373,35 +352,41 @@
 
       exercises.forEach((ex) => {
         const memory = exerciseMemory[ex.name] || { lastWeight: ex.weight, lastReps: ex.reps };
+        
+        // Determine unit label cleanly based on value or exercise context
+        const repUnit = (typeof memory.lastReps === 'string' && memory.lastReps.includes('sec')) || currentDay === 'wed' ? 'sec' : 'reps';
+        const cleanReps = typeof memory.lastReps === 'string' ? memory.lastReps.replace(/[^0-9]/g, '') || ex.reps : memory.lastReps;
 
         const exCard = document.createElement("div");
         exCard.className = "bg-slate-900 border border-slate-800/80 rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-3";
 
         exCard.innerHTML = `
-          <div class="flex justify-between items-start">
-            <div>
-              <h3 class="text-sm sm:text-base font-bold text-white leading-tight">${ex.name}</h3>
-              <p class="text-[11px] text-slate-400 mt-0.5 flex items-center space-x-2">
-                <span class="bg-slate-800 text-slate-300 px-2 py-0.5 rounded-md font-semibold border border-slate-700/60">${ex.sets} Sets Target</span>
-                ${memory.lastWeight ? `<span class="text-brand-400 font-semibold"><i class="fa-solid fa-clock-rotate-left mr-1"></i>Last: ${memory.lastWeight} lbs</span>` : ''}
-              </p>
+          <div class="flex justify-between items-center">
+            <div class="flex items-center space-x-2.5">
+              <span class="bg-brand-600/20 text-brand-400 border border-brand-500/30 text-xs font-black px-2.5 py-1 rounded-lg uppercase tracking-wide">
+                ${ex.sets} SETS
+              </span>
+              <div>
+                <h3 class="text-sm sm:text-base font-bold text-white leading-tight">${ex.name}</h3>
+                ${memory.lastWeight ? `<p class="text-[11px] text-slate-400 mt-0.5"><i class="fa-solid fa-clock-rotate-left text-brand-400 mr-1"></i>Last: ${memory.lastWeight} lbs × ${cleanReps} ${repUnit}</p>` : ''}
+              </div>
             </div>
-            <button onclick="removeExercise('${currentDay}', '${ex.id}')" class="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-500 hover:text-red-400">
+            <button onclick="removeExercise('${currentDay}', '${ex.id}')" class="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-500 hover:text-red-400 transition-colors">
               <i class="fa-solid fa-trash-can text-xs"></i>
             </button>
           </div>
 
           <!-- SINGLE ROW INPUT -->
           <div class="grid grid-cols-12 gap-2 items-center bg-slate-950/80 p-2.5 rounded-xl border border-slate-800/80">
-            <div class="col-span-5 flex items-center space-x-1.5">
+            <div class="col-span-5 flex items-center bg-slate-800 border border-slate-700 rounded-xl px-2 py-0.5 focus-within:border-brand-500">
               <input type="number" step="0.5" id="weight-${ex.id}" value="${memory.lastWeight}" 
-                class="w-full min-h-[42px] bg-slate-800 border border-slate-700 text-white rounded-xl px-2 py-1 text-center font-bold text-sm focus:outline-none focus:border-brand-500">
-              <span class="text-xs text-slate-400 font-medium">lbs</span>
+                class="w-full bg-transparent text-white font-bold text-sm text-center py-1.5 focus:outline-none">
+              <span class="text-xs text-slate-400 font-semibold pr-1">lbs</span>
             </div>
-            <div class="col-span-5 flex items-center space-x-1.5">
-              <input type="text" id="reps-${ex.id}" value="${memory.lastReps}" 
-                class="w-full min-h-[42px] bg-slate-800 border border-slate-700 text-white rounded-xl px-2 py-1 text-center font-bold text-sm focus:outline-none focus:border-brand-500">
-              <span class="text-xs text-slate-400 font-medium">reps</span>
+            <div class="col-span-5 flex items-center bg-slate-800 border border-slate-700 rounded-xl px-2 py-0.5 focus-within:border-brand-500">
+              <input type="number" id="reps-${ex.id}" value="${cleanReps}" 
+                class="w-full bg-transparent text-white font-bold text-sm text-center py-1.5 focus:outline-none">
+              <span class="text-xs text-slate-400 font-semibold pr-1">${repUnit}</span>
             </div>
             <div class="col-span-2 flex justify-end items-center pr-1">
               <input type="checkbox" id="check-${ex.id}" onchange="handleSetCheck(this)"
@@ -490,17 +475,17 @@
         }
 
         // Save progressive memory for next session
-        if (wVal > 0 || (rInput && rInput.value)) {
+        if (wVal > 0 || rVal > 0) {
           exerciseMemory[ex.name] = {
             lastWeight: wVal || ex.weight,
-            lastReps: rInput ? rInput.value : ex.reps
+            lastReps: rVal || ex.reps
           };
         }
 
         logEntry.exercises.push({
           name: ex.name,
           weight: wVal || ex.weight,
-          reps: rInput ? rInput.value : ex.reps,
+          reps: rVal || ex.reps,
           sets: ex.sets
         });
       });
@@ -631,7 +616,7 @@
       const name = document.getElementById("new-ex-name").value.trim();
       const sets = parseInt(document.getElementById("new-ex-sets").value) || 3;
       const weight = parseFloat(document.getElementById("new-ex-weight").value) || 0;
-      const reps = document.getElementById("new-ex-reps").value.trim() || "8-10";
+      const reps = parseInt(document.getElementById("new-ex-reps").value) || 10;
 
       if (!name) {
         showToast("Please enter an exercise name.");
