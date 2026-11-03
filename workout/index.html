@@ -1,0 +1,868 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>OverloadPro - 5-Day Workout Tracker</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          colors: {
+            brand: {
+              50: '#ecfdf5',
+              100: '#d1fae5',
+              500: '#10b981', // Emerald primary
+              600: '#059669',
+              700: '#047857',
+              900: '#064e3b',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <!-- Chart.js CDN for Progress Graphs -->
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <!-- FontAwesome Icons -->
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <style>
+    /* Prevent unwanted touch delay and blue tap highlights on mobile */
+    * {
+      -webkit-tap-highlight-color: transparent;
+      touch-action: manipulation;
+    }
+    /* Hide scrollbars for app-like slickness */
+    .no-scrollbar::-webkit-scrollbar {
+      display: none;
+    }
+    .no-scrollbar {
+      -ms-overflow-style: none;
+      scrollbar-width: none;
+    }
+    /* Checkbox pop effect */
+    .checkbox-animated:checked {
+      animation: pop 0.15s ease-in-out;
+    }
+    @keyframes pop {
+      0% { transform: scale(0.9); }
+      50% { transform: scale(1.15); }
+      100% { transform: scale(1); }
+    }
+    /* Safe padding for bottom mobile nav */
+    .pb-safe-nav {
+      padding-bottom: calc(5rem + env(safe-area-inset-bottom, 0px));
+    }
+  </style>
+</head>
+<body class="bg-slate-950 text-slate-100 min-h-screen flex flex-col font-sans antialiased selection:bg-brand-500 selection:text-white pb-safe-nav sm:pb-8">
+
+  <!-- APP HEADER -->
+  <header class="sticky top-0 z-40 bg-slate-900/95 backdrop-blur-md border-b border-slate-800/80 px-4 h-14 sm:h-16 flex items-center justify-between">
+    <div class="flex items-center space-x-2.5">
+      <div class="w-9 h-9 rounded-xl bg-gradient-to-tr from-brand-600 to-emerald-400 flex items-center justify-center text-slate-950 shadow-md shadow-brand-500/20">
+        <i class="fa-solid fa-bolt font-extrabold text-lg"></i>
+      </div>
+      <div>
+        <h1 class="font-bold text-base sm:text-lg leading-tight text-white tracking-tight">Overload<span class="text-brand-500">Pro</span></h1>
+        <p class="text-[10px] text-slate-400 hidden sm:block">Mon-Fri 30-Min Progressive Overload</p>
+      </div>
+    </div>
+
+    <!-- Desktop Nav (Hidden on Mobile) -->
+    <nav class="hidden sm:flex items-center space-x-1 bg-slate-800/80 p-1 rounded-xl border border-slate-700/60">
+      <button onclick="switchTab('workout')" id="dnav-workout" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-white bg-brand-600">
+        <i class="fa-solid fa-dumbbell mr-1.5"></i>Workouts
+      </button>
+      <button onclick="switchTab('history')" id="dnav-history" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white">
+        <i class="fa-solid fa-chart-line mr-1.5"></i>Progress
+      </button>
+      <button onclick="switchTab('settings')" id="dnav-settings" class="px-3 py-1.5 text-xs font-semibold rounded-lg text-slate-400 hover:text-white">
+        <i class="fa-solid fa-sliders mr-1.5"></i>Manage
+      </button>
+    </nav>
+
+    <!-- Header Quick Rest Timer Trigger -->
+    <button onclick="startRestTimer(60)" class="sm:hidden min-h-[44px] px-3 flex items-center space-x-1.5 bg-slate-800 border border-slate-700/80 rounded-xl text-brand-400 text-xs font-medium active:scale-95 transition">
+      <i class="fa-solid fa-stopwatch text-sm"></i>
+      <span>Rest 60s</span>
+    </button>
+  </header>
+
+  <!-- FLOATING REST TIMER BANNER -->
+  <div id="rest-timer-banner" class="hidden sticky top-14 sm:top-16 z-30 bg-emerald-950/95 border-b border-brand-500/40 text-emerald-100 px-4 py-2.5 backdrop-blur-md shadow-lg transition-all">
+    <div class="max-w-4xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-3">
+        <div class="w-2.5 h-2.5 rounded-full bg-brand-400 animate-ping"></div>
+        <span class="text-xs font-medium text-slate-300">Rest Timer:</span>
+        <span id="timer-display" class="font-mono font-bold text-lg text-brand-400">01:00</span>
+      </div>
+      <div class="flex items-center space-x-1.5">
+        <button onclick="addRestTime(15)" class="min-h-[36px] px-2.5 py-1 bg-emerald-900/80 hover:bg-emerald-800 text-emerald-200 rounded-lg text-xs font-semibold border border-emerald-700/60 active:scale-95">+15s</button>
+        <button onclick="stopRestTimer()" class="min-h-[36px] px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 rounded-lg text-xs font-semibold border border-slate-700 active:scale-95">Skip</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- MAIN CONTAINER -->
+  <main class="flex-1 max-w-4xl w-full mx-auto px-3.5 sm:px-4 py-4 sm:py-6">
+
+    <!-- ==================== TAB 1: WORKOUTS ==================== -->
+    <div id="tab-workout" class="tab-content space-y-4">
+      
+      <!-- MOBILE DAY SELECTOR STRIP (SCROLLABLE & TOUCH FRIENDLY) -->
+      <div class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar -mx-1 px-1">
+        <button onclick="selectDay('Mon')" id="day-btn-Mon" class="day-btn min-w-[76px] flex-1 min-h-[54px] p-2 rounded-2xl border text-center transition flex flex-col justify-center items-center active:scale-95">
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">MON</span>
+          <span class="font-bold text-xs text-white truncate max-w-[70px]">Push/Pull</span>
+        </button>
+        <button onclick="selectDay('Tue')" id="day-btn-Tue" class="day-btn min-w-[76px] flex-1 min-h-[54px] p-2 rounded-2xl border text-center transition flex flex-col justify-center items-center active:scale-95">
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">TUE</span>
+          <span class="font-bold text-xs text-white truncate max-w-[70px]">Lower</span>
+        </button>
+        <button onclick="selectDay('Wed')" id="day-btn-Wed" class="day-btn min-w-[76px] flex-1 min-h-[54px] p-2 rounded-2xl border text-center transition flex flex-col justify-center items-center active:scale-95">
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">WED</span>
+          <span class="font-bold text-xs text-white truncate max-w-[70px]">Cardio/HIIT</span>
+        </button>
+        <button onclick="selectDay('Thu')" id="day-btn-Thu" class="day-btn min-w-[76px] flex-1 min-h-[54px] p-2 rounded-2xl border text-center transition flex flex-col justify-center items-center active:scale-95">
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">THU</span>
+          <span class="font-bold text-xs text-white truncate max-w-[70px]">Compound</span>
+        </button>
+        <button onclick="selectDay('Fri')" id="day-btn-Fri" class="day-btn min-w-[76px] flex-1 min-h-[54px] p-2 rounded-2xl border text-center transition flex flex-col justify-center items-center active:scale-95">
+          <span class="text-[10px] uppercase font-extrabold tracking-wider text-slate-400">FRI</span>
+          <span class="font-bold text-xs text-white truncate max-w-[70px]">Core/Mob</span>
+        </button>
+      </div>
+
+      <!-- WORKOUT DAY HEADER CARD -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl flex flex-col space-y-3">
+        <div class="flex justify-between items-start">
+          <div>
+            <div class="flex items-center space-x-2">
+              <span id="active-day-badge" class="px-2.5 py-0.5 text-[10px] font-extrabold bg-brand-500/20 text-brand-400 border border-brand-500/30 rounded-full">MONDAY</span>
+              <span class="text-[11px] text-slate-400 font-medium"><i class="fa-regular fa-clock mr-1"></i>30 Min Session</span>
+            </div>
+            <h2 id="workout-title" class="text-lg sm:text-xl font-bold text-white mt-1">Upper Body Push & Pull</h2>
+          </div>
+          
+          <!-- Quick Rest Timer Presets -->
+          <div class="flex items-center space-x-1 bg-slate-950 p-1 rounded-xl border border-slate-800">
+            <button onclick="startRestTimer(30)" class="px-2 py-1 text-[10px] font-bold text-slate-300 hover:text-brand-400 rounded-lg active:scale-95">30s</button>
+            <button onclick="startRestTimer(60)" class="px-2 py-1 text-[10px] font-bold text-slate-300 hover:text-brand-400 rounded-lg active:scale-95">60s</button>
+            <button onclick="startRestTimer(90)" class="px-2 py-1 text-[10px] font-bold text-slate-300 hover:text-brand-400 rounded-lg active:scale-95">90s</button>
+          </div>
+        </div>
+
+        <p id="workout-desc" class="text-xs text-slate-400 leading-relaxed">Focus: Chest, Back, Shoulders, Biceps, and Triceps progressive strength.</p>
+
+        <button onclick="saveCurrentWorkoutLog()" class="w-full min-h-[48px] py-3 bg-brand-600 hover:bg-brand-500 active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-lg shadow-brand-900/40 transition flex items-center justify-center space-x-2">
+          <i class="fa-solid fa-check-circle text-base"></i>
+          <span>Finish & Save Workout</span>
+        </button>
+      </div>
+
+      <!-- EXERCISES LIST CONTAINER -->
+      <div id="exercise-list" class="space-y-3.5">
+        <!-- Dynamic Exercises -->
+      </div>
+    </div>
+
+    <!-- ==================== TAB 2: HISTORY & PROGRESS ==================== -->
+    <div id="tab-history" class="tab-content hidden space-y-4">
+      
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <h3 class="text-base font-bold text-white flex items-center">
+          <i class="fa-solid fa-chart-line text-brand-500 mr-2"></i> Progressive Overload Chart
+        </h3>
+        <div>
+          <label class="block text-xs font-medium text-slate-400 mb-1">Select Exercise</label>
+          <select id="chart-exercise-select" onchange="updateProgressChart()" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-3 text-xs sm:text-sm focus:outline-none focus:border-brand-500">
+            <!-- Dynamically populated options -->
+          </select>
+        </div>
+      </div>
+
+      <!-- CHART DISPLAY CARD -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <div class="flex justify-between items-center">
+          <h4 id="chart-title" class="font-semibold text-slate-200 text-xs sm:text-sm">Weight Lifted History</h4>
+          <span id="chart-stat-badge" class="text-[10px] sm:text-xs font-semibold bg-emerald-950 text-brand-400 px-2.5 py-1 rounded-full border border-emerald-800">
+            PR: -- lbs
+          </span>
+        </div>
+        <div class="relative w-full h-64 sm:h-80">
+          <canvas id="progressChart"></canvas>
+        </div>
+      </div>
+
+      <!-- PAST WORKOUT LOGS LIST -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <h3 class="text-base font-bold text-white flex items-center">
+          <i class="fa-solid fa-clock-rotate-left text-brand-500 mr-2"></i> Completed Sessions
+        </h3>
+        <div id="history-logs-container" class="space-y-2.5">
+          <!-- Logs -->
+        </div>
+      </div>
+    </div>
+
+    <!-- ==================== TAB 3: SETTINGS & CUSTOMIZATION ==================== -->
+    <div id="tab-settings" class="tab-content hidden space-y-4">
+      
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <h3 class="text-base font-bold text-white flex items-center">
+          <i class="fa-solid fa-plus-circle text-brand-500 mr-2"></i> Add Custom Exercise
+        </h3>
+
+        <form id="add-exercise-form" onsubmit="handleAddCustomExercise(event)" class="space-y-3">
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Target Day</label>
+            <select id="custom-ex-day" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-3 text-xs sm:text-sm">
+              <option value="Mon">Monday - Upper Body Push & Pull</option>
+              <option value="Tue">Tuesday - Lower Body Strength</option>
+              <option value="Wed">Wednesday - Cardio & Core HIIT</option>
+              <option value="Thu">Thursday - Full Body Compound</option>
+              <option value="Fri">Friday - Core & Mobility</option>
+            </select>
+          </div>
+          <div>
+            <label class="block text-xs font-medium text-slate-400 mb-1">Exercise Name</label>
+            <input type="text" id="custom-ex-name" required placeholder="e.g. Incline Dumbbell Press" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-3 text-xs sm:text-sm focus:outline-none focus:border-brand-500">
+          </div>
+          <div class="grid grid-cols-3 gap-2">
+            <div>
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Sets</label>
+              <input type="number" id="custom-ex-sets" min="1" max="10" value="3" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-2 text-center text-xs sm:text-sm">
+            </div>
+            <div>
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Reps</label>
+              <input type="text" id="custom-ex-reps" value="10-12" placeholder="10-12" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-2 text-center text-xs sm:text-sm">
+            </div>
+            <div>
+              <label class="block text-[10px] font-medium text-slate-400 mb-1">Weight (lbs)</label>
+              <input type="number" id="custom-ex-weight" step="0.5" value="20" class="w-full min-h-[44px] bg-slate-800 border border-slate-700 text-slate-100 rounded-xl px-2 text-center text-xs sm:text-sm">
+            </div>
+          </div>
+          <button type="submit" class="w-full min-h-[48px] bg-brand-600 hover:bg-brand-500 active:scale-[0.98] text-white text-sm font-bold rounded-xl shadow-lg transition">
+            <i class="fa-solid fa-plus mr-1"></i> Add Exercise
+          </button>
+        </form>
+      </div>
+
+      <!-- DATA MANAGEMENT & RESET -->
+      <div class="bg-slate-900 border border-slate-800 rounded-2xl p-4 shadow-xl space-y-3">
+        <h3 class="text-base font-bold text-white flex items-center">
+          <i class="fa-solid fa-database text-brand-500 mr-2"></i> Data Controls
+        </h3>
+        <p class="text-xs text-slate-400">All workout progress and custom weights are stored locally on your smartphone browser.</p>
+        
+        <button onclick="confirmResetDefaults()" class="w-full min-h-[44px] bg-red-950/80 hover:bg-red-900 text-red-200 border border-red-800/80 rounded-xl text-xs font-semibold active:scale-[0.98] transition">
+          <i class="fa-solid fa-rotate-left mr-1.5"></i> Reset to Default Workout Plan
+        </button>
+      </div>
+    </div>
+  </main>
+
+  <!-- MOBILE BOTTOM APP NAVIGATION BAR (NATIVE APP FEEL) -->
+  <div class="sm:hidden fixed bottom-0 left-0 right-0 z-40 bg-slate-900/95 backdrop-blur-md border-t border-slate-800/90 px-4 py-1.5 flex justify-around items-center">
+    <button onclick="switchTab('workout')" id="mnav-workout" class="flex-1 min-h-[44px] flex flex-col items-center justify-center text-brand-400 font-bold active:scale-95 transition">
+      <i class="fa-solid fa-dumbbell text-lg"></i>
+      <span class="text-[10px] mt-0.5">Workout</span>
+    </button>
+    <button onclick="switchTab('history')" id="mnav-history" class="flex-1 min-h-[44px] flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 active:scale-95 transition">
+      <i class="fa-solid fa-chart-line text-lg"></i>
+      <span class="text-[10px] mt-0.5">Progress</span>
+    </button>
+    <button onclick="switchTab('settings')" id="mnav-settings" class="flex-1 min-h-[44px] flex flex-col items-center justify-center text-slate-400 hover:text-slate-200 active:scale-95 transition">
+      <i class="fa-solid fa-sliders text-lg"></i>
+      <span class="text-[10px] mt-0.5">Manage</span>
+    </button>
+  </div>
+
+  <!-- SUMMARY CELEBRATION MODAL -->
+  <div id="summary-modal" class="fixed inset-0 z-50 bg-slate-950/80 backdrop-blur-sm hidden flex items-center justify-center p-4">
+    <div class="bg-slate-900 border border-slate-800 rounded-3xl p-6 max-w-sm w-full text-center space-y-4 shadow-2xl animate-pop">
+      <div class="w-16 h-16 bg-brand-500/20 border border-brand-500/40 rounded-full flex items-center justify-center mx-auto text-brand-400 text-3xl">
+        <i class="fa-solid fa-trophy"></i>
+      </div>
+      <div>
+        <h3 class="text-xl font-bold text-white">Workout Complete!</h3>
+        <p class="text-xs text-slate-400 mt-1">Great job pushing your limits today.</p>
+      </div>
+
+      <div class="grid grid-cols-2 gap-3 bg-slate-950 p-3 rounded-2xl border border-slate-800">
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Sets</span>
+          <p id="summary-sets" class="text-lg font-bold text-brand-400">0</p>
+        </div>
+        <div>
+          <span class="text-[10px] text-slate-400 uppercase font-bold">Total Lifted</span>
+          <p id="summary-volume" class="text-lg font-bold text-brand-400">0 lbs</p>
+        </div>
+      </div>
+
+      <button onclick="closeSummaryModal()" class="w-full min-h-[48px] bg-brand-600 hover:bg-brand-500 text-white font-bold rounded-xl shadow-lg active:scale-95">
+        Awesome, Got It!
+      </button>
+    </div>
+  </div>
+
+  <!-- NOTIFICATION TOAST -->
+  <div id="toast" class="fixed bottom-16 sm:bottom-6 left-1/2 transform -translate-x-1/2 translate-y-20 opacity-0 z-50 transition-all duration-300 bg-slate-800/95 border border-slate-700 text-slate-100 px-4 py-2.5 rounded-full shadow-2xl flex items-center space-x-2 pointer-events-none text-xs font-semibold">
+    <div id="toast-icon" class="text-brand-400">
+      <i class="fa-solid fa-circle-check"></i>
+    </div>
+    <span id="toast-message">Logged successfully!</span>
+  </div>
+
+  <!-- JAVASCRIPT APPLICATION LOGIC -->
+  <script>
+    // DEFAULT 5-DAY PLAN DATA (Monday to Friday 30-min routine)
+    const DEFAULT_PLAN = {
+      Mon: {
+        title: "Upper Body Push & Pull",
+        desc: "Chest, Back, Shoulders, Biceps & Triceps strength progressive overload.",
+        exercises: [
+          { id: "mon-1", name: "Dumbbell Bench Press", sets: 3, reps: "10-12", weight: 25 },
+          { id: "mon-2", name: "Dumbbell Bent-Over Rows", sets: 3, reps: "10-12", weight: 30 },
+          { id: "mon-3", name: "Dumbbell Overhead Press", sets: 3, reps: "10-12", weight: 20 },
+          { id: "mon-4", name: "Dumbbell Bicep Curls", sets: 3, reps: "12-15", weight: 15 },
+          { id: "mon-5", name: "Tricep Dips (Bench)", sets: 3, reps: "12-15", weight: 0 }
+        ]
+      },
+      Tue: {
+        title: "Lower Body Strength",
+        desc: "Quads, Hamstrings, Glutes, and Calf development.",
+        exercises: [
+          { id: "tue-1", name: "Dumbbell Goblet Squats", sets: 3, reps: "10-12", weight: 35 },
+          { id: "tue-2", name: "Dumbbell Romanian Deadlifts", sets: 3, reps: "10-12", weight: 30 },
+          { id: "tue-3", name: "Dumbbell Reverse Lunges", sets: 3, reps: "10 each leg", weight: 20 },
+          { id: "tue-4", name: "Dumbbell Glute Bridges", sets: 3, reps: "12-15", weight: 35 },
+          { id: "tue-5", name: "Standing Calf Raises", sets: 3, reps: "15-20", weight: 15 }
+        ]
+      },
+      Wed: {
+        title: "Cardio & Core HIIT",
+        desc: "Heart rate conditioning, fat burn & core endurance.",
+        exercises: [
+          { id: "wed-1", name: "Jumping Jacks", sets: 4, reps: "40 sec work", weight: 0 },
+          { id: "wed-2", name: "Dumbbell Woodchoppers", sets: 4, reps: "20s L / 20s R", weight: 10 },
+          { id: "wed-3", name: "Mountain Climbers", sets: 4, reps: "40 sec work", weight: 0 },
+          { id: "wed-4", name: "Dumbbell Goblet Thrusters", sets: 4, reps: "40 sec work", weight: 15 },
+          { id: "wed-5", name: "Forearm Plank Hold", sets: 4, reps: "40 sec hold", weight: 0 }
+        ]
+      },
+      Thu: {
+        title: "Full Body Compound Circuit",
+        desc: "Total body strength, coordination & athletic movement.",
+        exercises: [
+          { id: "thu-1", name: "Sumo Squat to Upright Row", sets: 3, reps: "12 reps", weight: 20 },
+          { id: "thu-2", name: "Renegade Rows", sets: 3, reps: "8 each arm", weight: 20 },
+          { id: "thu-3", name: "Dumbbell Step-Ups", sets: 3, reps: "10 each leg", weight: 15 },
+          { id: "thu-4", name: "Push-Up to Side Plank", sets: 3, reps: "8 total reps", weight: 0 },
+          { id: "thu-5", name: "Russian Twists", sets: 3, reps: "20 total reps", weight: 10 }
+        ]
+      },
+      Fri: {
+        title: "Core & Active Mobility",
+        desc: "Abdominal strength, spine health & recovery movement.",
+        exercises: [
+          { id: "fri-1", name: "Dead Bugs", sets: 3, reps: "12 total", weight: 0 },
+          { id: "fri-2", name: "Bird-Dogs", sets: 3, reps: "10 each side", weight: 0 },
+          { id: "fri-3", name: "Side Planks", sets: 3, reps: "30 sec/side", weight: 0 },
+          { id: "fri-4", name: "Superman Holds", sets: 3, reps: "10 reps (3s hold)", weight: 0 },
+          { id: "fri-5", name: "Reverse Crunches / Leg Raises", sets: 3, reps: "12 reps", weight: 0 }
+        ]
+      }
+    };
+
+    // STATE VARIABLES
+    let workoutPlan = {};
+    let exerciseMemory = {}; 
+    let workoutLogs = [];    
+    let currentDay = "Mon";
+    let progressChart = null;
+
+    // REST TIMER STATE
+    let timerInterval = null;
+    let timerSecondsRemaining = 0;
+
+    // INITIALIZATION
+    window.onload = function() {
+      loadLocalStorage();
+      selectDay("Mon");
+      populateExerciseSelect();
+    };
+
+    // LOCAL STORAGE HANDLING
+    function loadLocalStorage() {
+      const savedPlan = localStorage.getItem("overload_workoutPlan");
+      const savedMemory = localStorage.getItem("overload_exerciseMemory");
+      const savedLogs = localStorage.getItem("overload_logs");
+
+      if (savedPlan) {
+        workoutPlan = JSON.parse(savedPlan);
+      } else {
+        workoutPlan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+        savePlanToStorage();
+      }
+
+      if (savedMemory) {
+        exerciseMemory = JSON.parse(savedMemory);
+      } else {
+        Object.keys(workoutPlan).forEach(dayKey => {
+          workoutPlan[dayKey].exercises.forEach(ex => {
+            exerciseMemory[ex.name] = {
+              lastWeight: ex.weight,
+              lastReps: ex.reps,
+              updatedAt: new Date().toISOString()
+            };
+          });
+        });
+        saveMemoryToStorage();
+      }
+
+      if (savedLogs) {
+        workoutLogs = JSON.parse(savedLogs);
+      }
+    }
+
+    function savePlanToStorage() {
+      localStorage.setItem("overload_workoutPlan", JSON.stringify(workoutPlan));
+    }
+
+    function saveMemoryToStorage() {
+      localStorage.setItem("overload_exerciseMemory", JSON.stringify(exerciseMemory));
+    }
+
+    function saveLogsToStorage() {
+      localStorage.setItem("overload_logs", JSON.stringify(workoutLogs));
+    }
+
+    // TAB NAVIGATION SWITCHER
+    function switchTab(tabId) {
+      document.querySelectorAll(".tab-content").forEach(el => el.classList.add("hidden"));
+      document.getElementById("tab-" + tabId).classList.remove("hidden");
+
+      // Desktop nav update
+      document.querySelectorAll("header nav button").forEach(btn => {
+        btn.classList.remove("text-white", "bg-brand-600");
+        btn.classList.add("text-slate-400");
+      });
+      const activeDNav = document.getElementById("dnav-" + tabId);
+      if (activeDNav) {
+        activeDNav.classList.remove("text-slate-400");
+        activeDNav.classList.add("text-white", "bg-brand-600");
+      }
+
+      // Mobile nav update
+      document.querySelectorAll(".fixed.bottom-0 button").forEach(btn => {
+        btn.classList.remove("text-brand-400", "font-bold");
+        btn.classList.add("text-slate-400");
+      });
+      const activeMNav = document.getElementById("mnav-" + tabId);
+      if (activeMNav) {
+        activeMNav.classList.remove("text-slate-400");
+        activeMNav.classList.add("text-brand-400", "font-bold");
+      }
+
+      if (tabId === "history") {
+        populateExerciseSelect();
+        updateProgressChart();
+        renderHistoryLogs();
+      }
+    }
+
+    // DAY SELECTION & UI RENDER
+    function selectDay(dayKey) {
+      currentDay = dayKey;
+
+      document.querySelectorAll(".day-btn").forEach(btn => {
+        btn.classList.remove("border-brand-500", "bg-brand-950/40");
+        btn.classList.add("border-slate-800", "bg-slate-900");
+      });
+
+      const activeBtn = document.getElementById("day-btn-" + dayKey);
+      if (activeBtn) {
+        activeBtn.classList.remove("border-slate-800", "bg-slate-900");
+        activeBtn.classList.add("border-brand-500", "bg-brand-950/40");
+      }
+
+      const dayNames = { Mon: "MONDAY", Tue: "TUESDAY", Wed: "WEDNESDAY", Thu: "THURSDAY", Fri: "FRIDAY" };
+      document.getElementById("active-day-badge").innerText = dayNames[dayKey];
+      
+      const dayData = workoutPlan[dayKey];
+      document.getElementById("workout-title").innerText = dayData.title;
+      document.getElementById("workout-desc").innerText = dayData.desc;
+
+      renderExercises();
+    }
+
+    // EXERCISES RENDER WITH TOUCH-FRIENDLY CONTROLS
+    function renderExercises() {
+      const container = document.getElementById("exercise-list");
+      container.innerHTML = "";
+
+      const exercises = workoutPlan[currentDay].exercises;
+
+      exercises.forEach((ex) => {
+        const memory = exerciseMemory[ex.name] || { lastWeight: ex.weight, lastReps: ex.reps };
+
+        const exCard = document.createElement("div");
+        exCard.className = "bg-slate-900 border border-slate-800/80 rounded-2xl p-3.5 sm:p-4 shadow-lg space-y-3";
+
+        let setsHTML = "";
+        for (let s = 1; s <= ex.sets; s++) {
+          setsHTML += `
+            <div class="grid grid-cols-12 gap-1.5 items-center bg-slate-950/80 p-2 rounded-xl border border-slate-800/80">
+              <div class="col-span-2 text-center">
+                <span class="text-[10px] font-extrabold text-slate-400">SET ${s}</span>
+              </div>
+              <div class="col-span-4 flex items-center space-x-1">
+                <input type="number" step="0.5" id="weight-${ex.id}-${s}" value="${memory.lastWeight}" 
+                  class="w-full min-h-[40px] bg-slate-800 border border-slate-700 text-white rounded-lg px-1.5 py-1 text-center font-bold text-xs sm:text-sm focus:outline-none focus:border-brand-500">
+                <span class="text-[10px] text-slate-400 font-semibold">lbs</span>
+              </div>
+              <div class="col-span-4 flex items-center space-x-1">
+                <input type="text" id="reps-${ex.id}-${s}" value="${memory.lastReps}" 
+                  class="w-full min-h-[40px] bg-slate-800 border border-slate-700 text-white rounded-lg px-1.5 py-1 text-center font-bold text-xs sm:text-sm focus:outline-none focus:border-brand-500">
+                <span class="text-[10px] text-slate-400 font-semibold">reps</span>
+              </div>
+              <div class="col-span-2 flex justify-end items-center pr-1">
+                <input type="checkbox" id="check-${ex.id}-${s}" onchange="handleSetCheck(this)"
+                  class="checkbox-animated w-6 h-6 accent-brand-500 rounded-md cursor-pointer min-h-[44px] min-w-[44px] flex items-center justify-center">
+              </div>
+            </div>
+          `;
+        }
+
+        exCard.innerHTML = `
+          <div class="flex justify-between items-start">
+            <div>
+              <h3 class="text-sm sm:text-base font-bold text-white leading-tight">${ex.name}</h3>
+              <p class="text-[11px] text-slate-400 mt-0.5">
+                Target: <span class="text-slate-300 font-medium">${ex.sets} Sets × ${ex.reps}</span>
+                ${memory.lastWeight ? `<span class="ml-2 text-brand-400 font-semibold"><i class="fa-solid fa-clock-rotate-left mr-0.5"></i>${memory.lastWeight} lbs</span>` : ''}
+              </p>
+            </div>
+            <button onclick="removeExercise('${currentDay}', '${ex.id}')" class="min-h-[36px] min-w-[36px] flex items-center justify-center text-slate-500 hover:text-red-400">
+              <i class="fa-solid fa-trash-can text-xs"></i>
+            </button>
+          </div>
+
+          <div class="space-y-1.5">
+            ${setsHTML}
+          </div>
+        `;
+
+        container.appendChild(exCard);
+      });
+    }
+
+    // REST TIMER CONTROLS
+    function handleSetCheck(checkbox) {
+      if (checkbox.checked) {
+        startRestTimer(60);
+      }
+    }
+
+    function startRestTimer(seconds) {
+      clearInterval(timerInterval);
+      timerSecondsRemaining = seconds;
+      updateTimerDisplay();
+
+      document.getElementById("rest-timer-banner").classList.remove("hidden");
+
+      timerInterval = setInterval(() => {
+        timerSecondsRemaining--;
+        if (timerSecondsRemaining <= 0) {
+          stopRestTimer();
+          showToast("Rest over! Next set up.", "info");
+        } else {
+          updateTimerDisplay();
+        }
+      }, 1000);
+    }
+
+    function addRestTime(seconds) {
+      timerSecondsRemaining += seconds;
+      updateTimerDisplay();
+    }
+
+    function stopRestTimer() {
+      clearInterval(timerInterval);
+      document.getElementById("rest-timer-banner").classList.add("hidden");
+    }
+
+    function updateTimerDisplay() {
+      const mins = Math.floor(timerSecondsRemaining / 60);
+      const secs = timerSecondsRemaining % 60;
+      document.getElementById("timer-display").innerText = 
+        `${mins.toString().padStart(2, '0')}:${secs.toString().padStart(2, '0')}`;
+    }
+
+    // LOG WORKOUT & TRIGGER SUMMARY MODAL
+    function saveCurrentWorkoutLog() {
+      const exercises = workoutPlan[currentDay].exercises;
+      const loggedExercises = [];
+      let totalCompletedSets = 0;
+      let totalVolumeLifted = 0;
+
+      exercises.forEach(ex => {
+        const setDetails = [];
+        let maxWeight = 0;
+
+        for (let s = 1; s <= ex.sets; s++) {
+          const weightInput = document.getElementById(`weight-${ex.id}-${s}`);
+          const repsInput = document.getElementById(`reps-${ex.id}-${s}`);
+          const isDone = document.getElementById(`check-${ex.id}-${s}`)?.checked || false;
+
+          const weightVal = parseFloat(weightInput ? weightInput.value : 0) || 0;
+          const repsVal = repsInput ? repsInput.value : ex.reps;
+
+          if (isDone) {
+            totalCompletedSets++;
+            const numericReps = parseInt(repsVal) || 10;
+            totalVolumeLifted += (weightVal * numericReps);
+          }
+
+          setDetails.push({ setNum: s, weight: weightVal, reps: repsVal, completed: isDone });
+
+          if (weightVal > maxWeight) maxWeight = weightVal;
+        }
+
+        // SAVE LAST USED WEIGHT TO PROGRESSIVE OVERLOAD MEMORY
+        const lastCompletedSet = setDetails.slice().reverse().find(s => s.completed) || setDetails[setDetails.length - 1];
+        if (lastCompletedSet) {
+          exerciseMemory[ex.name] = {
+            lastWeight: lastCompletedSet.weight,
+            lastReps: lastCompletedSet.reps,
+            updatedAt: new Date().toISOString()
+          };
+        }
+
+        loggedExercises.push({
+          name: ex.name,
+          sets: setDetails,
+          maxWeight: maxWeight
+        });
+      });
+
+      saveMemoryToStorage();
+
+      const logEntry = {
+        id: "log_" + Date.now(),
+        date: new Date().toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' }),
+        timestamp: Date.now(),
+        day: currentDay,
+        title: workoutPlan[currentDay].title,
+        exercises: loggedExercises
+      };
+
+      workoutLogs.unshift(logEntry);
+      saveLogsToStorage();
+
+      // Show Summary Modal
+      document.getElementById("summary-sets").innerText = totalCompletedSets;
+      document.getElementById("summary-volume").innerText = `${totalVolumeLifted.toLocaleString()} lbs`;
+      document.getElementById("summary-modal").classList.remove("hidden");
+
+      renderExercises();
+    }
+
+    function closeSummaryModal() {
+      document.getElementById("summary-modal").classList.add("hidden");
+    }
+
+    // CHART & ANALYTICS
+    function populateExerciseSelect() {
+      const select = document.getElementById("chart-exercise-select");
+      select.innerHTML = "";
+
+      const allExerciseNames = new Set();
+      Object.keys(workoutPlan).forEach(dayKey => {
+        workoutPlan[dayKey].exercises.forEach(ex => allExerciseNames.add(ex.name));
+      });
+
+      allExerciseNames.forEach(name => {
+        const option = document.createElement("option");
+        option.value = name;
+        option.textContent = name;
+        select.appendChild(option);
+      });
+    }
+
+    function updateProgressChart() {
+      const selectedExercise = document.getElementById("chart-exercise-select").value;
+      if (!selectedExercise) return;
+
+      const dataPoints = [];
+      const labels = [];
+      let personalBest = 0;
+
+      const sortedLogs = [...workoutLogs].reverse();
+      
+      sortedLogs.forEach(log => {
+        const foundEx = log.exercises.find(e => e.name === selectedExercise);
+        if (foundEx && foundEx.maxWeight > 0) {
+          labels.push(log.date);
+          dataPoints.push(foundEx.maxWeight);
+          if (foundEx.maxWeight > personalBest) personalBest = foundEx.maxWeight;
+        }
+      });
+
+      document.getElementById("chart-title").innerText = `${selectedExercise}`;
+      document.getElementById("chart-stat-badge").innerText = `PR: ${personalBest || '--'} lbs`;
+
+      const ctx = document.getElementById("progressChart").getContext("2d");
+
+      if (progressChart) {
+        progressChart.destroy();
+      }
+
+      if (dataPoints.length === 0 && exerciseMemory[selectedExercise]) {
+        labels.push("Baseline");
+        dataPoints.push(exerciseMemory[selectedExercise].lastWeight);
+      }
+
+      progressChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+          labels: labels,
+          datasets: [{
+            label: 'Max Weight (lbs)',
+            data: dataPoints,
+            borderColor: '#10b981',
+            backgroundColor: 'rgba(16, 185, 129, 0.15)',
+            fill: true,
+            tension: 0.35,
+            borderWidth: 3,
+            pointBackgroundColor: '#34d399',
+            pointRadius: 4
+          }]
+        },
+        options: {
+          responsive: true,
+          maintainAspectRatio: false,
+          plugins: {
+            legend: { display: false }
+          },
+          scales: {
+            x: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } }
+            },
+            y: {
+              grid: { color: 'rgba(51, 65, 85, 0.3)' },
+              ticks: { color: '#94a3b8', font: { size: 10 } },
+              beginAtZero: false
+            }
+          }
+        }
+      });
+    }
+
+    function renderHistoryLogs() {
+      const container = document.getElementById("history-logs-container");
+      container.innerHTML = "";
+
+      if (workoutLogs.length === 0) {
+        container.innerHTML = `<p class="text-xs text-slate-500 italic text-center py-6">No completed workouts logged yet.</p>`;
+        return;
+      }
+
+      workoutLogs.forEach((log) => {
+        const logCard = document.createElement("div");
+        logCard.className = "bg-slate-950/80 border border-slate-800 rounded-xl p-3 space-y-1.5";
+
+        let exSummary = log.exercises.map(e => 
+          `<span class="inline-block bg-slate-900 text-slate-300 text-[10px] px-2 py-0.5 rounded border border-slate-800 mr-1 mb-1">
+            ${e.name}: <strong class="text-brand-400">${e.maxWeight} lbs</strong>
+          </span>`
+        ).join("");
+
+        logCard.innerHTML = `
+          <div class="flex justify-between items-center">
+            <div>
+              <span class="text-[10px] font-extrabold text-brand-400 uppercase tracking-wider">${log.day}</span>
+              <h4 class="font-bold text-white text-xs sm:text-sm">${log.title}</h4>
+            </div>
+            <span class="text-[10px] text-slate-400">${log.date}</span>
+          </div>
+          <div class="pt-1 flex flex-wrap">
+            ${exSummary}
+          </div>
+        `;
+        container.appendChild(logCard);
+      });
+    }
+
+    // CUSTOM EXERCISES
+    function handleAddCustomExercise(event) {
+      event.preventDefault();
+      
+      const day = document.getElementById("custom-ex-day").value;
+      const name = document.getElementById("custom-ex-name").value.trim();
+      const sets = parseInt(document.getElementById("custom-ex-sets").value) || 3;
+      const reps = document.getElementById("custom-ex-reps").value.trim() || "10-12";
+      const weight = parseFloat(document.getElementById("custom-ex-weight").value) || 0;
+
+      if (!name) return;
+
+      const newEx = {
+        id: "custom_" + Date.now(),
+        name: name,
+        sets: sets,
+        reps: reps,
+        weight: weight
+      };
+
+      workoutPlan[day].exercises.push(newEx);
+      savePlanToStorage();
+
+      exerciseMemory[name] = { lastWeight: weight, lastReps: reps, updatedAt: new Date().toISOString() };
+      saveMemoryToStorage();
+
+      showToast(`Added "${name}"!`, "success");
+      document.getElementById("add-exercise-form").reset();
+      
+      selectDay(day);
+      switchTab("workout");
+    }
+
+    function removeExercise(dayKey, exId) {
+      workoutPlan[dayKey].exercises = workoutPlan[dayKey].exercises.filter(ex => ex.id !== exId);
+      savePlanToStorage();
+      renderExercises();
+      showToast("Exercise removed.", "info");
+    }
+
+    function confirmResetDefaults() {
+      if (confirm("Reset your workout plan to initial default settings?")) {
+        workoutPlan = JSON.parse(JSON.stringify(DEFAULT_PLAN));
+        savePlanToStorage();
+        selectDay("Mon");
+        showToast("Reset to default workout plan.", "info");
+      }
+    }
+
+    // TOAST SYSTEM
+    function showToast(msg, type = "success") {
+      const toast = document.getElementById("toast");
+      const msgEl = document.getElementById("toast-message");
+
+      msgEl.innerText = msg;
+      toast.classList.remove("translate-y-20", "opacity-0");
+      toast.classList.add("translate-y-0", "opacity-100");
+
+      setTimeout(() => {
+        toast.classList.remove("translate-y-0", "opacity-100");
+        toast.classList.add("translate-y-20", "opacity-0");
+      }, 3000);
+    }
+  </script>
+</body>
+</html>
