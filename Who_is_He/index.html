@@ -1,0 +1,1916 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Who is He</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500&display=swap">
+<style>
+.reader-boundary{height:1px;width:100%;pointer-events:none;}
+
+:root {
+  --bg: #fff;
+  --fg: #000;
+  --card: #e8e8e8;
+  --pill: #d3d3d3;
+  --fs: 24px;
+  --bm: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath d='M6 2h12v20l-6-5-6 5z'/%3E%3C/svg%3E");
+  color-scheme: light;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #000;
+    --fg: #fff;
+    --card: #252525;
+    --pill: #4b4b4b;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #000;
+  --fg: #fff;
+  --card: #252525;
+  --pill: #4b4b4b;
+  color-scheme: dark;
+}
+:root[data-theme="light"] {
+  --bg: #fff;
+  --fg: #000;
+  --card: #e8e8e8;
+  --pill: #d3d3d3;
+  color-scheme: light;
+}
+* { box-sizing: border-box; }
+html { scroll-padding-top: 24px; }
+body {
+  margin: 0;
+  background: var(--bg);
+  color: var(--fg);
+  font: 400 18px/1.45 Inter, system-ui, sans-serif;
+  -webkit-text-size-adjust: 100%;
+}
+button, input, textarea, select {
+  color: var(--fg);
+  background: var(--pill);
+  border: 0;
+  border-radius: 24px;
+  font: inherit;
+  padding: 10px 14px;
+  max-width: 100%;
+}
+button, select { cursor: pointer; }
+input, textarea { width: 100%; }
+button:focus-visible, input:focus-visible, textarea:focus-visible, select:focus-visible {
+  outline: 2px solid var(--fg);
+  outline-offset: 3px;
+}
+svg.i {
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 1.8;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.bmi {
+  display: inline-block;
+  flex: none;
+  width: 12px;
+  height: 16px;
+  background: currentColor;
+  -webkit-mask: var(--bm) center / contain no-repeat;
+  mask: var(--bm) center / contain no-repeat;
+}
+#reader {
+  max-width: 48rem;
+  margin: 0 auto;
+  padding: max(56px, 8vh) clamp(20px, 5vw, 44px) 55vh;
+  font-size: var(--fs);
+  line-height: 1.45;
+}
+#reader section { margin: 0 0 1.8em; }
+#reader h2 {
+  margin: 1.6em 0 .55em;
+  font-size: .78em;
+  font-weight: 400;
+  opacity: .62;
+}
+#reader p { margin: 0 0 1em; }
+.v { cursor: pointer; }
+.v sup { margin-right: .2em; font-size: .55em; opacity: .6; }
+.v.sel {
+  text-decoration: underline dotted;
+  text-decoration-thickness: 2px;
+  text-underline-offset: 5px;
+}
+.v.bm { position: relative; }
+/* Ribbon bookmark: a string runs in from the left edge along the top of the line
+   and a notched ribbon hangs from it beside the verse number. */
+.rb {
+  position: relative;
+  display: inline-block;
+  width: .6em;
+  height: 0;
+  margin-right: .3em;
+  vertical-align: baseline;
+  pointer-events: none;
+}
+.rb::before {
+  content: "";
+  position: absolute;
+  right: 50%;
+  bottom: calc(1em - 2px);
+  width: 100vw;
+  height: 2px;
+  background: linear-gradient(to left, currentColor 80%, transparent);
+  opacity: .5;
+}
+.rb::after {
+  content: "";
+  position: absolute;
+  left: 0;
+  bottom: -.28em;
+  width: 100%;
+  height: 1.28em;
+  background: currentColor;
+  clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 76%, 0 100%);
+  border-radius: 1px;
+  filter: drop-shadow(0 1px 1px #0004);
+}
+.v.hasnote::after { content: " ¶"; opacity: .55; }
+.hl-red { background: #f04444; color: #fff; }
+.hl-yellow { background: #ffd34d; color: #000; }
+.hl-green { background: #64c994; color: #000; }
+.hl-blue { background: #60a9ee; color: #000; }
+
+#bar {
+  position: fixed;
+  z-index: 3;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  display: grid;
+  grid-template-columns: 54px minmax(150px, 280px) 54px;
+  gap: 10px;
+  align-items: center;
+  width: max-content;
+  max-width: calc(100% - 24px);
+}
+.nav-icon, #bref {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: var(--card);
+  box-shadow: 0 0 0 1px var(--pill);
+}
+.nav-icon {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 50%;
+}
+.nav-icon svg { width: 24px; height: 24px; }
+#bref {
+  min-width: 150px;
+  height: 56px;
+  border-radius: 100px;
+  flex-direction: column;
+  line-height: 20px;
+  touch-action: none;
+  transition: transform .32s cubic-bezier(.2, .9, .25, 1);
+  will-change: transform;
+}
+#bd { font-size: 8px; line-height: 8px; letter-spacing: 3px; opacity: .65; }
+#veil { position: fixed; inset: 0; z-index: 5; background: #0005; animation: fade .25s ease; }
+#veil[hidden] { display: none; }
+@keyframes fade { from { opacity: 0; } }
+@keyframes sheetUp {
+  from { transform: translate(-50%, 70px); opacity: 0; }
+}
+@keyframes sheetPull {
+  from { transform: translate(-50%, 55%); opacity: 0; }
+}
+
+/* Sheets are narrower than the Bible text so the side space can be tapped to close. */
+.sheet {
+  position: fixed;
+  z-index: 6;
+  left: 50%;
+  bottom: calc(16px + env(safe-area-inset-bottom, 0px));
+  transform: translateX(-50%);
+  width: min(640px, calc(100% - 64px));
+  max-height: calc(100dvh - 32px);
+  overflow: auto;
+  padding: 18px;
+  border-radius: 28px;
+  background: var(--card);
+}
+.sheet:not([hidden]) { animation: sheetUp .3s cubic-bezier(.2, .9, .25, 1); }
+#s-tabs:not([hidden]) { animation: sheetPull .42s cubic-bezier(.2, .9, .25, 1); }
+@media (prefers-reduced-motion: reduce) {
+  .sheet:not([hidden]), #s-tabs:not([hidden]), #veil { animation: none; }
+  #bref { transition: none; }
+}
+.sheet.tall { height: min(820px, calc(100dvh - 32px)); }
+.sheet[hidden] { display: none; }
+.col { display: flex; flex-direction: column; gap: 14px; height: 100%; }
+.top { display: flex; align-items: center; gap: 12px; }
+.top > button { flex: none; }
+.circle {
+  flex: none;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 50%;
+}
+.circle svg { width: 21px; height: 21px; }
+.grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(var(--cw, 100px), 1fr));
+  align-content: start;
+  gap: 8px;
+  flex: 1;
+  min-height: 0;
+  overflow: auto;
+  padding: 8px;
+  margin: -4px;
+}
+.cell {
+  position: relative;
+  min-height: 44px;
+  overflow: visible;
+  padding: 10px 2px;
+  border-radius: 14px;
+  font-size: 15px;
+  white-space: nowrap;
+}
+.cell.cur, .card.cur {
+  outline: 2px solid currentColor;
+  outline-offset: 2px;
+}
+.cell.bookmarked::after {
+  content: "";
+  position: absolute;
+  top: 4px;
+  right: 4px;
+  width: 8px;
+  height: 11px;
+  background: currentColor;
+  -webkit-mask: var(--bm) center / contain no-repeat;
+  mask: var(--bm) center / contain no-repeat;
+}
+.testament-divider {
+  grid-column: 1 / -1;
+  margin: 8px 0;
+  border-top: 1px solid currentColor;
+  opacity: .45;
+}
+.two { display: flex; gap: 12px; }
+.two > * { flex: 1; }
+.dim { font-size: 13px; line-height: 1.4; opacity: .68; }
+.row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  width: 100%;
+  padding: 12px 6px;
+  border-bottom: 1px solid currentColor;
+  border-radius: 0;
+  background: none;
+  text-align: left;
+}
+.row:last-child { border-bottom: 0; }
+.row-main { display: flex; flex-direction: column; gap: 4px; min-width: 0; }
+.row-ref { font-size: 13px; opacity: .65; }
+.row .bmi { margin-right: 8px; }
+.highlight-button {
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+.highlight-button[data-hl="red"] { background: #f04444; }
+.highlight-button[data-hl="yellow"] { background: #ffd34d; }
+.highlight-button[data-hl="green"] { background: #64c994; }
+.highlight-button[data-hl="blue"] { background: #60a9ee; }
+.color-row { display: flex; justify-content: space-between; gap: 8px; }
+#bookmark-toggle {
+  display: grid;
+  place-items: center;
+  width: 40px;
+  height: 40px;
+  padding: 0;
+  border-radius: 50%;
+}
+#bookmark-toggle.on { background: var(--fg); color: var(--bg); }
+.highlight-button.active { outline: 2px solid var(--fg); outline-offset: 2px; }
+.font-control {
+   min-height: 48px;
+   display: grid;
+   place-items: center;
+   background: var(--card);
+   box-shadow: inset 0 0 0 1px var(--pill);
+}
+.font-small { font-size: 15px; line-height: 1; }
+.font-large { font-size: 29px; line-height: 1; }
+#tstrip {
+  position: fixed;
+  z-index: 4;
+  top: calc(8px + env(safe-area-inset-top, 0px));
+  left: 50%;
+  transform: translateX(-50%);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  padding: 5px 7px 5px 14px;
+  border-radius: 24px;
+  background: var(--card);
+  font-size: 13px;
+}
+#tstrip[hidden] { display: none; }
+#tx { width: 32px; height: 32px; padding: 0; border-radius: 50%; }
+#tin { position: fixed; left: 0; bottom: 0; width: 1px; height: 1px; opacity: 0; pointer-events: none; }
+
+/* Typing: unfocused verses dark gray, upcoming words light gray, typed words full color. */
+.typing .v { opacity: .28; transition: opacity .2s; }
+.typing .v.focus { opacity: 1; }
+.tw { white-space: pre-wrap; }
+.tw .t { opacity: .5; }
+.tw .err { text-decoration: line-through; }
+.tw .err.sp { text-decoration: underline; }
+.tw .cur { background: var(--pill); }
+
+#etext, #editor-text {
+  flex: 1;
+  min-height: 180px;
+  resize: vertical;
+  border-radius: 16px;
+  line-height: 1.5;
+}
+.card {
+  position: relative;
+  min-height: 74px;
+  padding: 0;
+  border-radius: 18px;
+  background: var(--pill);
+}
+.card .open {
+  width: 100%;
+  height: 100%;
+  min-height: 74px;
+  padding: 14px 40px 14px 14px;
+  border-radius: 18px;
+  background: none;
+  text-align: left;
+}
+.card .tab-x {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 28px;
+  height: 28px;
+  padding: 0;
+  border-radius: 50%;
+  background: var(--card);
+  line-height: 1;
+}
+.tabs-foot { display: flex; justify-content: center; }
+#new-tab { padding: 12px 28px; }
+#notes-list { overflow: auto; }
+#graph-canvas { flex: 1; min-height: 200px; width: 100%; touch-action: none; }
+#load {
+  position: fixed;
+  inset: 0;
+  z-index: 9;
+  display: grid;
+  place-items: center;
+  background: #000;
+  color: #fff;
+  font-size: 26px;
+  transition: opacity .35s;
+}
+#load.gone { opacity: 0; pointer-events: none; }
+#status {
+  max-width: 42rem;
+  margin: 18px auto;
+  padding: 10px 14px;
+  border: 1px dashed currentColor;
+  font-size: 14px;
+}
+#status[hidden] { display: none; }
+@media (max-width: 390px) {
+  #bar { grid-template-columns: 46px minmax(135px, 1fr) 46px; gap: 7px; }
+  .nav-icon { width: 46px; height: 46px; }
+  #bref { min-width: 135px; }
+  .sheet { padding: 14px; }
+}
+</style>
+</head>
+<body>
+<div id="load">Who is He</div>
+
+<main id="reader"><div id="top-sentinel" class="reader-boundary" aria-hidden="true"></div><div id="sentinel" class="reader-boundary" aria-hidden="true"></div></main>
+<div id="status" hidden></div>
+
+<div id="tstrip" hidden>
+  <span id="tstat">WPM 0 · Acc 100%</span>
+  <button id="tx" aria-label="Stop typing">×</button>
+</div>
+<textarea id="tin" autocapitalize="off" autocomplete="off" autocorrect="off" spellcheck="false" aria-label="Typing input"></textarea>
+
+<nav id="bar" aria-label="Main navigation">
+  <button id="settings-nav" class="nav-icon" type="button" aria-label="Settings" title="Settings">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3"/>
+      <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"/>
+    </svg>
+  </button>
+  <button id="bref" type="button" aria-label="Search Bible. Swipe up for tabs">
+    <span id="bl">Gen 1</span>
+    <small id="bd"></small>
+  </button>
+  <button id="notes-nav" class="nav-icon" type="button" aria-label="Notes" title="Notes">
+    <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/>
+      <polyline points="14 2 14 8 20 8"/>
+      <line x1="16" y1="13" x2="8" y2="13"/>
+      <line x1="16" y1="17" x2="8" y2="17"/>
+    </svg>
+  </button>
+</nav>
+
+<div id="veil" hidden></div>
+
+<section class="sheet" id="s-verse" hidden>
+  <div class="col">
+    <div class="top">
+      <strong id="v-ref" style="flex:1"></strong>
+      <button class="circle" id="v-close" aria-label="Close">×</button>
+    </div>
+    <div id="v-notes"></div>
+    <div class="two">
+      <button id="v-new-note">Add note</button>
+      <button id="v-type">Type</button>
+    </div>
+    <div class="dim">Highlight selected verses</div>
+    <div class="color-row">
+      <button class="highlight-button" data-hl="red" aria-label="Red highlight"></button>
+      <button class="highlight-button" data-hl="yellow" aria-label="Yellow highlight"></button>
+      <button class="highlight-button" data-hl="green" aria-label="Green highlight"></button>
+      <button class="highlight-button" data-hl="blue" aria-label="Blue highlight"></button>
+      <button id="bookmark-toggle" aria-label="Bookmark" title="Bookmark"><span class="bmi"></span></button>
+    </div>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-search" hidden>
+  <div class="col">
+    <form id="search-form" class="top">
+      <button type="button" class="circle" id="search-back" aria-label="Back">‹</button>
+      <input id="query" placeholder="Search: John 3:16" aria-label="Bible reference">
+      <button type="button" class="circle" id="open-bookmarks" aria-label="Go to bookmarks" title="Bookmarks">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true"><path d="M6 3h12v18l-6-4-6 4z"/></svg>
+      </button>
+    </form>
+    <div id="search-crumb" class="dim"></div>
+    <div id="search-grid" class="grid"></div>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-bookmarks" hidden>
+  <div class="col">
+    <div class="top">
+      <button class="circle" id="bookmarks-back" aria-label="Back to search">‹</button>
+      <input id="bookmark-query" placeholder="Filter bookmarks by book or verse">
+    </div>
+    <div id="bookmark-list" class="grid" style="--cw:220px"></div>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-tabs" hidden>
+  <div class="col">
+    <div id="tabs-grid" class="grid" style="--cw:150px"></div>
+    <div class="tabs-foot"><button id="new-tab">+ New tab</button></div>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-notes" hidden>
+  <div class="col">
+    <div class="top">
+      <button class="circle" id="notes-graph" aria-label="Open notes graph" title="Notes graph">
+        <svg class="i" viewBox="0 0 24 24" aria-hidden="true">
+          <line x1="7.5" y1="7.5" x2="16" y2="9"/>
+          <line x1="7" y1="8" x2="11" y2="16"/>
+          <line x1="17" y1="10" x2="13" y2="16"/>
+          <circle cx="6" cy="6" r="2.5"/>
+          <circle cx="18" cy="8.5" r="2.5"/>
+          <circle cx="12" cy="18" r="2.5"/>
+        </svg>
+      </button>
+      <input id="notes-query" placeholder="Search notes">
+    </div>
+    <div id="notes-list"></div>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-graph" hidden>
+  <div class="col">
+    <div class="top">
+      <button class="circle" id="graph-back" aria-label="Back to notes">‹</button>
+      <input id="graph-query" placeholder="Filter notes">
+    </div>
+    <canvas id="graph-canvas"></canvas>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-editor" hidden>
+  <div class="col">
+    <div class="top">
+      <strong id="editor-reference" style="flex:1"></strong>
+      <button class="circle" id="editor-close" aria-label="Close editor">×</button>
+    </div>
+    <textarea id="editor-text" placeholder="Write a note about this verse…"></textarea>
+    <div id="editor-keywords" class="dim"></div>
+    <button id="delete-note">Delete note</button>
+  </div>
+</section>
+
+<section class="sheet tall" id="s-settings" hidden>
+  <div class="col">
+    <input id="api-key" type="password" placeholder="API.Bible key">
+    <button id="load-translations">Load translations</button>
+    <div id="api-message" class="dim">The key is saved in this browser. Restrict it to your site in your API.Bible account.</div>
+    <select id="translation" aria-label="Translation"></select>
+    <div id="copyright" class="dim"></div>
+    <select id="theme" aria-label="Theme">
+      <option value="system">Theme: System</option>
+      <option value="light">Theme: Light</option>
+      <option value="dark">Theme: Dark</option>
+    </select>
+    <div class="two">
+      <button id="font-down" class="font-control font-small" aria-label="Decrease Bible text size" title="Smaller text">A</button>
+      <button id="font-up" class="font-control font-large" aria-label="Increase Bible text size" title="Larger text">A</button>
+    </div>
+    <textarea id="user-json" rows="5" placeholder="Export fills this box. Paste a backup here to import."></textarea>
+    <div class="two">
+      <button id="export-data">Export</button>
+      <button id="import-data">Import</button>
+    </div>
+    <div id="backup-message" class="dim">The export includes your API key. Keep it private.</div>
+  </div>
+</section>
+
+<script type="module">
+const $ = id => document.getElementById(id);
+
+/* Local browser storage */
+const STORAGE_KEY = 'scripture-studio-user';
+const defaults = () => ({
+  app: 'scripture-studio',
+  version: 5,
+  apiKey: '',
+  translation: '',
+  theme: 'system',
+  fontSize: 24,
+  tabs: [],
+  active: 0,
+  marks: {},
+  notes: [],
+  results: [],
+  copyrights: {},
+  nextNoteId: 1
+});
+
+let user;
+try {
+  user = { ...defaults(), ...JSON.parse(localStorage.getItem(STORAGE_KEY) || '{}') };
+} catch {
+  user = defaults();
+}
+
+let saveTimer;
+function saveNow() {
+  clearTimeout(saveTimer);
+  try {
+    localStorage.setItem(STORAGE_KEY, JSON.stringify(user));
+  } catch (error) {
+    showStatus('Could not save data: ' + error.message);
+  }
+}
+function save() {
+  clearTimeout(saveTimer);
+  saveTimer = setTimeout(saveNow, 250);
+}
+addEventListener('pagehide', saveNow);
+
+/* Bible book list */
+const bookNames = 'Genesis,Exodus,Leviticus,Numbers,Deuteronomy,Joshua,Judges,Ruth,1 Samuel,2 Samuel,1 Kings,2 Kings,1 Chronicles,2 Chronicles,Ezra,Nehemiah,Esther,Job,Psalms,Proverbs,Ecclesiastes,Song of Solomon,Isaiah,Jeremiah,Lamentations,Ezekiel,Daniel,Hosea,Joel,Amos,Obadiah,Jonah,Micah,Nahum,Habakkuk,Zephaniah,Haggai,Zechariah,Malachi,Matthew,Mark,Luke,John,Acts,Romans,1 Corinthians,2 Corinthians,Galatians,Ephesians,Philippians,Colossians,1 Thessalonians,2 Thessalonians,1 Timothy,2 Timothy,Titus,Philemon,Hebrews,James,1 Peter,2 Peter,1 John,2 John,3 John,Jude,Revelation'.split(',');
+const bookCodes = 'GEN EXO LEV NUM DEU JOS JDG RUT 1SA 2SA 1KI 2KI 1CH 2CH EZR NEH EST JOB PSA PRO ECC SNG ISA JER LAM EZK DAN HOS JOL AMO OBA JON MIC NAM HAB ZEP HAG ZEC MAL MAT MRK LUK JHN ACT ROM 1CO 2CO GAL EPH PHP COL 1TH 2TH 1TI 2TI TIT PHM HEB JAS 1PE 2PE 1JN 2JN 3JN JUD REV'.split(' ');
+const shortNames = 'Gen Exo Lev Num Deu Jos Jdg Rut 1Sa 2Sa 1Ki 2Ki 1Ch 2Ch Ezr Neh Est Job Psa Pro Ecc Sng Isa Jer Lam Ezk Dan Hos Joe Amo Oba Jon Mic Nah Hab Zep Hag Zec Mal Mat Mrk Luk Jhn Act Rom 1Co 2Co Gal Eph Php Col 1Th 2Th 1Ti 2Ti Tit Phm Heb Jas 1Pe 2Pe 1Jn 2Jn 3Jn Jud Rev'.split(' ');
+const chapterCounts = '50 40 27 36 34 24 21 4 31 24 22 25 29 36 10 13 10 42 150 31 12 8 66 52 5 48 12 14 3 9 1 4 7 3 3 3 2 14 4 28 16 24 21 28 16 16 13 6 6 4 4 5 3 6 4 3 1 13 5 5 3 5 1 1 1 22'.split(' ').map(Number);
+const books = bookCodes.map((id, index) => ({ id, name: bookNames[index], short: shortNames[index], chapters: chapterCounts[index] }));
+const bookById = id => books.find(book => book.id === id);
+
+const abbreviations = {
+  GEN:'Gen', EXO:'Exod', LEV:'Lev', NUM:'Num', DEU:'Deut', JOS:'Josh',
+  JDG:'Judg', RUT:'Ruth', '1SA':'1 Sam', '2SA':'2 Sam', '1KI':'1 Kgs',
+  '2KI':'2 Kgs', '1CH':'1 Chr', '2CH':'2 Chr', EZR:'Ezra', NEH:'Neh',
+  EST:'Esth', JOB:'Job', PSA:'Ps', PRO:'Prov', ECC:'Eccl', SNG:'Song',
+  ISA:'Isa', JER:'Jer', LAM:'Lam', EZK:'Ezek', DAN:'Dan', HOS:'Hos',
+  JOL:'Joel', AMO:'Amos', OBA:'Obad', JON:'Jonah', MIC:'Mic', NAM:'Nah',
+  HAB:'Hab', ZEP:'Zeph', HAG:'Hag', ZEC:'Zech', MAL:'Mal', MAT:'Matt',
+  MRK:'Mark', LUK:'Luke', JHN:'John', ACT:'Acts', ROM:'Rom', '1CO':'1 Cor',
+  '2CO':'2 Cor', GAL:'Gal', EPH:'Eph', PHP:'Phil', COL:'Col',
+  '1TH':'1 Thess', '2TH':'2 Thess', '1TI':'1 Tim', '2TI':'2 Tim',
+  TIT:'Titus', PHM:'Phlm', HEB:'Heb', JAS:'Jas', '1PE':'1 Pet',
+  '2PE':'2 Pet', '1JN':'1 John', '2JN':'2 John', '3JN':'3 John',
+  JUD:'Jude', REV:'Rev'
+};
+const bookAbbr = book => abbreviations[book.id] || book.name;
+const refLabel = id => {
+  const [book, chapter, verse] = id.split('.');
+  const entry = bookById(book);
+  return entry ? `${bookAbbr(entry)} ${chapter}${verse ? ':' + verse : ''}` : id;
+};
+const fullRef = id => {
+  const [book, chapter, verse] = id.split('.');
+  const entry = bookById(book);
+  return entry ? `${entry.name} ${chapter}${verse ? ':' + verse : ''}` : id;
+};
+
+const aliases = {
+  gen:'GEN', ex:'EXO', deut:'DEU', josh:'JOS', judges:'JDG',
+  ps:'PSA', psalm:'PSA', psalms:'PSA', prov:'PRO', eccl:'ECC',
+  matt:'MAT', mt:'MAT', mk:'MRK', lk:'LUK', jn:'JHN', rev:'REV',
+  '1cor':'1CO', '2cor':'2CO', '1pet':'1PE', '2pet':'2PE'
+};
+
+function parseReference(value) {
+  const match = value.trim().match(
+    /^((?:[123]\s*)?[a-z]+(?:\s+[a-z]+)*)\s*(\d+)?(?:[\s:.]+(\d+))?$/i
+  );
+  if (!match) return null;
+
+  const key = match[1].toLowerCase().replace(/[ .]/g, '');
+  const book = bookById(aliases[key])
+    || books.find(item => item.id.toLowerCase() === key)
+    || books.find(item => item.short.toLowerCase() === key)
+    || books.find(item => item.name.toLowerCase().replace(/ /g, '').startsWith(key))
+    || books.find(item => bookAbbr(item).toLowerCase().replace(/ /g, '').startsWith(key));
+
+  if (!book) return null;
+  return [
+    book.id,
+    match[2] ? Math.min(Number(match[2]), book.chapters) : null,
+    match[3] ? Number(match[3]) : null
+  ];
+}
+
+/* Theme and font size */
+function applyTheme(theme) {
+  if (theme === 'system') document.documentElement.removeAttribute('data-theme');
+  else document.documentElement.dataset.theme = theme;
+}
+$('theme').value = user.theme;
+applyTheme(user.theme);
+
+$('theme').onchange = () => {
+  user.theme = $('theme').value;
+  applyTheme(user.theme);
+  save();
+};
+function changeFontSize(delta) {
+  user.fontSize = Math.max(14, Math.min(44, user.fontSize + delta));
+  document.documentElement.style.setProperty('--fs', user.fontSize + 'px');
+  save();
+}
+changeFontSize(0);
+$('font-down').onclick = () => changeFontSize(-2);
+$('font-up').onclick = () => changeFontSize(2);
+
+/* API.Bible access */
+const API_BASE = 'https://rest.api.bible/v1';
+const apiCache = new Map();
+async function api(path) {
+  if (apiCache.has(path)) return apiCache.get(path);
+  const response = await fetch(API_BASE + path, {
+    headers: { 'api-key': user.apiKey || '' }
+  });
+  if (!response.ok) throw new Error(`API.Bible returned ${response.status}`);
+  const result = await response.json();
+  apiCache.set(path, result.data);
+  return result.data;
+}
+
+async function getChapter(bibleId, chapterId) {
+  const data = await api(
+    `/bibles/${encodeURIComponent(bibleId)}/chapters/${encodeURIComponent(chapterId)}` +
+    '?content-type=html&include-verse-spans=true&include-notes=false' +
+    '&include-titles=false&include-chapter-numbers=false'
+  );
+
+  const verses = new Map();
+  let activeVerse = null;
+  const parsed = new DOMParser().parseFromString(data.content, 'text/html');
+
+  function walk(node) {
+    for (const child of node.childNodes) {
+      if (child.nodeType === Node.ELEMENT_NODE) {
+        if (child.classList?.contains('v')) {
+          const match = (child.dataset.sid || '').match(/^(\w+)\s+(\d+):(\d+)/);
+          if (match) {
+            activeVerse = `${match[1]}.${match[2]}.${match[3]}`;
+            if (!verses.has(activeVerse)) verses.set(activeVerse, '');
+          }
+        } else {
+          walk(child);
+        }
+      } else if (activeVerse && child.nodeType === Node.TEXT_NODE) {
+        verses.set(activeVerse, verses.get(activeVerse) + child.textContent);
+      }
+    }
+  }
+
+  walk(parsed.body);
+  return {
+    verses: [...verses].map(([id, text]) => [id, text.replace(/\s+/g, ' ').trim()]).filter(([, text]) => text),
+    copyright: data.copyright || ''
+  };
+}
+
+async function loadTranslations() {
+  if (!user.apiKey) {
+    $('translation').innerHTML = '<option value="">Add your API key first</option>';
+    return;
+  }
+
+  const list = await api('/bibles?language=eng');
+  const preferred = ['NASB', 'NIV', 'NLT', 'ESV'];
+  const translations = list.map(item => ({
+    id: item.id,
+    name: `${item.abbreviationLocal || item.abbreviation} — ${item.name}`,
+    abbr: (item.abbreviation || '').toUpperCase()
+  })).sort((a, b) => {
+    const rank = item => {
+      const index = preferred.findIndex(prefix => item.abbr.startsWith(prefix));
+      return index < 0 ? 9 : index;
+    };
+    return rank(a) - rank(b) || a.name.localeCompare(b.name);
+  });
+
+  $('translation').replaceChildren();
+  translations.forEach(item => $('translation').add(new Option(item.name, item.id)));
+
+  $('translation').value = translations.some(item => item.id === user.translation)
+    ? user.translation
+    : (translations[0]?.id || '');
+
+  user.translation = $('translation').value;
+  save();
+  renderCopyright();
+}
+
+/* Copyright text lives in Settings, not on the Bible screen. */
+function renderCopyright() {
+  $('copyright').textContent = user.copyrights?.[user.translation] || '';
+}
+
+/* App state and reader */
+const state = {
+  prevChapter: null,
+  nextChapter: null,
+  loading: false,
+  loadingPrev: false,
+  navSeq: 0,
+  selected: new Set(),
+  noteVerses: new Set(user.notes.map(note => note.verse))
+};
+
+const translationId = () => user.translation;
+function showStatus(message) {
+  $('status').hidden = !message;
+  $('status').textContent = message || '';
+}
+const isBM = mark => Boolean(mark && (mark.bm || mark.bmColor));
+
+function paintVerse(element) {
+  const id = element.dataset.id;
+  const mark = user.marks[id] || {};
+
+  element.className =
+    'v' +
+    (mark.hl ? ' hl-' + mark.hl : '') +
+    (isBM(mark) ? ' bm' : '') +
+    (state.noteVerses.has(id) ? ' hasnote' : '') +
+    (state.selected.has(id) ? ' sel' : '') +
+    (element.dataset.focus ? ' focus' : '');
+
+  const ribbon = element.firstElementChild?.classList.contains('rb') ? element.firstElementChild : null;
+  if (isBM(mark) && !ribbon) {
+    const tab = document.createElement('i');
+    tab.className = 'rb';
+    tab.setAttribute('aria-hidden', 'true');
+    element.prepend(tab);
+  } else if (!isBM(mark) && ribbon) {
+    ribbon.remove();
+  }
+}
+function repaint(id) {
+  const selector = id ? `[data-id="${CSS.escape(id)}"]` : '#reader .v';
+  document.querySelectorAll(selector).forEach(paintVerse);
+}
+
+function getNextChapter(id) {
+  const [bookId, chapter] = id.split('.');
+  const book = bookById(bookId);
+  if (Number(chapter) < book.chapters) return `${bookId}.${Number(chapter) + 1}`;
+  const next = books[books.indexOf(book) + 1];
+  return next ? `${next.id}.1` : null;
+}
+
+function getPreviousChapter(id) {
+  const [bookId, chapter] = id.split('.');
+  const book = bookById(bookId);
+  if (Number(chapter) > 1) return `${bookId}.${Number(chapter) - 1}`;
+  const previous = books[books.indexOf(book) - 1];
+  return previous ? `${previous.id}.${previous.chapters}` : null;
+}
+const activeTab = () => user.tabs[user.active];
+
+function updateNavLabel(label) {
+  $('bl').textContent = label;
+  $('bd').textContent = user.tabs.length > 1
+    ? user.tabs.map((_, index) => index === user.active ? '●' : '○').join(' ')
+    : '';
+}
+
+function buildChapterSection(chapterId, verses) {
+  const [bookId, chapter] = chapterId.split('.');
+  const section = document.createElement('section');
+  section.dataset.chapter = chapterId;
+  const heading = document.createElement('h2');
+  const paragraph = document.createElement('p');
+
+  heading.textContent = `${bookById(bookId).name} ${chapter}`;
+
+  for (const [id, text] of verses) {
+    const verse = document.createElement('span');
+    const number = document.createElement('sup');
+    verse.dataset.id = id;
+    number.textContent = id.split('.')[2];
+    verse.append(number, document.createTextNode(text + ' '));
+    paintVerse(verse);
+    paragraph.append(verse);
+  }
+
+  section.append(heading, paragraph);
+  return section;
+}
+
+async function loadMore(expectedSeq = state.navSeq) {
+  if (state.loading || !state.nextChapter || !translationId() || expectedSeq !== state.navSeq) return;
+  state.loading = true;
+  const chapterId = state.nextChapter;
+
+  try {
+    const result = await getChapter(translationId(), chapterId);
+    if (expectedSeq !== state.navSeq) {
+      state.loading = false;
+      return;
+    }
+    const section = buildChapterSection(chapterId, result.verses);
+    $('reader').insertBefore(section, $('sentinel'));
+
+    if (result.copyright && user.copyrights[translationId()] !== result.copyright) {
+      user.copyrights[translationId()] = result.copyright;
+      save();
+      renderCopyright();
+    }
+
+    state.nextChapter = getNextChapter(chapterId);
+    showStatus('');
+  } catch (error) {
+    if (expectedSeq === state.navSeq) {
+      state.nextChapter = null;
+      showStatus(`Could not load Bible text: ${error.message}. Check your API.Bible key in Settings.`);
+    }
+  }
+
+  state.loading = false;
+  if (expectedSeq === state.navSeq) checkBoundaries();
+}
+
+async function loadPrevious(expectedSeq = state.navSeq) {
+  if (state.loadingPrev || !state.prevChapter || !translationId() || typing.on || expectedSeq !== state.navSeq) return;
+  state.loadingPrev = true;
+  const chapterId = state.prevChapter;
+  const reader = $('reader');
+
+  try {
+    const result = await getChapter(translationId(), chapterId);
+    if (expectedSeq !== state.navSeq || typing.on) {
+      state.loadingPrev = false;
+      return;
+    }
+
+    const oldHeight = reader.scrollHeight;
+    const oldScrollY = window.scrollY;
+    const section = buildChapterSection(chapterId, result.verses);
+    const topSentinel = $('top-sentinel');
+    reader.insertBefore(section, topSentinel.nextSibling);
+
+    // Keep the user's exact visual reading position when prepending above the viewport.
+    const heightDelta = reader.scrollHeight - oldHeight;
+    if (heightDelta > 0) {
+      const prevScrollBehavior = document.documentElement.style.scrollBehavior;
+      document.documentElement.style.scrollBehavior = 'auto';
+      window.scrollTo(0, oldScrollY + heightDelta);
+      document.documentElement.style.scrollBehavior = prevScrollBehavior;
+      lastScrollY = window.scrollY;
+    }
+
+    if (result.copyright && user.copyrights[translationId()] !== result.copyright) {
+      user.copyrights[translationId()] = result.copyright;
+      save();
+      renderCopyright();
+    }
+
+    state.prevChapter = getPreviousChapter(chapterId);
+    showStatus('');
+  } catch (error) {
+    if (expectedSeq === state.navSeq) {
+      state.prevChapter = null;
+      showStatus(`Could not load Bible text: ${error.message}. Check your API.Bible key in Settings.`);
+    }
+  }
+
+  state.loadingPrev = false;
+  if (expectedSeq === state.navSeq) checkBoundaries();
+}
+
+function checkBoundaries() {
+  if (typing.on || !translationId()) return;
+
+  const topRect = $('top-sentinel').getBoundingClientRect();
+  if (topRect.top > -900 && state.prevChapter && !state.loadingPrev) {
+    loadPrevious(state.navSeq);
+  }
+
+  const bottomRect = $('sentinel').getBoundingClientRect();
+  if (bottomRect.top < window.innerHeight + 900 && state.nextChapter && !state.loading) {
+    loadMore(state.navSeq);
+  }
+}
+
+const topObserver = new IntersectionObserver(entries => {
+  if (entries.some(entry => entry.isIntersecting) && !typing.on) {
+    loadPrevious(state.navSeq);
+  }
+}, { rootMargin: '900px 0px 0px 0px' });
+
+topObserver.observe($('top-sentinel'));
+
+const observer = new IntersectionObserver(entries => {
+  if (entries.some(entry => entry.isIntersecting) && !typing.on) {
+    loadMore(state.navSeq);
+  }
+}, { rootMargin: '900px 0px' });
+
+observer.observe($('sentinel'));
+
+async function goTo(bookId, chapter = 1, verse = null, selectVerse = false) {
+  if (!bookById(bookId)) return;
+
+  const seq = ++state.navSeq;
+  state.loading = false;
+  state.loadingPrev = false;
+
+  const resolvedChapter = chapter || 1;
+  const resolvedVerse = verse ? Number(verse) : null;
+  activeTab().cur = [bookId, resolvedChapter, resolvedVerse];
+  state.selected.clear();
+  const targetId = `${bookId}.${resolvedChapter}.${resolvedVerse || 1}`;
+  if (selectVerse && resolvedVerse) state.selected.add(targetId);
+  save();
+
+  const topSentinel = $('top-sentinel');
+  const bottomSentinel = $('sentinel');
+  $('reader').replaceChildren(topSentinel, bottomSentinel);
+  topObserver.unobserve(topSentinel);
+  topObserver.observe(topSentinel);
+  observer.unobserve(bottomSentinel);
+  observer.observe(bottomSentinel);
+
+  updateNavLabel(`${bookAbbr(bookById(bookId))} ${resolvedChapter}${resolvedVerse ? ':' + resolvedVerse : ''}`);
+
+  if (!translationId()) {
+    showStatus('Add your API.Bible key in Settings to load Bible text.');
+    return;
+  }
+
+  state.prevChapter = getPreviousChapter(`${bookId}.${resolvedChapter}`);
+  state.nextChapter = `${bookId}.${resolvedChapter}`;
+  await loadMore(seq);
+  if (seq !== state.navSeq) return;
+
+  const target = document.querySelector(`[data-id="${CSS.escape(targetId)}"]`);
+  if (target) {
+    paintVerse(target);
+    target.scrollIntoView({ block: 'center', behavior: 'instant' });
+    lastScrollY = window.scrollY;
+  }
+
+  if (selectVerse && resolvedVerse && state.selected.has(targetId)) {
+    showVerseActions();
+  }
+
+  // Preload one previous chapter so scrolling up immediately has content above.
+  await loadPrevious(seq);
+  if (seq === state.navSeq) checkBoundaries();
+}
+
+let lastScrollY = window.scrollY;
+let scrollFrame;
+
+function monitorScroll() {
+  scrollFrame = null;
+  const currentY = window.scrollY;
+  const scrollingUp = currentY < lastScrollY;
+  lastScrollY = currentY;
+
+  const element = document.elementFromPoint(innerWidth / 2, 90)?.closest?.('[data-id]');
+  if (element && activeTab()) {
+    const [book, chapter, verse] = element.dataset.id.split('.');
+    activeTab().cur = [book, Number(chapter), Number(verse)];
+    updateNavLabel(refLabel(element.dataset.id));
+    save();
+  }
+
+  if (!typing.on && translationId()) {
+    if (scrollingUp && state.prevChapter && !state.loadingPrev) {
+      const topRect = $('top-sentinel').getBoundingClientRect();
+      if (topRect.top > -1100 || currentY < 1100) {
+        loadPrevious(state.navSeq);
+      }
+    }
+    checkBoundaries();
+  }
+}
+
+addEventListener('scroll', () => {
+  if (scrollFrame) return;
+  scrollFrame = requestAnimationFrame(monitorScroll);
+}, { passive: true });
+
+/* Sheet helpers */
+const sheetNames = ['verse', 'search', 'bookmarks', 'tabs', 'notes', 'graph', 'editor', 'settings'];
+function hideSheets() {
+  if (!$('s-editor').hidden) saveNote();
+  sheetNames.forEach(name => { $('s-' + name).hidden = true; });
+}
+function closeSheets() {
+  hideSheets();
+  $('veil').hidden = true;
+  const oldSelection = [...state.selected];
+  state.selected.clear();
+  oldSelection.forEach(repaint);
+}
+function showSheet(name) {
+  closeSheets();
+  $('s-' + name).hidden = false;
+  $('veil').hidden = false;
+}
+$('veil').onclick = closeSheets;
+
+/* Tapping anywhere outside the verse sheet, the nav bar, or a verse closes the verse sheet. */
+document.addEventListener('click', event => {
+  if ($('s-verse').hidden || typing.on) return;
+  if (!event.target.isConnected) return;
+  if (event.target.closest('.sheet, #bar, .v')) return;
+  closeSheets();
+});
+
+/* Search picker */
+let picker = { level: 'books' };
+
+function openSearch() {
+  showSheet('search');
+  $('query').value = '';
+  picker = { level: 'books' };
+  renderPicker();
+}
+
+function renderPicker() {
+  const grid = $('search-grid');
+  grid.replaceChildren();
+  grid.style.setProperty('--cw', picker.level === 'books' ? '62px' : '52px');
+
+  const selected = activeTab().cur;
+  const query = $('query').value.trim().toLowerCase().replace(/[^a-z0-9 ]/g, '').replace(/ /g, '');
+
+  const addCell = (label, isCurrent, bookmarked, action) => {
+    const button = document.createElement('button');
+    button.className = 'cell' + (isCurrent ? ' cur' : '') + (bookmarked ? ' bookmarked' : '');
+    button.textContent = label;
+    button.onclick = action;
+    grid.append(button);
+  };
+
+  $('search-back').style.visibility = picker.level === 'books' ? 'hidden' : 'visible';
+
+  if (picker.level === 'books') {
+    $('search-crumb').textContent = 'Books';
+
+    for (const book of books) {
+      const bookKey = book.name.toLowerCase().replace(/ /g, '');
+      const abbrKey = bookAbbr(book).toLowerCase().replace(/ /g, '');
+      const matches = !query || bookKey.startsWith(query) || abbrKey.startsWith(query)
+        || book.short.toLowerCase().startsWith(query)
+        || book.id.toLowerCase().startsWith(query);
+
+      if (matches) {
+        const bookmarked = Object.entries(user.marks).some(([id, mark]) =>
+          id.startsWith(book.id + '.') && isBM(mark)
+        );
+        addCell(
+          book.short,
+          selected[0] === book.id,
+          bookmarked,
+          () => {
+            picker = { level: 'chapters', book: book.id };
+            goTo(book.id, 1);
+            renderPicker();
+          }
+        );
+      }
+
+      if (!query && book.id === 'MAL') {
+        const divider = document.createElement('div');
+        divider.className = 'testament-divider';
+        divider.setAttribute('role', 'separator');
+        divider.setAttribute('aria-label', 'New Testament');
+        grid.append(divider);
+      }
+    }
+    return;
+  }
+
+  if (picker.level === 'chapters') {
+    $('search-crumb').textContent = bookById(picker.book).name;
+    for (let number = 1; number <= bookById(picker.book).chapters; number++) {
+      const prefix = `${picker.book}.${number}.`;
+      const bookmarked = Object.entries(user.marks).some(([id, mark]) =>
+        id.startsWith(prefix) && isBM(mark)
+      );
+      addCell(
+        number,
+        selected[0] === picker.book && selected[1] === number,
+        bookmarked,
+        () => pickChapter(picker.book, number)
+      );
+    }
+    return;
+  }
+
+  $('search-crumb').textContent = `${bookById(picker.book).name} ${picker.chapter}`;
+  if (!picker.verses) {
+    grid.textContent = translationId() ? 'Loading verses…' : 'Add your API.Bible key in Settings.';
+    return;
+  }
+
+  for (const verse of picker.verses) {
+    const id = `${picker.book}.${picker.chapter}.${verse}`;
+    addCell(
+      verse,
+      selected[0] === picker.book && selected[1] === picker.chapter && selected[2] == verse,
+      isBM(user.marks[id]),
+      () => {
+        goTo(picker.book, picker.chapter, verse, true);
+      }
+    );
+  }
+}
+
+async function pickChapter(bookId, chapter) {
+  picker = { level: 'verses', book: bookId, chapter, verses: null };
+  goTo(bookId, chapter);
+  renderPicker();
+
+  if (!translationId()) return;
+
+  try {
+    const result = await getChapter(translationId(), `${bookId}.${chapter}`);
+    if (picker.book === bookId && picker.chapter === chapter) {
+      picker.verses = result.verses.map(([id]) => id.split('.')[2]);
+      renderPicker();
+    }
+  } catch (error) {
+    $('search-grid').textContent = error.message;
+  }
+}
+
+$('search-back').onclick = () => {
+  picker = picker.level === 'verses'
+    ? { level: 'chapters', book: picker.book }
+    : { level: 'books' };
+  renderPicker();
+};
+
+$('query').oninput = () => {
+  if (picker.level === 'books') renderPicker();
+};
+
+$('search-form').onsubmit = event => {
+  event.preventDefault();
+  const parsed = parseReference($('query').value);
+  if (!parsed) {
+    $('query').select();
+    return;
+  }
+  const [book, chapter, verse] = parsed;
+  if (verse) {
+    goTo(book, chapter, verse, true);
+  } else if (chapter) {
+    pickChapter(book, chapter);
+  } else {
+    picker = { level: 'chapters', book };
+    goTo(book, 1);
+    renderPicker();
+  }
+};
+
+/* Bookmarks: save verses and navigate to them from Search */
+function bookmarkEntries() {
+  return Object.entries(user.marks)
+    .filter(([, mark]) => isBM(mark))
+    .sort(([a], [b]) => {
+      const ai = books.findIndex(book => book.id === a.split('.')[0]);
+      const bi = books.findIndex(book => book.id === b.split('.')[0]);
+      return ai - bi || a.localeCompare(b, undefined, { numeric: true });
+    });
+}
+
+function renderBookmarks() {
+  const container = $('bookmark-list');
+  const query = $('bookmark-query').value.trim().toLowerCase();
+  container.replaceChildren();
+
+  const entries = bookmarkEntries().filter(([id]) =>
+    !query || fullRef(id).toLowerCase().includes(query) || refLabel(id).toLowerCase().includes(query)
+  );
+
+  if (!entries.length) {
+    const empty = document.createElement('div');
+    empty.className = 'dim';
+    empty.textContent = bookmarkEntries().length
+      ? 'No bookmarks match that search.'
+      : 'No bookmarks yet. Select a verse, then tap Bookmark.';
+    container.append(empty);
+    return;
+  }
+
+  for (const [id] of entries) {
+    const button = document.createElement('button');
+    const main = document.createElement('span');
+    const icon = document.createElement('span');
+    const ref = document.createElement('span');
+
+    button.className = 'row';
+    main.className = 'row-main';
+    icon.className = 'bmi';
+    ref.className = 'row-ref';
+    ref.textContent = fullRef(id);
+    main.append(document.createTextNode(refLabel(id)), ref);
+    button.append(icon, main);
+    button.onclick = () => {
+      const [book, chapter, verse] = id.split('.');
+      goTo(book, Number(chapter), Number(verse), Boolean(verse));
+    };
+    container.append(button);
+  }
+}
+
+$('open-bookmarks').onclick = () => {
+  showSheet('bookmarks');
+  $('bookmark-query').value = '';
+  renderBookmarks();
+};
+$('bookmarks-back').onclick = openSearch;
+$('bookmark-query').oninput = renderBookmarks;
+
+/* Verse selection, notes, highlights, bookmarks */
+function selectedIds() {
+  return [...state.selected];
+}
+
+function showVerseActions() {
+  sheetNames.forEach(name => { $('s-' + name).hidden = true; });
+  $('veil').hidden = true;
+  $('s-verse').hidden = false;
+
+  const ids = selectedIds();
+  $('v-ref').textContent = ids.length > 3 ? `${ids.length} selected verses` : ids.map(refLabel).join(', ');
+
+  const existingNotes = user.notes.filter(note => ids.includes(note.verse));
+  $('v-notes').replaceChildren();
+
+  existingNotes.forEach(note => {
+    const button = document.createElement('button');
+    button.className = 'row';
+    button.textContent = (note.text || 'Untitled note').split('\n')[0].slice(0, 80);
+    button.onclick = () => openEditor(note);
+    $('v-notes').append(button);
+  });
+
+  document.querySelectorAll('[data-hl]').forEach(button => {
+    const allHave = ids.length && ids.every(id => user.marks[id]?.hl === button.dataset.hl);
+    button.classList.toggle('active', Boolean(allHave));
+  });
+
+  const allBookmarked = ids.length > 0 && ids.every(id => isBM(user.marks[id]));
+  $('bookmark-toggle').classList.toggle('on', allBookmarked);
+  $('bookmark-toggle').setAttribute('aria-label', allBookmarked ? 'Remove bookmark' : 'Bookmark');
+  $('bookmark-toggle').title = allBookmarked ? 'Remove bookmark' : 'Bookmark';
+}
+
+$('reader').onclick = event => {
+  const verse = event.target.closest('[data-id]');
+  if (!verse) return; // the document-level handler closes the verse sheet
+
+  if (typing.on) {
+    $('tin').focus();
+    return;
+  }
+
+  const id = verse.dataset.id;
+  if (state.selected.has(id)) state.selected.delete(id);
+  else state.selected.add(id);
+
+  paintVerse(verse);
+  if (state.selected.size) showVerseActions();
+  else closeSheets();
+};
+
+function updateMarks(update) {
+  selectedIds().forEach(id => {
+    const current = { ...(user.marks[id] || {}) };
+    const next = update(current);
+    if (!next.hl && !next.bmColor && !next.bm) delete user.marks[id];
+    else user.marks[id] = next;
+    repaint(id);
+  });
+  save();
+  showVerseActions();
+}
+
+document.querySelectorAll('[data-hl]').forEach(button => {
+  button.onclick = () => {
+    const ids = selectedIds();
+    const remove = ids.length && ids.every(id => user.marks[id]?.hl === button.dataset.hl);
+    updateMarks(mark => ({ ...mark, hl: remove ? '' : button.dataset.hl }));
+  };
+});
+
+$('bookmark-toggle').onclick = () => {
+  const ids = selectedIds();
+  const remove = ids.length > 0 && ids.every(id => isBM(user.marks[id]));
+  updateMarks(mark => {
+    delete mark.bmColor;
+    if (remove) delete mark.bm;
+    else mark.bm = true;
+    return mark;
+  });
+};
+
+$('v-close').onclick = closeSheets;
+$('v-new-note').onclick = () => {
+  const id = selectedIds()[0];
+  if (id) openEditor(null, id);
+};
+$('v-type').onclick = startTyping;
+
+/* Notes and editor */
+function noteTitle(note) {
+  return (note.text || '').split('\n').find(line => line.trim())?.trim().slice(0, 70) || 'Untitled note';
+}
+function noteDate(note) {
+  return new Date(note.updated || note.created || Date.now()).toLocaleDateString();
+}
+
+function renderNoteList() {
+  const query = $('notes-query').value.trim().toLowerCase();
+  const list = $('notes-list');
+  list.replaceChildren();
+
+  const notes = user.notes
+    .filter(note => !query || `${note.text || ''} ${fullRef(note.verse)}`.toLowerCase().includes(query))
+    .sort((a, b) => (b.updated || b.created) - (a.updated || a.created));
+
+  if (!notes.length) {
+    list.textContent = user.notes.length ? 'No matching notes.' : 'No notes yet.';
+    list.className = 'dim';
+    return;
+  }
+  list.className = '';
+
+  notes.forEach(note => {
+    const button = document.createElement('button');
+    const main = document.createElement('span');
+    const date = document.createElement('span');
+    button.className = 'row';
+    main.className = 'row-main';
+    main.append(
+      Object.assign(document.createElement('strong'), { textContent: noteTitle(note) }),
+      Object.assign(document.createElement('span'), { className: 'row-ref', textContent: refLabel(note.verse) })
+    );
+    date.className = 'row-ref';
+    date.textContent = noteDate(note);
+    button.append(main, date);
+    button.onclick = () => openEditor(note);
+    list.append(button);
+  });
+}
+
+$('notes-query').oninput = renderNoteList;
+
+function refreshNotes() {
+  state.noteVerses = new Set(user.notes.map(note => note.verse));
+  repaint();
+  if (!$('s-notes').hidden) renderNoteList();
+  if (!$('s-bookmarks').hidden) renderBookmarks();
+}
+
+let editingNote = null;
+function openEditor(note, verseId) {
+  editingNote = note
+    ? { ...note }
+    : { verse: verseId, text: '', created: Date.now() };
+
+  $('editor-reference').textContent = refLabel(editingNote.verse);
+  $('editor-text').value = editingNote.text || '';
+  updateEditorKeywords();
+  showSheet('editor');
+  $('editor-text').focus();
+}
+
+function updateEditorKeywords() {
+  const words = [...new Set(($('editor-text').value.toLowerCase().match(/[a-z]{4,}/g) || []))];
+  $('editor-keywords').textContent = words.length ? 'Keywords: ' + words.slice(0, 20).join(', ') : '';
+}
+$('editor-text').oninput = updateEditorKeywords;
+
+function saveNote() {
+  if (!editingNote) return;
+
+  const note = editingNote;
+  editingNote = null;
+  note.text = $('editor-text').value;
+  note.updated = Date.now();
+
+  const index = user.notes.findIndex(item => item.id === note.id);
+  if (!note.text.trim()) {
+    if (index >= 0) user.notes.splice(index, 1);
+  } else {
+    if (!note.id) note.id = user.nextNoteId++;
+    if (index >= 0) user.notes[index] = note;
+    else user.notes.push(note);
+  }
+
+  save();
+  refreshNotes();
+}
+
+$('editor-close').onclick = () => {
+  saveNote();
+  closeSheets();
+};
+$('delete-note').onclick = () => {
+  if (editingNote?.id) user.notes = user.notes.filter(note => note.id !== editingNote.id);
+  editingNote = null;
+  save();
+  closeSheets();
+  refreshNotes();
+};
+
+/* Simple notes graph: notes sharing keywords are connected. */
+$('notes-graph').onclick = () => {
+  showSheet('graph');
+  drawGraph();
+};
+$('graph-back').onclick = () => {
+  showSheet('notes');
+  renderNoteList();
+};
+$('graph-query').oninput = drawGraph;
+
+function drawGraph() {
+  const canvas = $('graph-canvas');
+  const width = canvas.clientWidth;
+  const height = canvas.clientHeight;
+  if (!width || !height) return;
+
+  const ratio = window.devicePixelRatio || 1;
+  canvas.width = Math.round(width * ratio);
+  canvas.height = Math.round(height * ratio);
+  const context = canvas.getContext('2d');
+  context.scale(ratio, ratio);
+
+  const query = $('graph-query').value.trim().toLowerCase();
+  const notes = user.notes.filter(note =>
+    !query || `${note.text || ''} ${note.verse}`.toLowerCase().includes(query)
+  );
+
+  if (!notes.length) {
+    context.fillStyle = getComputedStyle(document.body).color;
+    context.fillText('Add notes to build your graph.', 12, 24);
+    return;
+  }
+
+  const nodes = notes.map((note, index) => ({
+    note,
+    x: width / 2 + Math.cos(index * 2.4) * Math.min(width, height) * .32,
+    y: height / 2 + Math.sin(index * 2.4) * Math.min(width, height) * .32
+  }));
+  const wordSets = nodes.map(node => new Set(
+    (node.note.text || '').toLowerCase().match(/[a-z]{4,}/g) || []
+  ));
+
+  context.clearRect(0, 0, width, height);
+  context.strokeStyle = getComputedStyle(document.body).color;
+
+  for (let i = 0; i < nodes.length; i++) {
+    for (let j = i + 1; j < nodes.length; j++) {
+      const shared = [...wordSets[i]].some(word => wordSets[j].has(word));
+      if (shared) {
+        context.beginPath();
+        context.moveTo(nodes[i].x, nodes[i].y);
+        context.lineTo(nodes[j].x, nodes[j].y);
+        context.stroke();
+      }
+    }
+  }
+
+  nodes.forEach(node => {
+    context.fillStyle = '#c9e9ff';
+    context.beginPath();
+    context.arc(node.x, node.y, 8, 0, Math.PI * 2);
+    context.fill();
+    context.fillStyle = getComputedStyle(document.body).color;
+    context.font = '12px Inter, system-ui, sans-serif';
+    context.fillText(noteTitle(node.note).slice(0, 22), node.x + 12, node.y + 4);
+  });
+
+  canvas.onclick = event => {
+    const rect = canvas.getBoundingClientRect();
+    const x = event.clientX - rect.left;
+    const y = event.clientY - rect.top;
+    const found = nodes.find(node => Math.hypot(node.x - x, node.y - y) < 18);
+    if (found) {
+      const id = found.note.id;
+      const note = user.notes.find(item => item.id === id);
+      if (note) openEditor(note);
+    }
+  };
+}
+
+/* Typing practice, including Unicode punctuation equivalence. */
+const segmenter = typeof Intl.Segmenter === 'function'
+  ? new Intl.Segmenter(undefined, { granularity: 'grapheme' })
+  : null;
+const graphemes = text => segmenter
+  ? [...segmenter.segment(text)].map(part => part.segment)
+  : Array.from(text.normalize('NFC'));
+
+const punctuation = new Map([
+  ['’', "'"], ['‘', "'"], ['ʼ', "'"], ['ʻ', "'"], ['＇', "'"], ['´', "'"],
+  ['“', '"'], ['”', '"'], ['„', '"'], ['‟', '"'], ['＂', '"'],
+  ['‐', '-'], ['‑', '-'], ['‒', '-'], ['–', '-'], ['—', '-'], ['−', '-'],
+  ['﹣', '-'], ['－', '-'],
+  ['\u00A0', ' '], ['\u2007', ' '], ['\u202F', ' ']
+]);
+const normalizeChar = char => {
+  const normalized = char.normalize('NFKC');
+  return punctuation.get(normalized) ?? normalized;
+};
+const sameChar = (typed, expected) => normalizeChar(typed) === normalizeChar(expected);
+const calcWpm = (chars, ms) => ms > 0 ? chars / 5 / (ms / 60000) : 0;
+const calcAccuracy = (correct, total) => total ? 100 * correct / total : 100;
+
+const typing = {
+  on: false,
+  element: null,
+  original: null,
+  rendered: null,
+  chars: [],
+  typed: [],
+  keys: 0,
+  correctTotal: 0,
+  startedAt: 0,
+  busy: false
+};
+
+function renderTyping() {
+  typing.rendered.replaceChildren();
+  typing.chars.forEach((character, index) => {
+    const span = document.createElement('span');
+    if (index < typing.typed.length) {
+      span.className = sameChar(typing.typed[index], character)
+        ? ''
+        : 'err' + (character === ' ' ? ' sp' : '');
+    } else {
+      span.className = index === typing.typed.length ? 'cur t' : 't';
+    }
+    span.textContent = character;
+    typing.rendered.append(span);
+  });
+}
+
+function updateTypingStats() {
+  const currentCorrect = typing.typed.filter((char, index) => sameChar(char, typing.chars[index])).length;
+  const elapsed = typing.startedAt ? Date.now() - typing.startedAt : 0;
+  $('tstat').textContent =
+    `WPM ${Math.round(calcWpm(typing.correctTotal + currentCorrect, elapsed))}` +
+    ` · Acc ${Math.round(calcAccuracy(typing.correctTotal + currentCorrect, typing.keys))}%`;
+}
+
+function beginTypingVerse(element) {
+  document.querySelectorAll('#reader .v.focus').forEach(old => {
+    delete old.dataset.focus;
+    paintVerse(old);
+  });
+  element.dataset.focus = '1';
+  paintVerse(element);
+
+  typing.element = element;
+  typing.original = element.lastChild;
+  typing.chars = graphemes(typing.original.textContent.trim());
+  typing.typed = [];
+  $('tin').value = '';
+  typing.rendered = document.createElement('span');
+  typing.rendered.className = 'tw';
+  element.replaceChild(typing.rendered, typing.original);
+  renderTyping();
+  element.scrollIntoView({ block: 'center', behavior: 'smooth' });
+  $('tin').focus();
+}
+
+function startTyping() {
+  const verses = [...document.querySelectorAll('#reader .v')];
+  const first = verses.find(element => state.selected.has(element.dataset.id));
+  if (!first) return;
+
+  closeSheets();
+  typing.on = true;
+  typing.keys = 0;
+  typing.correctTotal = 0;
+  typing.startedAt = 0;
+  typing.busy = false;
+
+  document.body.classList.add('typing');
+  $('tstrip').hidden = false;
+  beginTypingVerse(first);
+  updateTypingStats();
+}
+
+function stopTyping() {
+  if (!typing.on) return;
+
+  if (typing.rendered?.parentNode) typing.rendered.replaceWith(typing.original);
+
+  if (typing.keys) {
+    const correct = typing.typed.filter((char, index) => sameChar(char, typing.chars[index])).length;
+    user.results.push({
+      time: Date.now(),
+      translation: translationId(),
+      wpm: Math.round(calcWpm(typing.correctTotal + correct, Date.now() - typing.startedAt)),
+      accuracy: Math.round(calcAccuracy(typing.correctTotal + correct, typing.keys))
+    });
+    save();
+  }
+
+  typing.on = false;
+  typing.element = null;
+  typing.rendered = null;
+  document.body.classList.remove('typing');
+  $('tstrip').hidden = true;
+  $('tin').blur();
+
+  document.querySelectorAll('#reader .v').forEach(element => {
+    delete element.dataset.focus;
+    paintVerse(element);
+  });
+  checkBoundaries();
+}
+
+async function nextTypingVerse() {
+  typing.busy = true;
+  typing.correctTotal += typing.typed.filter((char, index) => sameChar(char, typing.chars[index])).length;
+  typing.rendered.replaceWith(typing.original);
+
+  let verses = [...document.querySelectorAll('#reader .v')];
+  let next = verses[verses.indexOf(typing.element) + 1];
+
+  if (!next && state.nextChapter) {
+    await loadMore(state.navSeq);
+    verses = [...document.querySelectorAll('#reader .v')];
+    next = verses[verses.indexOf(typing.element) + 1];
+  }
+
+  typing.busy = false;
+  if (next && typing.on) beginTypingVerse(next);
+  else if (typing.on) {
+    showStatus('You reached the end of the loaded text.');
+    stopTyping();
+  }
+}
+
+$('tin').addEventListener('input', () => {
+  if (!typing.on || typing.busy) return;
+
+  const typedNow = graphemes($('tin').value).slice(0, typing.chars.length);
+  if (!typing.startedAt && typedNow.length) typing.startedAt = Date.now();
+
+  for (let i = typing.typed.length; i < typedNow.length; i++) typing.keys++;
+  typing.typed = typedNow;
+  $('tin').value = typedNow.join('');
+  renderTyping();
+  updateTypingStats();
+
+  if (typedNow.length === typing.chars.length) nextTypingVerse();
+});
+$('tx').onclick = stopTyping;
+window.runTypingTests = () => {
+  console.assert(calcWpm(50, 60000) === 10, 'WPM test failed');
+  console.assert(calcAccuracy(9, 10) === 90, 'Accuracy test failed');
+  console.assert(sameChar("'", '’'), 'Curly apostrophe test failed');
+  console.assert(sameChar('"', '“'), 'Curly quote test failed');
+  console.assert(sameChar('-', '—'), 'Dash variant test failed');
+  console.log('Typing tests complete.');
+};
+
+/* Tab navigation: the bar follows your finger as you pull up, then springs back. */
+let touchStart = null;
+const bref = $('bref');
+const resetBar = () => {
+  bref.style.transition = '';
+  bref.style.transform = '';
+};
+
+bref.onpointerdown = event => {
+  touchStart = { x: event.clientX, y: event.clientY };
+  bref.setPointerCapture(event.pointerId);
+  bref.style.transition = 'none';
+};
+bref.onpointermove = event => {
+  if (!touchStart) return;
+  const dx = event.clientX - touchStart.x;
+  const dy = event.clientY - touchStart.y;
+  if (dy < 0 && -dy > Math.abs(dx)) {
+    const pull = Math.min(-dy, 140);
+    bref.style.transform = `translateY(${-pull}px) scale(${1 + pull / 500})`;
+  } else {
+    bref.style.transform = '';
+  }
+};
+bref.onpointercancel = () => {
+  touchStart = null;
+  resetBar();
+};
+bref.onpointerup = event => {
+  if (!touchStart) return;
+  const dx = event.clientX - touchStart.x;
+  const dy = event.clientY - touchStart.y;
+  touchStart = null;
+  resetBar();
+
+  if (-dy > 40 && -dy > Math.abs(dx)) openTabs();
+  else if (Math.abs(dx) > 50 && Math.abs(dx) > Math.abs(dy)) changeTab(user.active + (dx < 0 ? 1 : -1));
+  else if (Math.abs(dx) < 10 && Math.abs(dy) < 10) openSearch();
+};
+
+function changeTab(index) {
+  if (index < 0 || index >= user.tabs.length) return;
+  user.active = index;
+  save();
+  closeSheets();
+  goTo(...activeTab().cur);
+}
+
+function closeTab(index) {
+  if (user.tabs.length < 2) return;
+  const wasActive = index === user.active;
+  user.tabs.splice(index, 1);
+  if (index < user.active) user.active--;
+  user.active = Math.max(0, Math.min(user.active, user.tabs.length - 1));
+  save();
+  if (wasActive) goTo(...activeTab().cur);
+  else updateNavLabel($('bl').textContent);
+  openTabs();
+}
+
+function openTabs() {
+  showSheet('tabs');
+  const grid = $('tabs-grid');
+  grid.replaceChildren();
+
+  user.tabs.forEach((tab, index) => {
+    const card = document.createElement('div');
+    const open = document.createElement('button');
+    card.className = 'card' + (index === user.active ? ' cur' : '');
+    open.className = 'open';
+    open.textContent = refLabel(tab.cur.filter(Boolean).join('.'));
+    open.setAttribute('aria-label', `Open ${refLabel(tab.cur.filter(Boolean).join('.'))}`);
+    open.onclick = () => changeTab(index);
+    card.append(open);
+
+    if (user.tabs.length > 1) {
+      const close = document.createElement('button');
+      close.className = 'tab-x';
+      close.textContent = '×';
+      close.setAttribute('aria-label', `Close tab ${index + 1}`);
+      close.onclick = event => {
+        event.stopPropagation();
+        closeTab(index);
+      };
+      card.append(close);
+    }
+    grid.append(card);
+  });
+}
+
+$('new-tab').onclick = () => {
+  user.tabs.push({ cur: [...activeTab().cur] });
+  user.active = user.tabs.length - 1;
+  save();
+  updateNavLabel($('bl').textContent);
+  openSearch();
+};
+
+$('notes-nav').onclick = () => {
+  showSheet('notes');
+  renderNoteList();
+};
+$('settings-nav').onclick = () => {
+  showSheet('settings');
+  $('api-key').value = user.apiKey;
+  renderCopyright();
+};
+
+/* Settings, import/export, initialization */
+$('load-translations').onclick = async () => {
+  user.apiKey = $('api-key').value.trim();
+  saveNow();
+  apiCache.clear();
+
+  try {
+    await loadTranslations();
+    $('api-message').textContent = 'Translations loaded.';
+    if ($('translation').value) $('translation').onchange();
+  } catch (error) {
+    $('api-message').textContent = `Could not load translations: ${error.message}`;
+  }
+};
+
+$('translation').onchange = () => {
+  user.translation = $('translation').value;
+  save();
+  renderCopyright();
+  if (activeTab()) goTo(...activeTab().cur);
+};
+
+$('export-data').onclick = () => {
+  $('user-json').value = JSON.stringify(user, null, 2);
+  $('user-json').select();
+  $('backup-message').textContent = 'Copy and store this backup securely. It includes your API key.';
+};
+
+$('import-data').onclick = () => {
+  try {
+    const imported = JSON.parse($('user-json').value);
+    if (imported.app !== 'scripture-studio') throw new Error('Not a Who is He backup.');
+    user = { ...defaults(), ...imported };
+    saveNow();
+    location.reload();
+  } catch (error) {
+    $('backup-message').textContent = error.message;
+  }
+};
+
+if (!user.tabs.length) user.tabs = [{ cur: ['GEN', 1, null] }];
+user.active = Math.max(0, Math.min(user.active, user.tabs.length - 1));
+
+try {
+  await loadTranslations();
+} catch (error) {
+  showStatus(`API.Bible error: ${error.message}`);
+}
+
+await goTo(...activeTab().cur);
+setTimeout(() => $('load').classList.add('gone'), 500);
+</script>
+</body>
+</html>
