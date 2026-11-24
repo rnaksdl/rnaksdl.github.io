@@ -212,7 +212,13 @@ svg.i {
   .sheet:not([hidden]), #s-tabs:not([hidden]), #veil { animation: none; }
   #bref { transition: none; }
 }
-.sheet.tall { height: min(820px, calc(100dvh - 32px)); }
+#s-search,
+#s-tabs,
+#s-notes,
+#s-settings {
+  height: min(820px, 50dvh, calc(100dvh - 32px - env(safe-area-inset-bottom, 0px)));
+}
+
 .sheet[hidden] { display: none; }
 .col { display: flex; flex-direction: column; gap: 14px; height: 100%; }
 .top { display: flex; align-items: center; gap: 12px; }
